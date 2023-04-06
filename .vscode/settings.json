@@ -1,0 +1,22 @@
+
+{
+    "python.pythonPath": "${workspaceFolder}/.venv/bin/python",
+    "python.linting.enabled": true,
+    "python.formatting.provider": "black",
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--rcfile=${workspaceFolder}/pyproject.toml"
+    ],
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--config=${workspaceFolder}/pyproject.toml"
+    ],
+        "python.languageServer": "Pylance",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        }
+        
+}

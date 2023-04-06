@@ -1,0 +1,97 @@
+[tool.poetry]
+name = "data mining big data group project"
+version = "0.1.0"
+description = "Active Learning (AL) beschreibt die iterative und intelligente Vorauswahl von ungelabelten Trainingsdaten, bevor diese von einem menschlichen Domänenexperten gelabelt werden, um im Anschluss auf den gelabelten Trainingsdaten einen Klassifikator zu trainieren. Durch die Verwendung sogenannter AL-Strategien soll bereits ohne das Wissen vom tatsächlichen Label der einzelnen Datenpunkte ein Ranking der ungelabelten Datenpunkte erfolgen, damit zuerst die Datenpunkte vom Menschen gelabelt werden, welche das zu trainierende Klassifikationsmodell am ehesten voranbringen. Das Ziel ist bei AL die Reduzierung des notwendigen menschlichen Aufwands um einen gelabelten Datensatz zu erstellen."
+authors = ["Paul <72733450+paul1995tu@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+mypy = "^1.2.0"
+black = "^23.3.0"
+flake8 = "^6.0.0"
+pre-commit = "^3.2.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.17.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+# Flake8 Configuration
+[flake8]
+# Ignore E203 and W503 because they conflict with Black's formatting
+ignore = "E203,W503"
+max-line-length = 88
+select = "C,E,F,W,B,B9"
+exclude = ".git,__pycache__,docs/source/conf.py,build,dist"
+
+# Black Configuration
+[tool.black]
+line-length = 88
+include = "\\.pyi?$"
+exclude = '''
+/(
+    \.eggs/ |
+    \.git/ |
+    \.hg/ |
+    \.mypy_cache/ |
+    \.nox/ |
+    \.tox/ |
+    \.venv/ |
+    _build/ |
+    buck-out/ |
+    build/ |
+    dist/ |
+    node_modules/ |
+    out/ |
+    venv/ |
+    yarn-error\.log
+)/
+'''
+
+# MyPy Configuration (Optional)
+[mypy]
+plugins = "sqlmypy"
+python_version = "3.9"
+ignore_missing_imports = true
+warn_return_any = true
+warn_unused_configs = true
+
+# Naming Convention
+[tool.flake8]
+include = "\\.pyi?$"
+exclude = '''
+/(
+    \.eggs/ |
+    \.git/ |
+    \.hg/ |
+    \.mypy_cache/ |
+    \.nox/ |
+    \.tox/ |
+    \.venv/ |
+    _build/ |
+    buck-out/ |
+    build/ |
+    dist/ |
+    node_modules/ |
+    out/ |
+    venv/ |
+    yarn-error\.log
+)/
+'''
+max-line-length = 88
+select = "C,E,F,W,B,B9"
+ignore = "E203,W503,N802,N806"
+# N802: function name should be lowercase
+# N806: variable in function should be lowercase
+# These rules enforce snake_case naming convention for variables and functions
+
+# Code Standards
+[tool.flake8.codes]
+N812 = "enum-class-mixins"
+N813 = "no-comparison-with-callable"
+# These rules enforce common code standards for enums, classes, and constants
