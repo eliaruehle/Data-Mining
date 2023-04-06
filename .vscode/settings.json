@@ -17,6 +17,13 @@
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
           "source.organizeImports": true
+        },
+        "python.analysis": {
+            "typeCheckingMode": "all",
+            "mypyEnabled": true,
+            "mypyArgs": [
+                "--ignore-missing-imports"
+            ]
         }
         
 }
