@@ -13,13 +13,21 @@ All indentation should be done using 4 spaces. One tab character should be equal
 - Constants should be written in all caps with underscores separating words.
 - Enum members should be written in all caps with underscores separating words.
 
+```
 my_variable = 42
+```
 
+```
 def my_function(argument1, argument2): # ...
+```
 
+```
 class MyClass: # ...
+```
 
+```
 MY_CONSTANT = 42
+```
 
 ## Linting
 
