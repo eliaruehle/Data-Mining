@@ -27,6 +27,16 @@ __A__: Das müssten wir klären, könnte aber gut sein, dazu die vorher besproch
 __F__: Welche Strategien sollten auf jeden Fall ähnlich sein?
 
 __A__: Julius sendet uns noch ein Link mit Strategien, die gleich sein __sollten__. Diese können als Gütekriterium für unsere Clusterings herangezogen werden.
+- Uncertainty: 2,9,33,34,35,36,37,39,40,49,41,63,64,65
+- LC: 2,9, 39,64
+- Ent: 34,37,40,65
+- MM: 19,33,36,41,63
+- Random: 1,50
+- Quire: 12,76
+- EER: 24,29,66
+- Coreset: 44,45
+
+Die zu den Nummern gehörenden AL-Strategien finden sich unter https://github.com/jgonsior/olympic-games-of-active-learning/blob/main/resources/data_types.py#L130-L209 
 
 __F__: Was könnten noch interessante Fragestellungen sein, die sich explorativ untersuchen lassen?
 
