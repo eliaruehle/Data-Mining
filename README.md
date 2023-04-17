@@ -1,4 +1,4 @@
-# Data-Minning-
+# Data Mining
 
 # How to Work with Poetry
 
