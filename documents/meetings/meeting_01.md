@@ -43,7 +43,7 @@
 
 ## Gespräch über Treffen mit Julius
 
-Selbst nachlesen auf [Github](https://github.com/paul1995tu/Data-Minning-/blob/main/meetings/agenda.md)
+Selbst nachlesen auf [Github](https://github.com/paul1995tu/Data-Mining/blob/main/documents/project_ideas.md)
 
 Welche Interpolationsstrategie nutzen wir?
 
