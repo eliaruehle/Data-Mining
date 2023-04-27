@@ -1,3 +1,14 @@
+### Erklärung von 05_done_workload.csv
+
+- `EXP_DATASET`: ID des Datensatzes (1, 6, 2 → Iris, Seeds, Wine Origin)
+- `EXP_STRATEGY`: Nachlesbar im Repo. Mapping von ID zu Strategie
+- `EXPERIMENT_RANDOM_SEED`, `EXP_START_POINT`: Startpunkte, wo das Labeling beginnt
+- `EXP_NUM_QUERIES`: max. Zahl der Zyklen = 50
+- `EXP_BATCH_SIZE`: Wie viele Daten werden pro Iteration gelabelt? Kann 1, 5 oder 10 sen
+- `EXP_LEARNER_MODEL`: ML Modell, welches trainiert wird (nicht so wichtig)
+- `EXP_TRAIN_TEST_BUCKET_SIZE`: Nicht so wichtig
+- `EXP_UNIQUE_ID`: Mapping von Hyperparametern zu Metrik
+
 ### Erklärung von Iris.csv
 
 - Iris.csv enthält in den Spalten [0, 1, 2, 3, 4] die Features welche den Vektorraum aufspannen.
