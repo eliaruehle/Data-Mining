@@ -16,14 +16,7 @@
 - Jede Zeile ist **ein** Datenpunkt, welcher durch den Vektor der ersten 5 Spalten, mit dem Label der 6. repräsentiert wird
 
 - **Was ist ein Label?**: Label heißt in diesem Kontext die Kategorie, in die der Datenpunkt eingeteilt werden soll
-- $\rightarrow$ Iris hat dabei **insgesamt 3 Kategorien** welche als [0, 1, 2] dargestellt sind. Dabei ist jeder Datenpunkt **in genau einer Kategorie**
-
-### Erklärung von Iris_split.csv
-
-- `Iris_split.csv` enthält zwei Dinge
-
-  1. Zum einen den sogenannten **Train-Test Split**
-  2. Zum anderen die möglichen **Startpunkte**
+  $\rightarrow$ Iris hat dabei **insgesamt 3 Kategorien** welche als [0, 1, 2] dargestellt sind. Dabei ist jeder Datenpunkt **in genau einer Kategorie**
 
 - `Iris.csv` enthält 150 Datenpunkte, dabei sind pro Klasse bzw. Kategorie 50 jeweils zugeteilt
 - Diese Datenpunkte müssen für ein AL Experiment in eine Trainingsmenge, also den Daten auf denen das AL Experiment durchgeführt wird, und in eine Testmenge, die Daten, welche zur Evaluierung des Experiments genutzt werden um z.B. die `Accuracy` zu bestimmen und somit abzuleiten wie gut die **Active Learning Strategie in dem moment ist**
@@ -43,6 +36,13 @@
 - Prüfen können wir dies anhand der Metrikdatei `selected_indices.csv.xz`
 - $\rightarrow$ dort steht für jeden AL-Druchlauf drinne, welche Punkte gelabelt worden und in **Spalte 0** sollten dieselben Werte stehen, wie `Iris_split.csv`'s Startpunkte
 
+### Erklärung von Iris_split.csv
+
+- `Iris_split.csv` enthält zwei Dinge
+
+  1. Zum einen den sogenannten **Train-Test Split**
+  2. Zum anderen die möglichen **Startpunkte**
+
 ### Vorgehensweise:
 
 - Finden einer Methode, welche uns in Form von einer Zahl zeigt, wie ähnlich zwei Datensätze sind
@@ -50,11 +50,11 @@
 - Wenn wir dadurch die Erkenntnis bekommen, welcher von den gegebenen Datensätze am ähnlichsten zu dem ausgewählten Datensatz, für den wir erfahren möchten welche Active Learning Strategie dafür am besten funktionieren würde, dann empfehle jeweils die beste Strategie (oder gibt ein Ranking der Top-k besten AL-Strategien an)
 - $\rightarrow$ Allgemein ist es schwer zu sagen, wann eine Active Learning Strategie "gut" ist.
 
-Mögliche Fragen wären:
+### Mögliche Fragen wären:
 
 - Soll sie am Anfang schnell gute Ergebnisse liefern? Oder ist mir egal wann sie gute Ergebnisse liefert, solange die Strategie nach z.B. 30 Iterationen am besten ist? Soll die Strategie möglichst immer besser als `Random` sein?
 - Soll die Strategie konsequent besser werden und möglich nie schlechter als die vorherige Iteration sein?
 - Möchte ich mehr auf `Accuracy`, `Precision` oder `Recall` beziehen? ...
 
-$\rightarrow$ Allgemein sollten wir versuchen all diese Fragen bzw. Entscheidungen über einen `Entscheidungsbaum` darzustellen, also wenn wir die obigen oder selbst gewählten Fragen beantworten und dann berechnen welcher Datensatz am ähnlichsten, dann sollten wir ziemlich sicher vorhersagen können, welche AL Strategie gut funktioniert
+Allgemein sollten wir versuchen all diese Fragen bzw. Entscheidungen über einen `Entscheidungsbaum` darzustellen, also wenn wir die obigen oder selbst gewählten Fragen beantworten und dann berechnen welcher Datensatz am ähnlichsten, dann sollten wir ziemlich sicher vorhersagen können, welche AL Strategie gut funktioniert
 $\rightarrow$ Um dies zu Prüfen können wir uns einen Datensatz nehmen, für welchen wir Ergebnisse haben und dann schauen zu welchem anderen der am ähnlichsten ist (mittels Vorhersage des Entscheidungsbaumes) und am Ende dann prüfen ob die Vorhersage auch tatsächlich die beste Strategie ist
