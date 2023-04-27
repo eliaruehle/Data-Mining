@@ -6,7 +6,7 @@
 - `EXP_NUM_QUERIES`: max. Zahl der Zyklen = 50
 - `EXP_BATCH_SIZE`: Wie viele Daten werden pro Iteration gelabelt? Kann 1, 5 oder 10 sein
 - `EXP_LEARNER_MODEL`: ML Modell, welches trainiert wird (nicht so wichtig)
-- `EXP_TRAIN_TEST_BUCKET_SIZE`: Nicht so wichtig
+- `EXP_TRAIN_TEST_BUCKET_SIZE`: Gibt an welcher **Train-Test Split** ausgewählt wurde $\rightarrow$ wenn `EXP_TRAIN_TEST_BUCKET_SIZE = 0 & EXP_START_POINT = 0` dann repräsentiert das den Startpunkt des **Train-Test Splits**
 - `EXP_UNIQUE_ID`: Mapping von Hyperparametern zu Metrik
 
 ### Erklärung von Iris.csv
