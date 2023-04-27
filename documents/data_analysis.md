@@ -31,3 +31,19 @@
 - $\rightarrow$ wenn `EXP_TRAIN_TEST_BUCKET_SIZE = 0` ist und `EXP_START_POINT` ebenfalls `= 0` war (z.B. die Zeilen 13, 85 und 117 aus `Iris.csv`) dann wären das die Startpunkte für Iris.
 - Prüfen können wir dies anhand der Metrikdatei `selected_indices.csv.xz`
 - $\rightarrow$ dort steht für jeden AL-Druchlauf drinne, welche Punkte gelabelt worden und in **Spalte 0** sollten dieselben Werte stehen, wie `Iris_split.csv`'s Startpunkte
+
+### Vorgehensweise:
+
+- Finden einer Methode, welche uns in Form von einer Zahl zeigt, wie ähnlich zwei Datensätze sind
+- $\rightarrow$ Dies kann z.B. durch die Cosinus-Similarity erreicht werden
+- Wenn wir dadurch die Erkenntnis bekommen, welcher von den gegebenen Datensätze am ähnlichsten zu dem ausgewählten Datensatz, für den wir erfahren möchten welche Active Learning Strategie dafür am besten funktionieren würde, dann empfehle jeweils die beste Strategie (oder gibt ein Ranking der Top-k besten AL-Strategien an)
+- $\rightarrow$ Allgemein ist es schwer zu sagen, wann eine Active Learning Strategie "gut" ist.
+
+Mögliche Fragen wären:
+
+- Soll sie am Anfang schnell gute Ergebnisse liefern? Oder ist mir egal wann sie gute Ergebnisse liefert, solange die Strategie nach z.B. 30 Iterationen am besten ist? Soll die Strategie möglichst immer besser als `Random` sein?
+- Soll die Strategie konsequent besser werden und möglich nie schlechter als die vorherige Iteration sein?
+- Möchte ich mehr auf `Accuracy`, `Precirsion` oder `Recall` beziehen? ...
+
+$\rightarrow$ Allgemein sollten wir versuchen all diese Fragen bzw. Entscheidungen über einen `Entscheidungsbaum` darzustellen, also wenn wir die obigen oder selbst gewählten Fragen beantworten und dann berechnen welcher Datensatz am ähnlichsten, dann sollten wir ziemlich sicher vorhersagen können, welche AL Strategie gut funktioniert
+$\rightarrow$ Um dies zu Prüfen können wir uns einen Datensatz nehmen, für welchen wir Ergebnisse haben und dann schauen zu welchem anderen der am ähnlichsten ist (mittels Vorhersage des Entscheidungsbaumes) und am Ende dann prüfen ob die Vorhersage auch tatsächlich die beste Strategie ist
