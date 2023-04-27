@@ -43,7 +43,7 @@ Mögliche Fragen wären:
 
 - Soll sie am Anfang schnell gute Ergebnisse liefern? Oder ist mir egal wann sie gute Ergebnisse liefert, solange die Strategie nach z.B. 30 Iterationen am besten ist? Soll die Strategie möglichst immer besser als `Random` sein?
 - Soll die Strategie konsequent besser werden und möglich nie schlechter als die vorherige Iteration sein?
-- Möchte ich mehr auf `Accuracy`, `Precirsion` oder `Recall` beziehen? ...
+- Möchte ich mehr auf `Accuracy`, `Precision` oder `Recall` beziehen? ...
 
 $\rightarrow$ Allgemein sollten wir versuchen all diese Fragen bzw. Entscheidungen über einen `Entscheidungsbaum` darzustellen, also wenn wir die obigen oder selbst gewählten Fragen beantworten und dann berechnen welcher Datensatz am ähnlichsten, dann sollten wir ziemlich sicher vorhersagen können, welche AL Strategie gut funktioniert
 $\rightarrow$ Um dies zu Prüfen können wir uns einen Datensatz nehmen, für welchen wir Ergebnisse haben und dann schauen zu welchem anderen der am ähnlichsten ist (mittels Vorhersage des Entscheidungsbaumes) und am Ende dann prüfen ob die Vorhersage auch tatsächlich die beste Strategie ist
