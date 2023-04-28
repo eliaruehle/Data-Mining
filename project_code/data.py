@@ -103,7 +103,21 @@ class Data:
         names : List[str]
             a list of all metric names
         """
-        return self.metrices
+        return [metric[:-7] for metric in self.metrices]
+    
+    def get_all_unique_ids(self) -> List[int]:
+        """
+        Function to get a list of all unique ids which specify one hyperparamter configuration.
+
+        Parameters:
+        -----------
+        None 
+
+        Returns:
+        params : List[int]
+            a list of all unique ids
+        """
+        return self.hyperparameters["EXP_UNIQUE_ID"].to_list()
 
     def get_dataframe_by_metric(
         self, strategy: str, dataset: str, metric: str
@@ -163,7 +177,7 @@ class Data:
             raise ValueError("Requested batch-size is not valid!")
 
         data_frame: pd.DataFrame = pd.read_csv(
-            self.base + strategy + "/" + dataset + "/" + metric + ".csv.xz"
+            self.base + strategy + "/" + dataset + "/" + metric
         )
         to_drop: List[int] = list()
         for index, row in data_frame.iterrows():
@@ -216,6 +230,36 @@ class Data:
         ]
 
         return numpy_vecs
+    
+    def get_data_vector_by_id(self, strategy:str, dataset:str, metric:str, unique_id: int) -> np.ndarray:
+        """
+        Function to get a numpy data vector, which belong to a unique id, identifying one hyperparameter configuration.
+
+        Parameters:
+        -----------
+        strategy : str
+            the name of the strategy you want to have
+        dataset : str
+            the dataset you search in for the metric
+        metric : str
+            the metric name you want to have
+        unique_id : int
+            the unique id of the hyperparameter configuration
+
+        Returns:
+        --------
+        numpy_vec : np.ndarray
+            the numpy vector containing the data from the row without nan entries
+        """
+        data_frame:pd.DataFrame = self.get_dataframe_by_metric(strategy, dataset, metric)
+        
+        try:
+            return data_frame[data_frame["EXP_UNIQUE_ID"] == unique_id].dropna().iloc[0][:-1].to_numpy()
+        except:
+            raise ValueError("Hyperparamter not sampled for the file")
+        
+        
+    
 
 
 def main() -> None:
@@ -223,7 +267,11 @@ def main() -> None:
     The main function of the file.
     """
     data: Data = Data("kp_test/", "05_done_workload.csv")
-    print(str(data))
+    line = data.get_data_vector_by_id("ALIPY_RANDOM", "Iris", "accuracy", 10)
+    hyper = data.get_all_unique_ids()
+    print(line)
+    
+
 
 
 if __name__ == "__main__":
