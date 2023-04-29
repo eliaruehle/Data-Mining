@@ -1,0 +1,29 @@
+name: OpenVPN Client
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup OpenVPN
+        uses: docker://dperson/openvpn-client
+        with:
+          args: |
+            --auth-nocache
+            --config .openvpn/vpn.ovpn
+            --verb 3
+            --auth-user-pass <(echo -e "${{ secrets.VPN_USERNAME }}\n${{ secrets.VPN_PASSWORD }}")
+            --script-security 2
+            --up /etc/openvpn/update-resolv-conf
+            --down /etc/openvpn/update-resolv-conf
+
+      - name: Connect to VPN
+        run: sleep 10 && curl ifconfig.me
