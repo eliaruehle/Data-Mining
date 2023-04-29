@@ -57,7 +57,7 @@
 - Wenn wir dadurch die Erkenntnis bekommen, welcher von den gegebenen Datensätze am ähnlichsten zu dem ausgewählten Datensatz, für den wir erfahren möchten welche Active Learning Strategie dafür am besten funktionieren würde, dann empfehle jeweils die beste Strategie (oder gibt ein Ranking der Top-k besten AL-Strategien an)
   $\rightarrow$ Allgemein ist es schwer zu sagen, wann eine Active Learning Strategie "gut" ist.
 
-### ### Mögliche Fragen wären:
+### Mögliche Fragen wären:
 
 - Soll die AL Strategie am Anfang schnell gute Ergebnisse liefern? Oder ist es mir egal wann sie gute Ergebnisse liefert, solange die Strategie nach z.B. 30 Iterationen am besten ist? Soll die Strategie möglichst immer besser als `Random` sein?
 - Soll die Strategie konsequent besser werden und möglich nie schlechter als die vorherige Iteration sein?
