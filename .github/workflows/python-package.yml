@@ -3,7 +3,7 @@ name: OpenVPN Client
 on:
   push:
     branches:
-      - task/labelTacking
+      - main
 
 jobs:
   connect:
