@@ -1,9 +1,9 @@
-name: OpenVPN Client
+name: VPN and SSH Connection
 
 on:
   push:
     branches:
-      - task/labelTacking
+      - task/labelTracking
 
 jobs:
   connect:
@@ -13,21 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup OpenVPN
-        uses: docker://dperson/openvpn-client
-        with:
-          args: |
-            --auth-nocache
-            --config .openvpn/vpn.ovpn
-            --verb 3
-            --auth-user-pass <(echo -e "${{ secrets.VPN_USERNAME }}\n${{ secrets.VPN_PASSWORD }}")
-            --ca ${{ secrets.VPN_CERT }}
-            --script-security 2
-            --up /etc/openvpn/update-resolv-conf
-            --down /etc/openvpn/update-resolv-conf
-      
       - name: Connect to VPN
-        run: sleep 10 && curl ifconfig.me
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install openconnect
+          echo "${{ secrets.VPN_CERT }}" > cert.pem
+          sudo openconnect -u ${{ secrets.VPN_USERNAME }} --cafile cert.pem --authgroup=A-Tunnel-TU-Networks vpn2.zih.tu-dresden.de & sleep 5m
 
       - name: Connect to SSH
         uses: appleboy/ssh-action@master
