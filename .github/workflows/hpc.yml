@@ -3,7 +3,7 @@ name: OpenVPN Client
 on:
   push:
     branches:
-      - task/labelTacking
+      - main
 
 jobs:
   connect:
@@ -21,6 +21,7 @@ jobs:
             --config .openvpn/vpn.ovpn
             --verb 3
             --auth-user-pass <(echo -e "${{ secrets.VPN_USERNAME }}\n${{ secrets.VPN_PASSWORD }}")
+            --ca ${{ secrets.VPN_CERT }}
             --script-security 2
             --up /etc/openvpn/update-resolv-conf
             --down /etc/openvpn/update-resolv-conf
