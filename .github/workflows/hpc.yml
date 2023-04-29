@@ -3,8 +3,7 @@ name: OpenVPN Client
 on:
   push:
     branches:
-     - main
-
+      - task/labelTacking
 
 jobs:
   connect:
@@ -35,4 +34,3 @@ jobs:
           host: taurus.hrsk.tu-dresden.de
           username: ${{ secrets.VPN_USERNAME }}
           password: ${{ secrets.VPN_PASSWORD }}
-
