@@ -2085,6 +2085,17 @@ pyyaml = ">=5.1"
 virtualenv = ">=20.10.0"
 
 [[package]]
+name = "prettyprint"
+version = "0.1.5"
+description = "prettyprint print list/dict/tuple object prettily"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "prettyprint-0.1.5.tar.gz", hash = "sha256:7423210b62adfb3777677914cd25db4919f1c2b0afba0454365ffbfa3f7e3731"},
+]
+
+[[package]]
 name = "prometheus-client"
 version = "0.16.0"
 description = "Python client for the Prometheus monitoring system."
@@ -3116,4 +3127,8 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
+<<<<<<< Updated upstream
 content-hash = "22be20308317281eed4bed14cc5cd13768d64180d9f635adebd7d0a3cface840"
+=======
+content-hash = "0569e6cad2253d9974e5ec0cdddda439258851062cbcafc6ab398907800953a6"
+>>>>>>> Stashed changes
