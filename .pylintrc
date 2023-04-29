@@ -1,2 +1,5 @@
 [MASTER]
 init-hook='import sys; sys.path.append(".")'
+--disable=E1101
+--disable=E0001
+--disbale=F0010
