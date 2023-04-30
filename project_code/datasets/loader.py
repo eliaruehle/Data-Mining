@@ -1,6 +1,5 @@
-from typing import List, Dict
+from typing import List, Dict, Set, Tuple
 from datasets.base_loader import Base_Loader
-from side_handler.errors import NoSuchPathOrCSV
 import pandas as pd
 import numpy as np
 from project_helper.Logger import Logger
@@ -27,9 +26,10 @@ class Loader(Base_Loader):
         None
             only the initialized object
         """
-        Logger.info("Creating Loader Object")
+        Logger.info("Start read in all data.")
         super().__init__(base_dir)
         self.load_all_csv()
+        Logger.info("Finished read in all data.")
 
     def get_all_datafiles(self) -> Dict[str, Dict[str, Dict[str, pd.DataFrame]]]:
         """
@@ -112,3 +112,32 @@ class Loader(Base_Loader):
             a list of all metric names
         """
         return self.metrices
+
+    def get_hyperparameter_for_metric_filtering(
+        self,
+    ) -> Set[Tuple[int, int, int, int, int]]:
+        """
+        Function to get all important Hyperparamterconfigs to retrieve clustering data.
+
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        hyperparam_set : Set[Tuple[int, int, int, int, int]]
+            a set of tuples containing the hyperparameter values in tuple
+        """
+        frame = self.hyperparamters.copy()
+        # get the frame with the important columns
+        frame = frame[
+            [
+                "EXP_RANDOM_SEED",
+                "EXP_START_POINT",
+                "EXP_BATCH_SIZE",
+                "EXP_LEARNER_MODEL",
+                "EXP_TRAIN_TEST_BUCKET_SIZE",
+            ]
+        ]
+        hyperparam_set = set(frame.apply(tuple, axis=1))
+        return hyperparam_set
