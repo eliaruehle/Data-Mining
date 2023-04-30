@@ -1,6 +1,6 @@
+from typing import List, Dict
 from sklearn.cluster import KMeans
 import numpy as np
-from typing import List, Dict
 from clustering.base_cluster import BaseClustering
 
 

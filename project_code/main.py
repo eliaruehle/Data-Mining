@@ -7,7 +7,7 @@ from project_helper.Logger import Logger
 
 
 def main():
-    logger = Logger()
+    # logger = Logger()
     data = Loader("kp_test")
 
     kmeans_clustering = KMeansClustering("kmeans", data.get_strategy_names())
@@ -35,19 +35,19 @@ def main():
                         pass
                     else:
                         test.extend(to_append.to_numpy())
-                if len(test) == len(data.get_metric_names()):
-                    logger.info("Start clustering iteration: " + str(tracker))
+                # print(len(test))
+                if len(test) == len(data.get_strategy_names()):
+                    Logger.info("Start clustering iteration: " + str(tracker))
                     kmeans_clustering.cluster(test, 4)
                     tracker += 1
                     test.clear()
                 else:
                     test.clear()
-                break
             break
         break
 
     kmeans_clustering.write_cluster_results(4)
-    # print(kmeans_clustering.get_similiarity_matrix().get_orderd_similarities())
+    print(kmeans_clustering.get_similiarity_matrix().get_orderd_similarities())
 
 
 if __name__ == "__main__":
