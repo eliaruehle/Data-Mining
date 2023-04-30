@@ -42,7 +42,7 @@ class KMeansClustering(BaseClustering):
         None
         """
         # create sklearn KMeans object
-        kmeans: KMeans = KMeans(n_clusters=cluster_size).fit(data_vecs)
+        kmeans: KMeans = KMeans(n_clusters=cluster_size, n_init=10).fit(data_vecs)
         # update the similarity matrix with retrieved labels
         self.similarity_matrix.update(self.labels, kmeans.labels_)
 
