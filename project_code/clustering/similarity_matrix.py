@@ -48,9 +48,9 @@ class SimilarityMatrix:
         Returns:
         --------
         values : str
-            a pretty print of the matrix values
+            the values of the matrix
         """
-        return pprint(self.values)
+        return self.values.to_string()
 
     def update(self, strategies: List[str], labels: np.ndarray) -> None:
         """
