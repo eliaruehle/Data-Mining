@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import os
 from typing import List, Dict
-from pprint import pprint
 
 
 class SimilarityMatrix:
@@ -24,7 +23,7 @@ class SimilarityMatrix:
         -----------
         labels : List[str]
             the labels which indicate the rows and columns of the matrix
-        cluster_strat_name : str:
+        cluster_strat_name : str
             the name of the cluster strategy the matrix keeps track of
         -----------
 
