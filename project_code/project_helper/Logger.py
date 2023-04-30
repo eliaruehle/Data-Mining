@@ -1,4 +1,6 @@
 import logging
+import logging.handlers
+import os
 import pprint
 from typing import Any, Dict
 
@@ -36,17 +38,31 @@ class Logger:
         ```
     """
 
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.logger = cls.setup_logging()
+        return cls._instance
+
     @staticmethod
-    def setup_logging(log_file: str = None) -> logging.Logger:
+    def setup_logging(log_file: str = "app.log") -> logging.Logger:
         """
-        Set up logging to the console and/or a file.
+        Set up logging to the console and a file.
 
         Args:
-            log_file (str): Path to the log file. If not provided, logs will only be output to the console.
+            log_file (str): Path to the log file.
 
         Returns:
             logging.Logger: A logger object with the specified logging configuration.
         """
+
+
+        # Create logs directory if it doesn't exist
+        logs_dir = os.path.join(os.getcwd(), 'logs')
+        os.makedirs(logs_dir, exist_ok=True)
+
         # Create logger
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
@@ -64,13 +80,17 @@ class Logger:
         file_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
         # File handler (debug level)
-        if log_file is not None:
-            file_handler = logging.FileHandler(log_file, mode="w")
-            file_handler.setLevel(logging.DEBUG)
-            file_handler.setFormatter(file_formatter)
-            logger.addHandler(file_handler)
+        file_handler = logging.handlers.RotatingFileHandler(os.path.join(logs_dir, log_file), mode="a", maxBytes=1000000, backupCount=2)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
+
+        # Add a separator to the log file
+        logger.handlers[-1].doRollover()
+        logger.handlers[-1].stream.write("\n====================\n\n")
 
         return logger
+
 
     @staticmethod
     def debug(message: Any) -> None:
@@ -83,8 +103,7 @@ class Logger:
         Returns:
             None
         """
-        logger = Logger.setup_logging()
-        logger.debug(pprint.pformat(message))
+        Logger()._instance.logger.debug(pprint.pformat(message))
 
     @staticmethod
     def info(message: Any) -> None:
@@ -97,8 +116,7 @@ class Logger:
         Returns:
             None
         """
-        logger = Logger.setup_logging()
-        logger.info(pprint.pformat(message))
+        Logger()._instance.logger.info(pprint.pformat(message))
 
     @staticmethod
     def warning(message: Any) -> None:
@@ -111,8 +129,7 @@ class Logger:
         Returns:
             None
         """
-        logger = Logger.setup_logging()
-        logger.warning(pprint.pformat(message))
+        Logger()._instance.logger.warning(pprint.pformat(message))
 
     @staticmethod
     def error(message: Dict[str, Any]) -> None:
@@ -126,5 +143,5 @@ class Logger:
         Returns:
                 None
         """
-        logger = Logger.setup_logging()
+        logger = Logger()._instance.logger
         logger.error(pprint.pformat(message))
