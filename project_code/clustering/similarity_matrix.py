@@ -6,20 +6,68 @@ from pprint import pprint
 
 
 class SimilarityMatrix:
+    """
+    This class represents a matrix which keep track of similarities between the different
+    AL-strategies.
+    """
+
     labels: List[str]
     values: pd.DataFrame
     filename: str
     directory: str = "kp_test/cluster_results"
 
     def __init__(self, labels: List[str], cluster_strat_name: str) -> None:
+        """
+        Init function.
+
+        Parameters:
+        -----------
+        labels : List[str]
+            the labels which indicate the rows and columns of the matrix
+        cluster_strat_name : str:
+            the name of the cluster strategy the matrix keeps track of
+        -----------
+
+        Returns:
+        --------
+        None
+            only the initialized object
+        """
         self.labels = labels
         self.values = pd.DataFrame(index=labels, columns=labels, data=0)
         self.filename = cluster_strat_name
 
     def __str__(self) -> str:
+        """
+        Pretyprint of the matrix.
+
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        values : str
+            a pretty print of the matrix values
+        """
         return pprint(self.values)
 
     def update(self, strategies: List[str], labels: np.ndarray) -> None:
+        """
+        Function to update the matrix values after clustering.
+
+        Parameters:
+        -----------
+        strategies : List[str]
+            the strategies whose data vectors are labeled in clustering
+        labels : np.ndarray
+            the retrieved labels
+
+        Returns:
+        --------
+        None
+        """
+
         strat_label: Dict[str, int] = {
             strat: label for strat, label in zip(strategies, labels)
         }
@@ -33,6 +81,18 @@ class SimilarityMatrix:
                 self.values.loc[strat, sim_label_strat] += 1
 
     def get_orderd_similarities(self) -> Dict[str, List[str]]:
+        """
+        Function to retrieve the orderd similiarities.
+
+        Paramters:
+        ----------
+        None
+
+        Returns:
+        --------
+        similarities : Dict[str, List[str]]
+            the dictionary with all similiar strategies
+        """
         similarities: Dict[str, List[str]] = dict()
         for index, row in self.values.iterrows():
             sorted_indexes = row.sort_values(ascending=False).index.to_list()
@@ -41,6 +101,18 @@ class SimilarityMatrix:
         return similarities
 
     def write_to_csv(self, additional_tag: str) -> None:
+        """
+        Function to write the matrix data into an .csv file.
+
+        Paramters:
+        ----------
+        additional_tag : str
+            an additional tag for specifying the name of the .csv file
+
+        Returns:
+        --------
+        None
+        """
         filepath: str = os.path.join(
             self.directory, self.filename + "_" + additional_tag + ".csv"
         )
@@ -54,16 +126,3 @@ class SimilarityMatrix:
             mode = "x"
 
         self.values.to_csv(filepath, index=True, mode=mode)
-
-
-"""
-def main():
-    ma = SimilarityMatrix(["1", "2", "3"], "test_cluster")
-    ma.update(["1", "2", "3"], np.array([1, 1, 2]))
-    print(ma.get_orderd_similarities())
-    ma.write_to_csv("tag_1")
-
-
-if __name__ == "__main__":
-    main()
-"""
