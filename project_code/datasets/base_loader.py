@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import os
 import pandas as pd
 from side_handler.errors import NoSuchPathOrCSV
@@ -152,3 +152,14 @@ class Base_Loader(ABC):
         """
         data_frame = data_frame.dropna(subset=data_frame.columns[:-1], how="all")
         return data_frame
+
+    def get_hyperparameter_for_metric_filtering(
+        self,
+    ) -> List[Tuple[int, int, int, int, int]]:
+        """
+        This method should be implemented!
+
+        I want to have a List of 5-tuples, where every 5 Tuple contains distinct values for the Hyperparameter,
+        which i can search for in the metric files.
+        """
+        pass
