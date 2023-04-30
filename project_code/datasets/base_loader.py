@@ -4,6 +4,7 @@ from typing import Dict, List
 import os
 import pandas as pd
 from side_handler.errors import NoSuchPathOrCSV
+from project_helper.Logger import Logger
 
 
 class Base_Loader(ABC):
@@ -81,6 +82,17 @@ class Base_Loader(ABC):
             if requestes path or csv doesn't exist
         """
         try:
+            Logger.debug(
+                "Read in "
+                + self.base_dir
+                + "/"
+                + strategy
+                + "/"
+                + dataset
+                + "/"
+                + metric
+                + ".csv.xz"
+            )
             return pd.merge(
                 self.remove_nan_rows(
                     pd.read_csv(
@@ -98,6 +110,7 @@ class Base_Loader(ABC):
                 on="EXP_UNIQUE_ID",
             )
         except:
+            # Logger.except()
             raise NoSuchPathOrCSV("Path or requestes CSV does not exist!")
 
     def load_all_csv(self) -> None:

@@ -3,9 +3,11 @@ from side_handler.errors import NoSuchPathOrCSV
 from clustering.kmeans import KMeansClustering
 from typing import List
 import numpy as np
+from project_helper.Logger import Logger
 
 
 def main():
+    logger = Logger()
     data = Loader("kp_test")
     kmeans_clustering = KMeansClustering("kmeans", data.get_strategy_names())
 

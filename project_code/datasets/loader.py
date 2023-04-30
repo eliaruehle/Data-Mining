@@ -3,6 +3,7 @@ from datasets.base_loader import Base_Loader
 from side_handler.errors import NoSuchPathOrCSV
 import pandas as pd
 import numpy as np
+from project_helper.Logger import Logger
 
 
 class Loader(Base_Loader):
@@ -26,6 +27,7 @@ class Loader(Base_Loader):
         None
             only the initialized object
         """
+        Logger.info("Creating Loader Object")
         super().__init__(base_dir)
         self.load_all_csv()
 
