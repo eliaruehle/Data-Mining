@@ -32,10 +32,4 @@ This will activate the virtual environment and allow you to work within it. To d
 
 ## Running Scripts
 
-You can define scripts in your `pyproject.toml` file and run them using the `run` command:
-
-```
-$ poetry run script-name
-```
-
-This will run the specified script within your project's virtual environment.
+Execute the `./project_code/main.py` by running `python3 main.py` in the given folder.
