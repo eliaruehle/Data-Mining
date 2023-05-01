@@ -14,10 +14,13 @@ One potential objective of this study is to investigate the similarities among v
 
 Another potential research objective is to explore the specific scenarios under which certain Active Learning strategies demonstrate superior performance (and possibly reason why so). By conducting a comprehensive analysis of these scenarios the ultimate goal is to develop a decision tree that would provide guidance to potential Active Learning users by selecting the most effective strategy tailored to their specific unlabeled dataset.
 
-## Prerequisites
+## Getting started
 
-Before you can work with Poetry, you need to have it installed on your system. You can install it via pip:
+For this project we have to decided to use [Poetry](https://github.com/python-poetry/poetry), a Python packaging and dependency manager, as it enabled us students to have a uniform installation of packages, python version and dependencies across all our systems. Thus we recommend the usage of **Poetry** when working with this project in order to replicate our research results.
 
-```
-$ pip install poetry
-```
+In order to get started, make sure to have the following installed:
+
+- **Python version 3.11.3**
+- Poetry $\rightarrow$ `pip install poetry`
+
+After successfully installing the required pre-requisites follow the steps of [working with poetry]()
