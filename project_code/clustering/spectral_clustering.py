@@ -1,15 +1,15 @@
 from typing import List
-from sklearn.cluster import KMeans
+from sklearn.cluster import SpectralClustering as SpecCluster
 import numpy as np
 from project_code.clustering.base_cluster import BaseClustering
 
 
-class KMeansClustering(BaseClustering):
+class SpectralClustering(BaseClustering):
     """
-    Class for setup a KMeans clustering.
+    Class for setup a Spectral clustering.
     """
 
-    def __init__(self, cluster_name: str, labels: List[str]) -> None:
+    def __init__(self, cluster_name: str, strategies: List[str]) -> None:
         """
         Iniitalizes the class object.
 
@@ -17,14 +17,14 @@ class KMeansClustering(BaseClustering):
         ----------
         cluster_name : str
             the name for the cluster object
-        labels : List[str]
+        strategies : List[str]
             the labels for data vectors that are passed into the clustering
 
         Returns:
         --------
         None
         """
-        super().__init__(labels, cluster_name)
+        super().__init__(strategies, cluster_name)
 
     def cluster(self, data_vecs: List[np.ndarray], cluster_size: int) -> None:
         """
@@ -42,9 +42,9 @@ class KMeansClustering(BaseClustering):
         None
         """
         # create sklearn KMeans object
-        kmeans: KMeans = KMeans(n_clusters=cluster_size, n_init=10).fit(data_vecs)
+        spec_cluster: SpecCluster = SpecCluster(n_clusters=cluster_size, n_init=10).fit(data_vecs)
         # update the similarity matrix with retrieved labels
-        self.similarity_matrix.update(self.labels, kmeans.labels_)
+        self.similarity_matrix.update(self.labels, spec_cluster.labels_)
 
     def write_cluster_results(self, cluster_size: int) -> None:
         """
