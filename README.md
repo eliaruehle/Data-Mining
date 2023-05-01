@@ -24,3 +24,50 @@ In order to get started, make sure to have the following installed:
 - Poetry $\rightarrow$ `pip install poetry`
 
 After successfully installing the required pre-requisites follow the steps of [how to work with poetry](./poetry.md).
+
+## Project Structure
+
+```tree
+./
+├── CodeConvention.MD
+├── README.md
+├── alg.txt
+├── documents/
+│   ├── data_analysis.md
+│   ├── meetings/
+│   ├── project_ideas.md
+│   └── working_steps.md
+├── kp_test/
+│   ├── 01_workload.csv
+│   ├── 05_done_workload.csv
+│   ├── 05_started_oom_workloads.csv.xz
+│   ├── ALIPY_RANDOM/
+│   ├── ALIPY_UNCERTAINTY_ENTROPY/
+│   ├── ALIPY_UNCERTAINTY_LC/
+│   ├── ALIPY_UNCERTAINTY_MM/
+│   ├── OPTIMAL_GREEDY_10/
+│   ├── SKACTIVEML_DAL/
+│   ├── SMALLTEXT_EMBEDDINGKMEANS/
+│   ├── SMALLTEXT_LIGHTWEIGHTCORESET/
+│   ├── cluster_results/
+│   └── datasets/
+├── logs/
+│   ├── app.log
+│   ├── app.log.1
+│   └── app.log.2
+├── poetry.lock
+├── poetry.md
+├── project_code/
+│   ├── __pycache__
+│   ├── clustering
+│   ├── datasets
+│   ├── main.py
+│   ├── project_helper/
+│   └── side_handler/
+├── pyproject.toml
+└── test.py
+```
+
+Description of Structure WIP
+
+## Conclusion
