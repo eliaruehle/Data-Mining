@@ -4,3 +4,11 @@ class NoSuchPathOrCSV(Exception):
     """
 
     pass
+
+
+class ClusterFormatError(Exception):
+    """
+    Special Exception if there is an Error if we read in content from an .csv file.
+    """
+
+    pass

@@ -1,9 +1,10 @@
 from datasets.loader import Loader
-from side_handler.errors import NoSuchPathOrCSV
+from side_handler.errors import ClusterFormatError
 from clustering.kmeans import KMeansClustering
 from typing import List
 import numpy as np
 from project_helper.Logger import Logger
+from pprint import pprint
 
 
 def main():
@@ -16,6 +17,8 @@ def main():
     test: List[np.ndarray] = list()
     for dataset in data.get_dataset_names():
         for metric in data.get_metric_names():
+            if tracker % 10000 == 0:
+                kmeans_clustering.write_cluster_results(4)
             for hyper_tuple in data.get_hyperparameter_for_metric_filtering():
                 for strategy in data.get_strategy_names():
                     frame = data.get_single_dataframe(strategy, dataset, metric)
@@ -36,17 +39,20 @@ def main():
                         test.extend(to_append.to_numpy())
                 # print(len(test))
                 if len(test) == len(data.get_strategy_names()):
-                    Logger.info("Start clustering iteration: " + str(tracker))
-                    kmeans_clustering.cluster(test, 4)
+                    try:
+                        kmeans_clustering.cluster(test, 4)
+                    except:
+                        Logger.info(ClusterFormatError("multiple values per cycle"))
+                        test.clear()
+                        pass
                     tracker += 1
                     test.clear()
                 else:
                     test.clear()
-            break
         break
 
     kmeans_clustering.write_cluster_results(4)
-    print(kmeans_clustering.get_similiarity_matrix().get_orderd_similarities())
+    pprint(kmeans_clustering.get_similiarity_matrix().get_orderd_similarities())
 
 
 if __name__ == "__main__":
