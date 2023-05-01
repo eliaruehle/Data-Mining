@@ -27,20 +27,15 @@ After successfully installing the required pre-requisites follow the steps of [h
 
 ## Project Structure
 
-```tree
+```
 ./
-├── CodeConvention.MD
-├── README.md
-├── alg.txt
 ├── documents/
-│   ├── data_analysis.md
+│   ├── evaluation_strategies/
 │   ├── meetings/
+│   ├── data_analysis.md
 │   ├── project_ideas.md
 │   └── working_steps.md
 ├── kp_test/
-│   ├── 01_workload.csv
-│   ├── 05_done_workload.csv
-│   ├── 05_started_oom_workloads.csv.xz
 │   ├── ALIPY_RANDOM/
 │   ├── ALIPY_UNCERTAINTY_ENTROPY/
 │   ├── ALIPY_UNCERTAINTY_LC/
@@ -50,20 +45,27 @@ After successfully installing the required pre-requisites follow the steps of [h
 │   ├── SMALLTEXT_EMBEDDINGKMEANS/
 │   ├── SMALLTEXT_LIGHTWEIGHTCORESET/
 │   ├── cluster_results/
-│   └── datasets/
+│   ├── datasets/
+│   ├── hpc_deploy/
+│   ├── 01_workload.csv
+│   ├── 05_done_workload.csv
+│   └── 05_started_oom_workloads.csv.xz
 ├── logs/
 │   ├── app.log
 │   ├── app.log.1
 │   └── app.log.2
+├── project_code/
+│   ├── __pycache__/
+│   ├── clustering/
+│   ├── datasets/
+│   ├── project_helper/
+│   ├── side_handler/
+│   └── main.py
+├── CodeConvention.MD
+├── README.md
+├── alg.txt
 ├── poetry.lock
 ├── poetry.md
-├── project_code/
-│   ├── __pycache__
-│   ├── clustering
-│   ├── datasets
-│   ├── main.py
-│   ├── project_helper/
-│   └── side_handler/
 ├── pyproject.toml
 └── test.py
 ```
