@@ -1,7 +1,7 @@
 from typing import List
 from sklearn.cluster import KMeans
 import numpy as np
-from project_code.clustering.base_cluster import BaseClustering
+from clustering.base_cluster import BaseClustering
 
 
 class KMeansClustering(BaseClustering):

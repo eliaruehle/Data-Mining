@@ -1,7 +1,7 @@
 from typing import List
 from sklearn.cluster import SpectralClustering as SpecCluster
 import numpy as np
-from project_code.clustering.base_cluster import BaseClustering
+from clustering.base_cluster import BaseClustering
 
 
 class SpectralClustering(BaseClustering):
@@ -42,7 +42,9 @@ class SpectralClustering(BaseClustering):
         None
         """
         # create sklearn KMeans object
-        spec_cluster: SpecCluster = SpecCluster(n_clusters=cluster_size, n_init=10).fit(data_vecs)
+        spec_cluster: SpecCluster = SpecCluster(n_clusters=cluster_size, n_init=10).fit(
+            data_vecs
+        )
         # update the similarity matrix with retrieved labels
         self.similarity_matrix.update(self.labels, spec_cluster.labels_)
 

@@ -3,8 +3,9 @@ from abc import ABC
 from typing import Dict, List
 import os
 import pandas as pd
-from project_code.side_handler.errors import NoSuchPathOrCSV
-from project_code.project_helper.Logger import Logger
+from side_handler.errors import NoSuchPathOrCSV
+from project_helper.Logger import Logger
+
 
 class Base_Loader(ABC):
     """
