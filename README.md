@@ -30,46 +30,58 @@ After successfully installing the required pre-requisites follow the steps of [h
 ```
 ./
 ├── documents/
-│   ├── evaluation_strategies/
-│   ├── meetings/
-│   ├── data_analysis.md
-│   ├── project_ideas.md
-│   └── working_steps.md
+│   ├── meetings/
+│   ├── CodeConvention.md
+│   ├── data_analysis.md
+│   ├── poetry.md
+│   ├── project_ideas.md
+│   └── working_steps.md
 ├── kp_test/
-│   ├── ALIPY_RANDOM/
-│   ├── ALIPY_UNCERTAINTY_ENTROPY/
-│   ├── ALIPY_UNCERTAINTY_LC/
-│   ├── ALIPY_UNCERTAINTY_MM/
-│   ├── OPTIMAL_GREEDY_10/
-│   ├── SKACTIVEML_DAL/
-│   ├── SMALLTEXT_EMBEDDINGKMEANS/
-│   ├── SMALLTEXT_LIGHTWEIGHTCORESET/
-│   ├── cluster_results/
-│   ├── datasets/
-│   ├── hpc_deploy/
-│   ├── 01_workload.csv
-│   ├── 05_done_workload.csv
-│   └── 05_started_oom_workloads.csv.xz
+│   ├── ALIPY_RANDOM/
+│   ├── ALIPY_UNCERTAINTY_ENTROPY/
+│   ├── ALIPY_UNCERTAINTY_LC/
+│   ├── ALIPY_UNCERTAINTY_MM/
+│   ├── OPTIMAL_GREEDY_10/
+│   ├── SKACTIVEML_DAL/
+│   ├── SMALLTEXT_EMBEDDINGKMEANS/
+│   ├── SMALLTEXT_LIGHTWEIGHTCORESET/
+│   ├── cluster_results/
+│   ├── datasets/
+│   ├── hpc_deploy/
+│   ├── 01_workload.csv
+│   ├── 05_done_workload.csv
+│   └── 05_started_oom_workloads.csv.xz
 ├── logs/
-│   ├── app.log
-│   ├── app.log.1
-│   └── app.log.2
+│   ├── app.log
+│   ├── app.log.1
+│   └── app.log.2
 ├── project_code/
-│   ├── __pycache__/
-│   ├── clustering/
-│   ├── datasets/
-│   ├── project_helper/
-│   ├── side_handler/
-│   └── main.py
-├── CodeConvention.MD
+│   ├── __pycache__/
+│   ├── clustering/
+│   ├── datasets/
+│   ├── project_helper/
+│   ├── side_handler/
+│   └── main.py
 ├── README.md
 ├── alg.txt
 ├── poetry.lock
-├── poetry.md
 ├── pyproject.toml
-└── test.py
+├── test.py
+└── test.txt
 ```
 
-Description of Structure WIP
+- `documents/`: Contains information that has general importance for all members of the project, for example:
+
+  - a subdirectory called `meetings/` which contains a list of our all our meetings
+  - `CodeConvention.md`, a general set of rules of coding conventions which every participant of the project has to follow
+  - `data_analysis.md`, essentail details about hyperparameters, structure of files, active learning startegies and more
+
+- `kp_test/`: Contains a collection of datasets which were analysed during the process of this research project
+
+- `logs/`: Log files which contain information clustering iterations, errors and more
+
+- `project_code/`: The main essence of this project, where our - as the name already suggests - our project code resides.
+
+  - `clustering/`: All our clustering methods and clustering-related code resides within this subdirectory.
 
 ## Conclusion
