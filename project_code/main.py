@@ -49,6 +49,7 @@ def main():
                     test.clear()
                 else:
                     test.clear()
+            # break
         break
 
     kmeans_clustering.write_cluster_results(4)
