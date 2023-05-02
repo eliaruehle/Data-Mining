@@ -2,6 +2,7 @@ from datasets.loader import Loader
 from side_handler.errors import ClusterFormatError
 from clustering.kmeans import KMeansClustering
 from clustering.spectral_clustering import SpectralClustering
+from clustering.optics import OPTICSClustering
 from typing import List
 import numpy as np
 from project_helper.Logger import Logger
@@ -12,7 +13,9 @@ def main():
     data = Loader("../kp_test")
 
     # kmeans_clustering = KMeansClustering("kmeans", data.get_strategy_names())
-    spectral_clustering = SpectralClustering("spectral_clustering", data.get_strategy_names())
+    spectral_clustering = SpectralClustering(
+        "spectral_clustering", data.get_strategy_names()
+    )
 
     # fest: Dataset, Metric, -> search for Hyperparameters that are similar
     tracker: int = 0
@@ -53,14 +56,14 @@ def main():
                     test.clear()
                 else:
                     test.clear()
-            # break
+            break
         break
 
     # kmeans_clustering.write_cluster_results(4)
-    spectral_clustering.write_cluster_results(4)
+    # print(kmeans_clustering.get_similiarity_matrix().get_orderd_similarities())
 
-    # pprint(kmeans_clustering.get_similiarity_matrix().get_orderd_similarities())
-    pprint(spectral_clustering.get_similiarity_matrix().get_orderd_similarities())
+    # optics_clustering.write_cluster_results()
+    # print(optics_clustering.get_similiarity_matrix().get_orderd_similarities())
 
 
 if __name__ == "__main__":
