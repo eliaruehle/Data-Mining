@@ -43,25 +43,112 @@
   1. Zum einen den sogenannten **Train-Test Split**
   2. Zum anderen die möglichen **Startpunkte**
 
-### Erklärung von Iris_split.csv
-
-- `Iris_split.csv` enthält zwei Dinge
-
-  1. Zum einen den sogenannten **Train-Test Split**
-  2. Zum anderen die möglichen **Startpunkte**
-
 ### Vorgehensweise:
 
 - Finden einer Methode, welche uns in Form von einer Zahl zeigt, wie ähnlich zwei Datensätze sind
-  $\rightarrow$ Dies kann z.B. durch die Cosinus-Similarity erreicht werden
+- $\rightarrow$ Dies kann z.B. durch die Cosinus-Similarity erreicht werden
 - Wenn wir dadurch die Erkenntnis bekommen, welcher von den gegebenen Datensätze am ähnlichsten zu dem ausgewählten Datensatz, für den wir erfahren möchten welche Active Learning Strategie dafür am besten funktionieren würde, dann empfehle jeweils die beste Strategie (oder gibt ein Ranking der Top-k besten AL-Strategien an)
-  $\rightarrow$ Allgemein ist es schwer zu sagen, wann eine Active Learning Strategie "gut" ist.
+- $\rightarrow$ Allgemein ist es schwer zu sagen, wann eine Active Learning Strategie "gut" ist.
 
 ### Mögliche Fragen wären:
 
-- Soll die AL Strategie am Anfang schnell gute Ergebnisse liefern? Oder ist es mir egal wann sie gute Ergebnisse liefert, solange die Strategie nach z.B. 30 Iterationen am besten ist? Soll die Strategie möglichst immer besser als `Random` sein?
+- Soll sie am Anfang schnell gute Ergebnisse liefern? Oder ist mir egal wann sie gute Ergebnisse liefert, solange die Strategie nach z.B. 30 Iterationen am besten ist? Soll die Strategie möglichst immer besser als `Random` sein?
 - Soll die Strategie konsequent besser werden und möglich nie schlechter als die vorherige Iteration sein?
 - Möchte ich mehr auf `Accuracy`, `Precision` oder `Recall` beziehen? ...
 
 Allgemein sollten wir versuchen all diese Fragen bzw. Entscheidungen über einen `Entscheidungsbaum` darzustellen, also wenn wir die obigen oder selbst gewählten Fragen beantworten und dann berechnen welcher Datensatz am ähnlichsten, dann sollten wir ziemlich sicher vorhersagen können, welche AL Strategie gut funktioniert
 $\rightarrow$ Um dies zu Prüfen können wir uns einen Datensatz nehmen, für welchen wir Ergebnisse haben und dann schauen zu welchem anderen der am ähnlichsten ist (mittels Vorhersage des Entscheidungsbaumes) und am Ende dann prüfen ob die Vorhersage auch tatsächlich die beste Strategie ist
+
+### Liste der Active Learning Strategien
+
+```
+ALIPY_RANDOM = 1
+ALIPY_UNCERTAINTY_LC = 2
+ALIPY_GRAPH_DENSITY = 3
+ALIPY_CORESET_GREEDY = 4
+ALIPY_QUIRE = 5
+OPTIMAL_BSO = 6
+OPTIMAL_TRUE = 7
+OPTIMAL_GREEDY_10 = 8
+LIBACT_UNCERTAINTY_LC = 9
+LIBACT_QBC = 10
+LIBACT_DWUS = 11
+LIBACT_QUIRE = 12
+LIBACT_VR = 13
+LIBACT_HINTSVM = 14
+PLAYGROUND_GRAPH_DENSITY = 15
+PLAYGROUND_HIERARCHICAL_CLUSTER = 16
+PLAYGROUND_INFORMATIVE_DIVERSE = 17
+PLAYGROUND_KCENTER_GREEDY = 18
+PLAYGROUND_MARGIN = 19
+PLAYGROUND_MIXTURE = 20
+PLAYGROUND_MCM = 21
+PLAYGROUND_UNIFORM = 22
+ALIPY_QBC = 23
+ALIPY_EXPECTED_ERROR_REDUCTION = 24
+ALIPY_BMDR = 25
+ALIPY_SPAL = 26
+ALIPY_LAL = 27
+ALIPY_DENSITY_WEIGHTED = 28
+LIBACT_EER = 29
+LIBACT_HIERARCHICAL_SAMPLING = 30
+LIBACT_ALBL = 31
+PLAYGROUND_BANDIT = 32
+ALIPY_UNCERTAINTY_MM = 33
+ALIPY_UNCERTAINTY_ENTROPY = 34
+ALIPY_UNCERTAINTY_DTB = 35
+LIBACT_UNCERTAINTY_SM = 36
+LIBACT_UNCERTAINTY_ENT = 37
+OPTIMAL_GREEDY_20 = 38
+SMALLTEXT_LEASTCONFIDENCE = 39
+SMALLTEXT_PREDICTIONENTROPY = 40
+SMALLTEXT_BREAKINGTIES = 41
+SMALLTEXT_BALD = 42
+SMALLTEXT_EMBEDDINGKMEANS = 43
+SMALLTEXT_GREEDYCORESET = 44
+SMALLTEXT_LIGHTWEIGHTCORESET = 45
+SMALLTEXT_CONTRASTIVEAL = 46
+SMALLTEXT_DISCRIMINATIVEAL = 47
+SMALLTEXT_CVIAR = 48
+SMALLTEXT_SEALS = 49
+SMALLTEXT_RANDOM = 50
+SKACTIVEML_EXPECTED_MODEL_OUTPUT_CHANGE = 51
+SKACTIVEML_EXPECTED_MODEL_VARIANCE_REDUCTION = 52
+SKACTIVEML_KL_DIVERGENCE_MAXIMIZATION = 53
+SKACTIVEML_MC_EER_LOG_LOSS = 54
+SKACTIVEML_MC_EER_MISCLASS_LOSS = 55
+SKACTIVEML_VOI_UNLABELED = 56
+SKACTIVEML_VOI_LABELED = 57
+SKACTIVEML_VOI = 58
+# = 59
+SKACTIVEML_QBC = 60
+SKACTIVEML_EPISTEMIC_US = 61
+SKACTIVEML_DDDD = 62
+SKACTIVEML_US_MARGIN = 63
+SKACTIVEML_US_LC = 64
+SKACTIVEML_US_ENTROPY = 65
+SKACTIVEML_EXPECTED_AVERAGE_PRECISION = 66
+SKACTIVEML_DWUS = 67
+SKACTIVEML_DUAL_STRAT = 68
+SKACTIVEML_COST_EMBEDDING = 69
+SKACTIVEML_DAL = 70
+SKACTIVEML_GREEDY_TARGET_SPACE = 71
+SKACTIVEML_GREEDY_IMPROVED = 72
+SKACTIVEML_GREEDY_FEATURE_SPACE = 73
+SKACTIVEML_MCPAL = 74
+SKACTIVEML_QBC_VOTE_ENTROPY = 75
+SKACTIVEML_QUIRE = 76
+```
+
+Die folgenden Active Learning Strategien sollen ähnlich sein:
+
+```
+- Uncertainty: 2,9,33,34,35,36,37,39,40,49,41,63,64,65
+- LC: 2,9, 39,64
+- Ent: 34,37,40,65
+- MM: 19,33,36,41,63
+- Random: 1,50
+- Quire: 12,76
+- EER: 24,29,66
+- Coreset: 44,45
+```

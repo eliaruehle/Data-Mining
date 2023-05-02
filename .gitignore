@@ -1,4 +1,12 @@
 .venv
 poetry.lock
 .DS_Store
+.idea
+/project_code/__pycache__/
+/project_code/clustering/__pycache__/
+/project_code/datasets/__pycache__/
+/project_code/project_helper/__pycache__/
+/project_code/side_handler/__pycache__/
+/project_code/experiment_runner/__pycache__/
+/logs/**
 

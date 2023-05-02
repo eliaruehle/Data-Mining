@@ -1,11 +1,10 @@
-
 {
     "python.pythonPath": "${workspaceFolder}/.venv/bin/python",
     "python.linting.enabled": true,
-    "python.formatting.provider": "black",
+    "python.formatting.provider": "none",
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
-    "python.linting.pylintEnabled": true,
+    "python.linting.pylintEnabled": false,
     "python.linting.pylintArgs": [
         "--rcfile=${workspaceFolder}/pyproject.toml"
     ],
@@ -13,17 +12,19 @@
     "python.linting.flake8Args": [
         "--config=${workspaceFolder}/pyproject.toml"
     ],
-        "python.languageServer": "Pylance",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-          "source.organizeImports": true
-        },
-        "python.analysis": {
-            "typeCheckingMode": "all",
-            "mypyEnabled": true,
-            "mypyArgs": [
-                "--ignore-missing-imports"
-            ]
-        }
-        
+    "python.languageServer": "Pylance",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    "python.analysis": {
+        "typeCheckingMode": "all",
+        "mypyEnabled": true,
+        "mypyArgs": [
+            "--ignore-missing-imports"
+        ]
+    },
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    }
 }
