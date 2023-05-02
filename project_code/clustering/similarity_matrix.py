@@ -38,7 +38,7 @@ class SimilarityMatrix:
 
     def __str__(self) -> str:
         """
-        Pretyprint of the matrix.
+        Prettyprint of the matrix.
 
         Parameters:
         -----------

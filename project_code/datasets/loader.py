@@ -1,8 +1,8 @@
 from typing import List, Dict, Set, Tuple
-from datasets.base_loader import Base_Loader
+from project_code.datasets.base_loader import Base_Loader
 import pandas as pd
 import numpy as np
-from project_helper.Logger import Logger
+from project_code.project_helper.Logger import Logger
 
 
 class Loader(Base_Loader):
