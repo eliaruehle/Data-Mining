@@ -8,10 +8,11 @@ import numpy as np
 from project_helper.Logger import Logger
 from pprint import pprint
 from project_helper.method_types import CLUSTER_STRAT
+from experiment_runner import ClusterRunner
 
 
 def main():
-    data = Loader("../kp_test")
+    data = Loader("kp_test")
 
     # kmeans_clustering = KMeansClustering("kmeans", data.get_strategy_names())
     spectral_clustering = SpectralClustering(

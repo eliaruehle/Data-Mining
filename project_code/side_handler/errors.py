@@ -12,3 +12,11 @@ class ClusterFormatError(Exception):
     """
 
     pass
+
+
+class NoSuchClusterMethodError(Exception):
+    """
+    Special Exception if you want to establish a cluster strategy which isn't configured.
+    """
+
+    pass
