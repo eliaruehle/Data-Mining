@@ -23,7 +23,7 @@ In order to get started, make sure to have the following installed:
 - **Python version 3.11.3**
 - Poetry $\rightarrow$ `pip install poetry`
 
-After successfully installing the required pre-requisites follow the steps of [how to work with poetry](./poetry.md).
+After successfully installing the required pre-requisites follow the steps of [how to work with poetry](https://github.com/paul1995tu/Data-Mining/blob/main/documents/poetry.md).
 
 ## Project Structure
 

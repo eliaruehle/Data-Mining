@@ -1992,6 +1992,17 @@ pyyaml = ">=5.1"
 virtualenv = ">=20.10.0"
 
 [[package]]
+name = "prettyprint"
+version = "0.1.5"
+description = "prettyprint print list/dict/tuple object prettily"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "prettyprint-0.1.5.tar.gz", hash = "sha256:7423210b62adfb3777677914cd25db4919f1c2b0afba0454365ffbfa3f7e3731"},
+]
+
+[[package]]
 name = "prometheus-client"
 version = "0.16.0"
 description = "Python client for the Prometheus monitoring system."

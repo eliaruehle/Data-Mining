@@ -1,0 +1,28 @@
+name: VPN and SSH Connection
+
+on:
+  push:
+    branches:
+      - task/labelTracking
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Connect to VPN
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install openconnect
+          echo "${{ secrets.VPN_CERT }}" > cert.pem
+          sudo openconnect -u ${{ secrets.VPN_USERNAME }} --cafile cert.pem --authgroup=A-Tunnel-TU-Networks vpn2.zih.tu-dresden.de & sleep 5m
+
+      - name: Connect to SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: taurus.hrsk.tu-dresden.de
+          username: ${{ secrets.VPN_USERNAME }}
+          password: ${{ secrets.VPN_PASSWORD }}
