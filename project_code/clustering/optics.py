@@ -44,6 +44,7 @@ class OPTICSClustering(BaseClustering):
         optics: OPTICS = OPTICS(min_samples=4).fit(data_vecs)
         # update the similarity matrix with retrieved labels
         self.similarity_matrix.update(self.labels, optics.labels_)
+        #print("labels", optics.labels_)
 
     def write_cluster_results(self) -> None:
         """

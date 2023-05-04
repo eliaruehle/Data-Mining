@@ -1,6 +1,6 @@
 from typing import List
 import numpy as np
-from base_cluster import BaseClustering
+from clustering.base_cluster import BaseClustering
 import numpy as np
 from sklearn.mixture import GaussianMixture
 
