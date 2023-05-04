@@ -3,7 +3,8 @@ from typing import List, Dict
 import numpy as np
 import pandas as np
 from abc import ABC, abstractmethod
-from clustering.similarity_matrix import SimilarityMatrix
+#from similarity_matrix import SimilarityMatrix
+from similarity_matrix import SimilarityMatrix
 
 
 class BaseClustering(ABC):
