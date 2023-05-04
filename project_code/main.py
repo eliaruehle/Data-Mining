@@ -9,15 +9,10 @@ import numpy as np
 from project_helper.Logger import Logger
 from pprint import pprint
 from project_helper.method_types import CLUSTER_STRAT
-from experiment_runner import ClusterRunner
 
 
-<<<<<<< HEAD
 
 def sp():
-=======
-def main():
->>>>>>> 8ed88df93f7b0c58324e5bd071f06bd4e803a0d9
     data = Loader("kp_test")
 
     # kmeans_clustering = KMeansClustering("kmeans", data.get_strategy_names())
