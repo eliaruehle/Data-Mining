@@ -3127,8 +3127,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-<<<<<<< Updated upstream
 content-hash = "22be20308317281eed4bed14cc5cd13768d64180d9f635adebd7d0a3cface840"
-=======
-content-hash = "0569e6cad2253d9974e5ec0cdddda439258851062cbcafc6ab398907800953a6"
->>>>>>> Stashed changes
