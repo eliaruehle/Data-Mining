@@ -41,6 +41,8 @@ def main():
                     # print(to_append.to_numpy())
                     # print(to_append.shape)
                     # wenn to_append leer ist dann nicht hinzufügen
+                    # TODO: create an unpack function to unpack all arrays at one AL-cycle
+                    # TODO: if metric == selected_indices: skip the current loop -> not interesting for clustering
                     if to_append.empty:
                         pass
                     else:
