@@ -12,3 +12,9 @@ class CLUSTER_STRAT(IntEnum):
     SPECTRAL = 2
     DBSCAN = 3
     OPTICS = 4
+
+
+@verify(UNIQUE)
+class DATASETS(IntEnum):
+    # TODO: implement this class for the new datasets
+    pass
