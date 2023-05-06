@@ -2,6 +2,7 @@ from typing import List
 from sklearn.cluster import SpectralClustering as SpecCluster
 import numpy as np
 from clustering.base_cluster import BaseClustering
+from clustering.similarity_matrix import SimilarityMatrix
 
 
 class SpectralClustering(BaseClustering):
@@ -9,7 +10,11 @@ class SpectralClustering(BaseClustering):
     Class for setup a Spectral clustering.
     """
 
-    def __init__(self, cluster_name: str, strategies: List[str]) -> None:
+    num_clusters: List[int]
+
+    def __init__(
+        self, cluster_name: str, strategies: List[str], num_clusters: List[int]
+    ) -> None:
         """
         Iniitalizes the class object.
 
@@ -25,8 +30,12 @@ class SpectralClustering(BaseClustering):
         None
         """
         super().__init__(strategies, cluster_name)
+        self.num_clusters = num_clusters
+        self.similarity_matrix = [
+            SimilarityMatrix(strategies, cluster_name) for _ in range(len(num_clusters))
+        ]
 
-    def cluster(self, data_vecs: List[np.ndarray], cluster_size: int) -> None:
+    def cluster(self, data_vecs: List[np.ndarray]) -> None:
         """
         Implementation of abstract method from BaseClustering class.
 
@@ -41,14 +50,15 @@ class SpectralClustering(BaseClustering):
         --------
         None
         """
-        # create sklearn KMeans object
-        spec_cluster: SpecCluster = SpecCluster(n_clusters=cluster_size, n_init=10).fit(
-            data_vecs
-        )
-        # update the similarity matrix with retrieved labels
-        self.similarity_matrix.update(self.labels, spec_cluster.labels_)
+        for index, num in enumerate(self.num_clusters):
+            # create sklearn KMeans object
+            spec_cluster: SpecCluster = SpecCluster(n_clusters=num, n_init=10).fit(
+                data_vecs
+            )
+            # update the similarity matrix with retrieved labels
+            self.similarity_matrix[index].update(self.labels, spec_cluster.labels_)
 
-    def write_cluster_results(self, cluster_size: int) -> None:
+    def write_cluster_results(self) -> None:
         """
         Function to write cluster results in .csv file.
 
@@ -61,4 +71,7 @@ class SpectralClustering(BaseClustering):
         --------
         None
         """
-        self.similarity_matrix.write_to_csv(str(cluster_size) + "centers")
+        for index, _ in enumerate(self.similarity_matrix):
+            self.similarity_matrix[index].write_to_csv(
+                str(self.num_clusters[index]) + "_cnt"
+            )

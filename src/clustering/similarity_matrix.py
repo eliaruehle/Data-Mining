@@ -13,7 +13,7 @@ class SimilarityMatrix:
     labels: List[str]
     values: pd.DataFrame
     filename: str
-    directory: str = "kp_test/cluster_results"
+    directory: str = "cl_res"
 
     def __init__(self, labels: List[str], cluster_strat_name: str) -> None:
         """
