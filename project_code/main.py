@@ -46,7 +46,7 @@ def main():
             for metric in data.get_metric_names():
                 for hyper_tuple in data.get_hyperparameter_for_metric_filtering():
                     for strategy in data.get_strategy_names():
-                        results.append(pool.apply_async(cluster, (strategy, dataset, metric, hyper_tuple)))
+                        results.append(pool.apply_async(cluster, (strategy, dataset, metric, hyper_tuple)))   
         for r in results:
             result = r.get()
             if result is not None:
