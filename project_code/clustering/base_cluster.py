@@ -86,6 +86,12 @@ class BaseClustering(ABC):
         """
         Function to write out cluster results into csv files.
 
-        Should be implemented in non abstract class inherit from BaseClustering.
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        None
         """
         ...

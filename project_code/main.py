@@ -1,17 +1,26 @@
 from datasets import Loader
-from side_handler.errors import ClusterFormatError
-from clustering.kmeans import KMeansClustering
-from clustering.spectral_clustering import SpectralClustering
-from clustering.optics import OPTICSClustering
-from typing import List
-import numpy as np
 from project_helper.Logger import Logger
-from pprint import pprint
 from project_helper.method_types import CLUSTER_STRAT
 from experiment_runner import ClusterRunner
+import warnings
+from sklearn.exceptions import ConvergenceWarning
 
 
-def main():
+def main() -> None:
+    """
+    The main function of the project.
+
+    Paramters:
+    ----------
+    None
+
+    Returns:
+    --------
+    None
+    """
+    # ignore convergence warnings in sklearns clusterings
+    warnings.filterwarnings("ignore", category=ConvergenceWarning)
+
     # initialize one data object
     PROJECT_DATA: Loader = Loader("kp_test")
 
@@ -25,7 +34,7 @@ def main():
             CLUSTER_STRAT.OPTICS,
             CLUSTER_STRAT.DBSCAN,
         ],
-        [4],
+        [3, 4, 5],
     )
 
     Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
