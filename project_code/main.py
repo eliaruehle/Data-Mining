@@ -15,7 +15,6 @@ from side_handler.errors import ClusterFormatError
 
 
 def cluster(strategy, dataset, metric, hyper_tuple):
-    data = Loader("kp_test")
     frame = data.get_single_dataframe(strategy, dataset, metric)
     to_append = frame.loc[
         (frame["EXP_RANDOM_SEED"] == hyper_tuple[0])
