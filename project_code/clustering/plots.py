@@ -5,9 +5,6 @@ import pandas as pd
 import csv
 from numpy import genfromtxt
 
-#clustering_method = "optics_clustering_centers"
-#title = "OPTICS"
-
 
 def create_heatmap(clustering_method: str, title: str):
   data = pd.read_csv('./kp_test/cluster_results/'+ clustering_method +'.csv', index_col=0)
@@ -35,5 +32,7 @@ def create_heatmap(clustering_method: str, title: str):
 
 
 if __name__ == "__main__":
-  create_heatmap("kmeans_4centers", "KMeans 4 centrer")
+  #create_heatmap("kmeans_4centers", "KMeans 4 centrer")
+  #create_heatmap("optics_clustering_centers", "OPTICS")
+  create_heatmap("gaussian_mixture_centers", "Gaussian Mixture")
    

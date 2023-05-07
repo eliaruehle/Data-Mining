@@ -41,17 +41,15 @@ class OPTICSClustering(BaseClustering):
         --------
         None
         """
-    
-        #optics: OPTICS = OPTICS(min_samples=5, metric='minkowski', p=2, metric_params=None, cluster_method='xi', eps=None, xi=0.05, predecessor_correction=True, min_cluster_size=None, algorithm='auto',memory=None, n_jobs=None).fit(data_vecs)
-        #self.similarity_matrix.update(self.labels, optics.labels_)
-        #print("labels", optics.labels_)
 
         pca: PCA = PCA(n_components=2)
         reduced_data: np.ndaarray = pca.fit_transform(data_vecs)
+
         # create sklearn OPTICS object
         optics: OPTICS = OPTICS(
             min_samples=2, cluster_method="xi", xi=0.6, metric="euclidean"
         ).fit(reduced_data)
+
         # update the similarity matrix with retrieved labels
         labels = optics.labels_
         
@@ -59,6 +57,7 @@ class OPTICSClustering(BaseClustering):
 
         # count the number of unique cluster labels
         n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+        
         print(f"Number of clusters found by OPTICS: {n_clusters}")
         self.similarity_matrix.update(self.labels, optics.labels_)
 
