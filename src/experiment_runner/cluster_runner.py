@@ -2,7 +2,7 @@ from datasets.loader import Loader
 from project_helper.method_types import CLUSTER_STRAT
 from project_helper.Logger import Logger
 from experiment_runner import BaseRunner
-from typing import Any, List, Tuple
+from typing import List
 from clustering import (
     KMeansClustering,
     SpectralClustering,
@@ -11,7 +11,6 @@ from clustering import (
     BaseClustering,
 )
 from side_handler import NoSuchClusterMethodError, ClusterFormatError
-from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
 
@@ -91,6 +90,17 @@ class ClusterRunner(BaseRunner):
         return cluster_obj
 
     def run(self) -> None:
+        """
+        Function to run the clustering on the entire dataset.
+
+        Paramters:
+        ----------
+        None
+
+        Returns:
+        --------
+        None
+        """
         for dataset in self.data.get_dataset_names():
             for metric in self.data.get_metric_names():
                 for hyper_tuple in self.data.get_hyperparameter_for_metric_filtering():
@@ -130,6 +140,7 @@ class ClusterRunner(BaseRunner):
                 break
             break
 
+        # saves the results from the clusterings
         for cluster_strat in self.cluster_obj:
             cluster_strat.write_cluster_results()
 
