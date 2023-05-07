@@ -1,4 +1,5 @@
 from sklearn.cluster import OPTICS
+from sklearn.decomposition import PCA
 from typing import List
 import numpy as np
 from clustering.base_cluster import BaseClustering
@@ -41,15 +42,12 @@ class OPTICSClustering(BaseClustering):
         --------
         None
         """
-
         pca: PCA = PCA(n_components=2)
         reduced_data: np.ndaarray = pca.fit_transform(data_vecs)
-
         # create sklearn OPTICS object
         optics: OPTICS = OPTICS(
             min_samples=2, cluster_method="xi", xi=0.6, metric="euclidean"
         ).fit(reduced_data)
-
         # update the similarity matrix with retrieved labels
         labels = optics.labels_
         

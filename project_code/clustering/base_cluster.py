@@ -13,7 +13,7 @@ class BaseClustering(ABC):
     """
 
     name: str
-    similarity_matrix: SimilarityMatrix
+    similarity_matrix: SimilarityMatrix | List[SimilarityMatrix]
     labels: List[str]
 
     def __init__(self, labels: List[str], cluster_name: str) -> None:
@@ -67,7 +67,7 @@ class BaseClustering(ABC):
         """
         return self.name
 
-    def get_similiarity_matrix(self) -> SimilarityMatrix:
+    def get_similiarity_matrix(self) -> SimilarityMatrix | List[SimilarityMatrix]:
         """
         Function to get the underlying similarity matrix of the cluster method.
 
@@ -81,3 +81,18 @@ class BaseClustering(ABC):
             the underlying similiarity matrix
         """
         return self.similarity_matrix
+
+    @abstractmethod
+    def write_cluster_results(self) -> None:
+        """
+        Function to write out cluster results into csv files.
+
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        None
+        """
+        ...

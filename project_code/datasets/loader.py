@@ -29,6 +29,10 @@ class Loader(Base_Loader):
         Logger.info("Start read in all data.")
         super().__init__(base_dir)
         self.load_all_csv()
+        self.NUM_STRATS: int = len(self.strategies)
+        self.NUM_DATASETS: int = len(self.datasets)
+        # substract 1 because of unncecessary selected_indices.csv
+        self.NUM_METRICS: int = len(self.metrices) - 1
         Logger.info("Finished read in all data.")
 
     def get_all_datafiles(self) -> Dict[str, Dict[str, Dict[str, pd.DataFrame]]]:
@@ -111,7 +115,10 @@ class Loader(Base_Loader):
         names : List[str]
             a list of all metric names
         """
-        return self.metrices
+        # removes selected indices to avoid multiple data samples per AL cycle
+        final_metrices: List[str] = self.metrices.copy()
+        final_metrices.remove("selected_indices")
+        return final_metrices
 
     def get_hyperparameter_for_metric_filtering(
         self,
@@ -132,7 +139,6 @@ class Loader(Base_Loader):
         # get the frame with the important columns
         frame = frame[
             [
-                "EXP_RANDOM_SEED",
                 "EXP_START_POINT",
                 "EXP_BATCH_SIZE",
                 "EXP_LEARNER_MODEL",
