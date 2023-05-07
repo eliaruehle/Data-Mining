@@ -9,4 +9,5 @@ poetry.lock
 /project_code/side_handler/__pycache__/
 /project_code/experiment_runner/__pycache__/
 /logs/**
+/cl_res/**
 
