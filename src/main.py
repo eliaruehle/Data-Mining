@@ -20,6 +20,9 @@ def main() -> None:
     """
     # ignore convergence warnings in sklearns clusterings
     warnings.filterwarnings("ignore", category=ConvergenceWarning)
+    # the next one could be resolved by adjust OPTICS parameter
+    # TODO: adjust OPTICS Parameters to get rid of RuntimeWarnings instead of ignoring them
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
 
     # initialize one data object
     PROJECT_DATA: Loader = Loader("kp_test")
