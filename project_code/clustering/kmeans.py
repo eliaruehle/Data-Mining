@@ -45,6 +45,7 @@ class KMeansClustering(BaseClustering):
         kmeans: KMeans = KMeans(n_clusters=cluster_size, n_init=10).fit(data_vecs)
         # update the similarity matrix with retrieved labels
         self.similarity_matrix.update(self.labels, kmeans.labels_)
+        print(kmeans.labels_)
 
     def write_cluster_results(self, cluster_size: int) -> None:
         """

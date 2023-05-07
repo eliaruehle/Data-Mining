@@ -1,27 +1,39 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
+import csv
+from numpy import genfromtxt
 
-# define the data as a numpy array
-data = np.array([[0, 275, 276, 254, 363, 313, 274, 293],
-                [275, 0, 345, 301, 274, 250, 225, 224],
-                [276, 345, 0, 344, 295, 251, 226, 223],
-                [254, 301, 344, 0, 269, 241, 196, 211],
-                [363, 274, 295, 269, 0, 324, 277, 280],
-                [313, 250, 251, 241, 324, 0, 247, 254],
-                [274, 225, 226, 196, 277, 247, 0, 235],
-                [293, 224, 223, 211, 280, 254, 235, 0]])
+#clustering_method = "optics_clustering_centers"
+#title = "OPTICS"
 
-# define the row and column labels
-labels = ['ALIPY_RANDOM', 'ALIPY_UNCERTAINTY_ENTROPY', 'ALIPY_UNCERTAINTY_LC',
-          'ALIPY_UNCERTAINTY_MM', 'OPTIMAL_GREEDY_10', 'SKACTIVEML_DAL',
-          'SMALLTEXT_EMBEDDINGKMEANS', 'SMALLTEXT_LIGHTWEIGHTCORESET']
 
-# create a heatmap plot using seaborn
-sns.set(font_scale=0.5)
-sns.heatmap(data, annot=True, cmap='Blues', square=True,
-            xticklabels=labels, yticklabels=labels)
-plt.xlabel('Query Strategies')
-plt.ylabel('Query Strategies')
-plt.title('Distances between Active Learning Query Strategies')
-plt.show()
+def create_heatmap(clustering_method: str, title: str):
+  data = pd.read_csv('./kp_test/cluster_results/'+ clustering_method +'.csv', index_col=0)
+
+  fig, ax = plt.subplots(figsize=(8, 8))
+  heatmap = ax.imshow(data, cmap='YlGnBu')
+
+  # Add values on the heatmap
+  for i in range(len(data.index)):
+      for j in range(len(data.columns)):
+          ax.text(j, i, data.iloc[i, j], ha='center', va='center', color='white', fontsize=8)
+
+  # Set tick labels and rotate them by 45 degrees
+  ax.set_xticks(range(len(data.columns)))
+  ax.set_xticklabels(data.columns, rotation=45, ha='right', fontsize=8)
+  ax.set_yticks(range(len(data.index)))
+  ax.set_yticklabels(data.index, fontsize=8)
+  ax.set_title(title)
+
+  # Show color bar
+  cbar = ax.figure.colorbar(heatmap, ax=ax)
+
+  #save plot
+  plt.savefig('./project_code/clustering/plot/'+ clustering_method + '.png', dpi=300, bbox_inches='tight')
+
+
+if __name__ == "__main__":
+  create_heatmap("kmeans_4centers", "KMeans 4 centrer")
+   
