@@ -36,7 +36,7 @@ class Metrics(ABC):
                 if not os.path.isdir(os.path.join(self.file_path, data_set))
             ]
         )
-        self.data_sets_dict: dict[str, pd.DataFrame] = dict()
+        self.data_sets_list: list[pd.DataFrame] = list()
 
     def load_single_csv_dataset(self, data_set: str) -> pd.DataFrame:
         """
@@ -65,17 +65,18 @@ class Metrics(ABC):
 
     def load_all_csv_datasets(self) -> None:
         """
-        Load all CSV datasets in the specified directory into a dictionary of DataFrames.
+        Load all CSV datasets in the specified directory into a list of DataFrames.
 
         This method iterates through the `data_sets` attribute, calling the `load_single_csv_dataset()` method for each file,
-        and storing the resulting DataFrame in the `data_sets_dict` attribute, the expected key being the file name.
+        and storing the resulting DataFrame in the `data_sets_list` attribute.
         """
         for data_item in self.data_sets:
             tmp = self.load_single_csv_dataset(data_item)
-            self.data_sets_dict[data_item] = tmp
+            tmp.name = data_item
+            self.data_sets_list.append(tmp)
 
 
 if __name__ == "__main__":
     metric = Metrics("kp_test/datasets")
     metric.load_all_csv_datasets()
-    print(metric.data_sets_dict)
+    print(metric.data_sets_list)
