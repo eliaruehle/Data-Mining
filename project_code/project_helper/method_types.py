@@ -12,6 +12,7 @@ class CLUSTER_STRAT(IntEnum):
     SPECTRAL = 2
     DBSCAN = 3
     OPTICS = 4
+    GAUSSIAN_MIXTURE = 5
 
 
 @verify(UNIQUE)
