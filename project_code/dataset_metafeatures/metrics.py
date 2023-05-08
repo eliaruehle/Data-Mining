@@ -272,7 +272,7 @@ class Metrics(ABC):
 
 
 if __name__ == "__main__":
-    metric = Metrics("/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets")
+    metric = Metrics("kp_test/datasets")
     metric.load_all_csv_datasets()
     # x = metric.load_single_csv_dataset("Iris.csv")
     for data in metric.data_sets_list:
