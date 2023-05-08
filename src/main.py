@@ -1,9 +1,11 @@
+import warnings
+
+from sklearn.exceptions import ConvergenceWarning
+
 from datasets import Loader
+from experiment_runner import ClusterRunner
 from project_helper.Logger import Logger
 from project_helper.method_types import CLUSTER_STRAT
-from experiment_runner import ClusterRunner
-import warnings
-from sklearn.exceptions import ConvergenceWarning
 
 
 def main() -> None:
@@ -36,14 +38,13 @@ def main() -> None:
             CLUSTER_STRAT.SPECTRAL,
             CLUSTER_STRAT.OPTICS,
             CLUSTER_STRAT.DBSCAN,
-            CLUSTER_STRAT.GAUSSIAN_MIXTURE
-            
         ],
         [3, 4, 5],
     )
 
+    # Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
+    CLUSTER_RUNNER.run()
+
 
 if __name__ == "__main__":
     main()
-    
-   

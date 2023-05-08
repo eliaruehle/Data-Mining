@@ -14,7 +14,6 @@ class CLUSTER_STRAT(IntEnum):
     OPTICS = 4
     GAUSSIAN_MIXTURE = 5
 
-
 @verify(UNIQUE)
 class DATASETS(IntEnum):
     # TODO: implement this class for the new datasets

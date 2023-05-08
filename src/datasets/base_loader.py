@@ -1,10 +1,12 @@
 from __future__ import annotations
+
+import os
 from abc import ABC
 from typing import Dict, List
-import os
+
 import pandas as pd
-from side_handler.errors import NoSuchPathOrCSV
 from project_helper.Logger import Logger
+from side_handler.errors import NoSuchPathOrCSV
 
 
 class Base_Loader(ABC):
@@ -99,6 +101,22 @@ class Base_Loader(ABC):
                 on="EXP_UNIQUE_ID",
             )
         except:
+            Logger.error(pd.merge(
+                self.remove_nan_rows(
+                    pd.read_csv(
+                        self.base_dir
+                        + "/"
+                        + strategy
+                        + "/"
+                        + dataset
+                        + "/"
+                        + metric
+                        + ".csv.xz"
+                    )
+                ),
+                self.hyperparamters,
+                on="EXP_UNIQUE_ID",
+            ))
             raise NoSuchPathOrCSV("Path or requestes CSV does not exist!")
 
     def load_all_csv(self) -> None:

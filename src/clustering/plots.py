@@ -7,7 +7,7 @@ from numpy import genfromtxt
 
 
 def create_heatmap(clustering_method: str, title: str):
-  data = pd.read_csv('./kp_test/cluster_results/'+ clustering_method +'.csv', index_col=0)
+  data = pd.read_csv('./cl_res/'+ clustering_method +'.csv', index_col=0)
 
   fig, ax = plt.subplots(figsize=(8, 8))
   heatmap = ax.imshow(data, cmap='YlGnBu')
@@ -28,7 +28,7 @@ def create_heatmap(clustering_method: str, title: str):
   cbar = ax.figure.colorbar(heatmap, ax=ax)
 
   #save plot
-  plt.savefig('./project_code/clustering/plot/'+ clustering_method + '.png', dpi=300, bbox_inches='tight')
+  plt.savefig('./src/clustering/plot/'+ clustering_method + '.png', dpi=300, bbox_inches='tight')
 
 
 if __name__ == "__main__":

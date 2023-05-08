@@ -10,4 +10,6 @@ poetry.lock
 /project_code/experiment_runner/__pycache__/
 /logs/**
 /cl_res/**
+log
 
+__pycache__/

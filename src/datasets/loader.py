@@ -26,14 +26,16 @@ class Loader(Base_Loader):
         None
             only the initialized object
         """
-        Logger.info("Start read in all data.")
+        # Logger.info("Start read in all data.")
+        print("Start")
         super().__init__(base_dir)
         self.load_all_csv()
         self.NUM_STRATS: int = len(self.strategies)
         self.NUM_DATASETS: int = len(self.datasets)
         # substract 1 because of unncecessary selected_indices.csv
         self.NUM_METRICS: int = len(self.metrices) - 1
-        Logger.info("Finished read in all data.")
+        print("End")
+        # Logger.info("Finished read in all data.")
 
     def get_all_datafiles(self) -> Dict[str, Dict[str, Dict[str, pd.DataFrame]]]:
         """

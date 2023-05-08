@@ -8,7 +8,6 @@ from clustering import (
     SpectralClustering,
     DBSCANClustering,
     OPTICSClustering,
-    GaussianMixtureClustering,
     BaseClustering,
 )
 from side_handler import NoSuchClusterMethodError, ClusterFormatError
@@ -48,7 +47,7 @@ class ClusterRunner(BaseRunner):
         --------
         None
         """
-        Logger.info(f"Create ClusterRunner named {name}!")
+        # Logger.info(f"Create ClusterRunner named {name}!")
         super().__init__(data, name, components)
         self.num_clusters = num_clusters
         self.labels = self.data.get_strategy_names()
@@ -83,8 +82,6 @@ class ClusterRunner(BaseRunner):
                     Strat: DBSCANClustering = DBSCANClustering("dbscan", self.labels)
                 case 4:
                     Strat: OPTICSClustering = OPTICSClustering("optics", self.labels)
-                case 5: 
-                    Strat: GaussianMixtureClustering = GaussianMixtureClustering("gaussian_mixture", self.labels)
                 case _:
                     raise NoSuchClusterMethodError(
                         "Requested clustering method not registered"
@@ -122,9 +119,9 @@ class ClusterRunner(BaseRunner):
                         # proof if we collected some data, or data didn't exist
                         if single_vec.empty:
                             # continue loop
-                            Logger.info(
-                                f"Single vector was empty. Strategy {strategy} skipped."
-                            )
+                            # Logger.info(
+                            #    f"Single vector was empty. Strategy {strategy} skipped."
+                            # )
                             pass
                         else:
                             data_vectors.extend(single_vec.to_numpy())
@@ -134,9 +131,9 @@ class ClusterRunner(BaseRunner):
                                 clustering.cluster(data_vectors)
                             data_vectors.clear()
                         except:
-                            Logger.info(
-                                ClusterFormatError("Error in clustering attempt!")
-                            )
+                            # Logger.info(
+                            #    ClusterFormatError("Error in clustering attempt!")
+                            # )
                             data_vectors.clear()
                     else:
                         data_vectors.clear()
