@@ -2,6 +2,8 @@ import os
 from abc import ABC
 
 import pandas as pd
+import numpy as np
+from scipy.stats import entropy, zscore, skew, kurtosis
 
 
 class Metrics(ABC):
@@ -115,13 +117,175 @@ class Metrics(ABC):
             self.metafeatures_dict[data_name] = []
         self.metafeatures_dict[data_name].append(examples_n)
 
+    def proportion_of_missing_values(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the proportion of missing value per example (row) in a given DataFrame and store it in the
+        metafeatures_dict.
+
+        This method calculates the proportion of missing value per example (row) in the input DataFrame and appends the
+        value to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
+
+        """
+        examples_n = len(data_set)
+        prop_miss_values = data_set.isna().sum() / examples_n
+        prop_miss_values = prop_miss_values.to_dict()
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(prop_miss_values)
+
+    def skewness_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean skewness of all features (columns) in a given DataFrame and store it in the metafeatures_dict.
+
+        This method calculates the mean skewness of all features (columns) in the input DataFrame and appends the value
+        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
+
+        """
+
+        skew_features = skew(data_set.to_numpy())
+        skew_mean = np.mean(skew_features)
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(skew_mean)
+
+    def skewness_of_features(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the skewness for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
+
+        This method calculates the number of examples (rows) in the input DataFrame and appends the value
+        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
+
+        """
+
+        skew_features = {k: v for k, v in zip(data_set.columns, skew(data_set.to_numpy()))}
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(skew_features)
+
+    def kurtosis_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean kurtosis of all features (columns) in a given DataFrame and store it in the metafeatures_dict.
+
+        This method calculates the mean kurtosis of all features (columns) in the input DataFrame and appends the value
+        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
+
+        """
+
+        kurtosis_features = kurtosis(data_set.to_numpy())
+        kurtosis_mean = np.mean(kurtosis_features)
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(kurtosis_mean)
+
+    def kurtosis_of_features(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the kurtosis for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
+
+        This method calculates the kurtosis for each feature (column) in the input DataFrame and appends the value
+        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
+
+        """
+
+        kurtosis_features = {k: v for k, v in zip(data_set.columns, kurtosis(data_set.to_numpy()))}
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(kurtosis_features)
+
+    def entropy_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean entropy of all features (columns) in a given DataFrame and store it in the metafeatures_dict.
+
+        This method calculates the mean entropy of all features (columns) in the input DataFrame and appends the value
+        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
+
+        """
+
+        feature_entropies = np.array([])
+        for feature in data_set.columns:
+            value, counts = np.unique(data_set[feature], return_counts=True)
+            feature_entropy = entropy(counts)
+            feature_entropies = np.append(feature_entropies, feature_entropy)
+        entropy_mean = np.mean(feature_entropies)
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(entropy_mean)
+
+    def entropies_of_features(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the entropy for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
+
+        This method calculates the entropy for each feature (column) in the input DataFrame and appends the value
+        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
+
+        """
+
+        feature_entropies = {}
+        for feature in data_set.columns:
+            value, counts = np.unique(data_set[feature], return_counts=True)
+            feature_entropy = entropy(counts)
+            feature_entropies[feature] = feature_entropy
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(feature_entropies)
+
 
 if __name__ == "__main__":
-    metric = Metrics("kp_test/datasets")
+    metric = Metrics("/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets")
     metric.load_all_csv_datasets()
     # x = metric.load_single_csv_dataset("Iris.csv")
     for data in metric.data_sets_list:
         metric.number_of_features(data)
         metric.number_of_examples(data)
+        #  This seems very pointless! All the data sets in use have no nan --> no information gain
+        #  metric.proportion_of_missing_values(data)
+        metric.skewness_mean(data)
+        #  This produces a dict, we can not handle as parameter --> might still come in handy
+        #  same with kurtosis and entropy
+        #  metric.skewness_of_features(data)
+        metric.kurtosis_mean(data)
+        #  metric.entropies_of_features(data)
+        metric.entropy_mean(data)
 
     print(metric.metafeatures_dict)
