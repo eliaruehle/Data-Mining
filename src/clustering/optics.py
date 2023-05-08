@@ -1,7 +1,10 @@
+from typing import List
+
+import numpy as np
+from project_helper import Logger
 from sklearn.cluster import OPTICS
 from sklearn.decomposition import PCA
-from typing import List
-import numpy as np
+
 from clustering.base_cluster import BaseClustering
 
 
@@ -48,7 +51,7 @@ class OPTICSClustering(BaseClustering):
             min_samples=2, cluster_method="xi", xi=0.6, metric="euclidean"
         ).fit(reduced_data)
         # update the similarity matrix with retrieved labels
-        print("OPTICS labels:", optics.labels_)
+        Logger.debug("OPTICS labels:", optics.labels_)
         self.similarity_matrix.update(self.labels, optics.labels_)
 
     def write_cluster_results(self) -> None:

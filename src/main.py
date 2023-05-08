@@ -1,9 +1,11 @@
+import warnings
+
+from sklearn.exceptions import ConvergenceWarning
+
 from datasets import Loader
+from experiment_runner import ClusterRunner
 from project_helper.Logger import Logger
 from project_helper.method_types import CLUSTER_STRAT
-from experiment_runner import ClusterRunner
-import warnings
-from sklearn.exceptions import ConvergenceWarning
 
 
 def main() -> None:
@@ -40,7 +42,7 @@ def main() -> None:
         [3, 4, 5],
     )
 
-    # Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
+    Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
     CLUSTER_RUNNER.run()
 
 
