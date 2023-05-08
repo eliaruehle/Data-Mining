@@ -40,7 +40,7 @@ def main() -> None:
         [3, 4, 5],
     )
 
-    Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
+    # Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
     CLUSTER_RUNNER.run()
 
 
