@@ -4,6 +4,9 @@ from abc import ABC
 import numpy as np
 import pandas as pd
 from scipy.stats import entropy, kurtosis, skew, zscore
+from scipy.spatial.distance import cdist
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 
 class Metrics(ABC):
@@ -341,10 +344,9 @@ class Metrics(ABC):
         self.metafeatures_dict[data_name].append(feature_entropies)
 
 
-if __name__ == "__main__":
-    metric = Metrics("kp_test/datasets")
+def calculate_all_metics(path):
+    metric = Metrics(path)
     metric.load_all_csv_datasets()
-    # x = metric.load_single_csv_dataset("Iris.csv")
     for data in metric.data_sets_list:
         metric.number_of_features(data)
         metric.number_of_examples(data)
@@ -357,5 +359,48 @@ if __name__ == "__main__":
         metric.kurtosis_mean(data)
         #  metric.entropies_of_features(data)
         metric.entropy_mean(data)
+        metric.covariance(data)
+        metric.number_of_feature_correlations(data)
+    return metric
 
+
+def cosine_sim_scipy():
+    metric = calculate_all_metics("kp_test/datasets")
+    x = np.array(metric.metafeatures_dict['Iris.csv'])
+    y = np.array(metric.metafeatures_dict['ThinCross.csv'])
+    #  [[0.99905276]]
+    #  y = np.array(metric.metafeatures_dict['appendicitis.csv'])   [[0.98639771]]
+    #  y = np.array(metric.metafeatures_dict['banana.csv'])         [[0.99897118]]
+    #  y = np.array(metric.metafeatures_dict['wine_origin.csv'])    [[0.96245431]]
+    #  y = np.array(metric.metafeatures_dict['tic_tac_toe.csv'])    [[0.99934275]]
+    x = x.reshape(1, -1)
+    y = y.reshape(1, -1)
+    print(f"Iris.csv is this one {x}")
+    print(f"ThinCross.csv is this one {y}")
+    print(f"This is there cosine-similarity: {1. - cdist(x, y, 'cosine')}")
+
+
+def cosine_sim_sklearn():
+    """
+    I am sorry. I know this does not belong here.
+    """
+    metric = calculate_all_metics("kp_test/datasets")
+    x = np.array(metric.metafeatures_dict['Iris.csv'])
+    y = np.array(metric.metafeatures_dict['ThinCross.csv'])
+    #  [[0.99905276]]
+    #  y = np.array(metric.metafeatures_dict['appendicitis.csv'])  [[0.98639771]]
+    #  y = np.array(metric.metafeatures_dict['banana.csv']) [[0.99897118]]
+    #  y = np.array(metric.metafeatures_dict['wine_origin.csv']) [[0.96245431]]
+    #  y = np.array(metric.metafeatures_dict['tic_tac_toe.csv'])  [[0.99934275]]
+    x = x.reshape(1, -1)
+    y = y.reshape(1, -1)
+    print(f"Iris.csv is this one {x}")
+    print(f"ThinCross.csv is this one {y}")
+    print(f"This is there cosine-similarity: {cosine_similarity(x, y)}")
+
+
+
+if __name__ == "__main__":
+    metric = calculate_all_metics("kp_test/datasets")
     print(metric.metafeatures_dict)
+    cosine_sim_scipy()
