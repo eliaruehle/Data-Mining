@@ -32,7 +32,12 @@ def create_heatmap(clustering_method: str, title: str):
 
 
 if __name__ == "__main__":
-  #create_heatmap("kmeans_4centers", "KMeans 4 centrer")
-  #create_heatmap("optics_clustering_centers", "OPTICS")
-  create_heatmap("gaussian_mixture_centers", "Gaussian Mixture")
+  #create_heatmap("kmeans_3_centers", "KMeans 3 centrer")
+  #create_heatmap("kmeans_4_centers", "KMeans 4 centrer")
+  #create_heatmap("kmeans_5_centers", "KMeans 5 centrer")
+  #create_heatmap("optics_centers", "OPTICS")
+  #create_heatmap("gaussian_mixture_centers", "Gaussian Mixture")
+  create_heatmap("spec_3_cnt", "Spectral 3 centrer")
+  create_heatmap("spec_4_cnt", "Spectral 4 centrer")
+  create_heatmap("spec_5_cnt", "Spectral 5 centrer")
    
