@@ -8,6 +8,7 @@ from clustering import (
     SpectralClustering,
     DBSCANClustering,
     OPTICSClustering,
+    GaussianMixtureClustering,
     BaseClustering,
 )
 from side_handler import NoSuchClusterMethodError, ClusterFormatError
@@ -82,6 +83,8 @@ class ClusterRunner(BaseRunner):
                     Strat: DBSCANClustering = DBSCANClustering("dbscan", self.labels)
                 case 4:
                     Strat: OPTICSClustering = OPTICSClustering("optics", self.labels)
+                case 5: 
+                    Strat: GaussianMixtureClustering = GaussianMixtureClustering("gaussian_mixture", self.labels)
                 case _:
                     raise NoSuchClusterMethodError(
                         "Requested clustering method not registered"
