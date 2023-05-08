@@ -206,6 +206,28 @@ class Metrics(ABC):
             self.metafeatures_dict[data_name] = []
         self.metafeatures_dict[data_name].append(kurtosis_mean)
 
+    def kurtosis_of_features(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the kurtosis for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
+
+        This method calculates the kurtosis for each feature (column) in the input DataFrame and appends the value
+        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
+
+        """
+
+        kurtosis_features = {
+            k: v for k, v in zip(data_set.columns, kurtosis(data_set.to_numpy()))
+        }
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(kurtosis_features)
+
     def number_of_feature_correlations(
         self, data_set: pd.DataFrame, correlation_threshold=0.75
     ) -> None:
@@ -238,28 +260,6 @@ class Metrics(ABC):
         if data_name not in self.metafeatures_dict:
             self.metafeatures_dict[data_name] = []
         self.metafeatures_dict[data_name].append(feature_correlation_n)
-
-    def kurtosis_of_features(self, data_set: pd.DataFrame) -> None:
-        """
-        Calculate the kurtosis for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
-
-        This method calculates the kurtosis for each feature (column) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
-
-        Args:
-            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
-
-        """
-
-        kurtosis_features = {
-            k: v for k, v in zip(data_set.columns, kurtosis(data_set.to_numpy()))
-        }
-
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(kurtosis_features)
 
     def covariance(self, data_set: pd.DataFrame) -> None:
         """
