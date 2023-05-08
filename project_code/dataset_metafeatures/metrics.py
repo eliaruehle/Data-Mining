@@ -96,6 +96,25 @@ class Metrics(ABC):
             self.metafeatures_dict[data_name] = []
         self.metafeatures_dict[data_name].append(features_n)
 
+    def number_of_examples(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the number of examples (rows) in a given DataFrame and store it in the metafeatures_dict.
+
+        This method calculates the number of examples (rows) in the input DataFrame and appends the value
+        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
+
+        """
+        examples_n = len(data_set)
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(examples_n)
+
 
 if __name__ == "__main__":
     metric = Metrics("kp_test/datasets")
@@ -103,5 +122,6 @@ if __name__ == "__main__":
     # x = metric.load_single_csv_dataset("Iris.csv")
     for data in metric.data_sets_list:
         metric.number_of_features(data)
+        metric.number_of_examples(data)
 
     print(metric.metafeatures_dict)
