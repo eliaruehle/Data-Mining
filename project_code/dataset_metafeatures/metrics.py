@@ -1,9 +1,9 @@
 import os
 from abc import ABC
 
-import pandas as pd
 import numpy as np
-from scipy.stats import entropy, zscore, skew, kurtosis
+import pandas as pd
+from scipy.stats import entropy, kurtosis, skew, zscore
 
 
 class Metrics(ABC):
@@ -173,7 +173,9 @@ class Metrics(ABC):
 
         """
 
-        skew_features = {k: v for k, v in zip(data_set.columns, skew(data_set.to_numpy()))}
+        skew_features = {
+            k: v for k, v in zip(data_set.columns, skew(data_set.to_numpy()))
+        }
 
         data_name = data_set.name
         if data_name not in self.metafeatures_dict:
@@ -201,6 +203,39 @@ class Metrics(ABC):
             self.metafeatures_dict[data_name] = []
         self.metafeatures_dict[data_name].append(kurtosis_mean)
 
+    def number_of_feature_correlations(
+        self, data_set: pd.DataFrame, correlation_threshold=0.75
+    ) -> None:
+        """
+        Count the number of feature pairs with a correlation greater than the
+        specified threshold and store it in the metafeatures dictionary.
+
+        Args:
+            data_set (pd.DataFrame): Input pandas DataFrame.
+            correlation_threshold (float, optional): Correlation threshold for
+                counting feature pairs. Defaults to 0.75.
+        """
+        correlation_matrix = data_set.corr().abs()
+
+        # Select the upper triangle of the correlation matrix
+        upper_half = correlation_matrix.where(
+            np.triu(np.ones(correlation_matrix.shape), k=1).astype(bool)
+        )
+
+        # Find all features with a correlation > 0.75
+        feature_correlation_n = len(
+            [
+                coloumn
+                for coloumn in upper_half.columns
+                if any(upper_half[coloumn] > correlation_threshold)
+            ]
+        )
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(feature_correlation_n)
+
     def kurtosis_of_features(self, data_set: pd.DataFrame) -> None:
         """
         Calculate the kurtosis for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
@@ -214,12 +249,47 @@ class Metrics(ABC):
 
         """
 
-        kurtosis_features = {k: v for k, v in zip(data_set.columns, kurtosis(data_set.to_numpy()))}
+        kurtosis_features = {
+            k: v for k, v in zip(data_set.columns, kurtosis(data_set.to_numpy()))
+        }
 
         data_name = data_set.name
         if data_name not in self.metafeatures_dict:
             self.metafeatures_dict[data_name] = []
         self.metafeatures_dict[data_name].append(kurtosis_features)
+
+    def covariance(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the covariance matrix of the input DataFrame, and store the
+        counts of positive, exact zero, and negative covariance values in the
+        metafeatures dictionary.
+
+        Args:
+            data_set (pd.DataFrame): Input pandas DataFrame.
+        """
+
+        covariance_matrix = data_set.cov()
+        upper_half = covariance_matrix.where(
+            np.triu(np.ones(covariance_matrix.shape), k=1).astype(bool)
+        )
+        rounded_covariance = np.round(np.array(upper_half), decimals=3)
+
+        number_of_positive_covariance = int(
+            np.sum(np.sum(np.array(rounded_covariance) > 0, axis=0))
+        )
+        number_of_exact_zero_covariance = int(
+            np.sum(np.sum(np.array(rounded_covariance) == 0, axis=0))
+        )
+        number_of_negative_covariance = int(
+            np.sum(np.sum(np.array(rounded_covariance) < 0, axis=0))
+        )
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(number_of_positive_covariance)
+        self.metafeatures_dict[data_name].append(number_of_exact_zero_covariance)
+        self.metafeatures_dict[data_name].append(number_of_negative_covariance)
 
     def entropy_mean(self, data_set: pd.DataFrame) -> None:
         """
