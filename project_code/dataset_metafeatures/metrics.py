@@ -3,10 +3,9 @@ from abc import ABC
 
 import numpy as np
 import pandas as pd
-from scipy.stats import entropy, kurtosis, skew, zscore
 from scipy.spatial.distance import cdist
+from scipy.stats import entropy, kurtosis, skew, zscore
 from sklearn.metrics.pairwise import cosine_similarity
-
 
 
 class Metrics(ABC):
@@ -344,7 +343,7 @@ class Metrics(ABC):
         self.metafeatures_dict[data_name].append(feature_entropies)
 
 
-def calculate_all_metics(path):
+def calculate_all_metics(path) -> Metrics:
     metric = Metrics(path)
     metric.load_all_csv_datasets()
     for data in metric.data_sets_list:
@@ -366,8 +365,8 @@ def calculate_all_metics(path):
 
 def cosine_sim_scipy():
     metric = calculate_all_metics("kp_test/datasets")
-    x = np.array(metric.metafeatures_dict['Iris.csv'])
-    y = np.array(metric.metafeatures_dict['ThinCross.csv'])
+    x = np.array(metric.metafeatures_dict["Iris.csv"])
+    y = np.array(metric.metafeatures_dict["ThinCross.csv"])
     #  [[0.99905276]]
     #  y = np.array(metric.metafeatures_dict['appendicitis.csv'])   [[0.98639771]]
     #  y = np.array(metric.metafeatures_dict['banana.csv'])         [[0.99897118]]
@@ -380,13 +379,24 @@ def cosine_sim_scipy():
     print(f"This is there cosine-similarity: {1. - cdist(x, y, 'cosine')}")
 
 
+def cosine_similarity(data_set_a, data_set_b):
+    a = np.array(metric.metafeatures_dict[data_set_a])
+    b = np.array(metric.metafeatures_dict[data_set_b])
+    dot_product = np.dot(a, b)
+
+    normalize_a = np.linalg.norm(a, ord=2)
+    normalize_b = np.linalg.norm(b, ord=2)
+    cos_similarity = dot_product / (normalize_a * normalize_b)
+    print(cos_similarity)
+
+
 def cosine_sim_sklearn():
     """
     I am sorry. I know this does not belong here.
     """
     metric = calculate_all_metics("kp_test/datasets")
-    x = np.array(metric.metafeatures_dict['Iris.csv'])
-    y = np.array(metric.metafeatures_dict['ThinCross.csv'])
+    x = np.array(metric.metafeatures_dict["Iris.csv"])
+    y = np.array(metric.metafeatures_dict["ThinCross.csv"])
     #  [[0.99905276]]
     #  y = np.array(metric.metafeatures_dict['appendicitis.csv'])  [[0.98639771]]
     #  y = np.array(metric.metafeatures_dict['banana.csv']) [[0.99897118]]
@@ -399,8 +409,8 @@ def cosine_sim_sklearn():
     print(f"This is there cosine-similarity: {cosine_similarity(x, y)}")
 
 
-
 if __name__ == "__main__":
     metric = calculate_all_metics("kp_test/datasets")
-    print(metric.metafeatures_dict)
-    cosine_sim_scipy()
+    # print(metric.metafeatures_dict)
+    # cosine_sim_scipy()
+    cosine_similarity("Iris.csv", "ThinCross.csv")
