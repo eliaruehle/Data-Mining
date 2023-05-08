@@ -306,7 +306,7 @@ class Metrics(ABC):
 
         feature_entropies = np.array([])
         for feature in data_set.columns:
-            value, counts = np.unique(data_set[feature], return_counts=True)
+            useless_value, counts = np.unique(data_set[feature], return_counts=True)
             feature_entropy = entropy(counts)
             feature_entropies = np.append(feature_entropies, feature_entropy)
         entropy_mean = np.mean(feature_entropies)
@@ -331,7 +331,7 @@ class Metrics(ABC):
 
         feature_entropies = {}
         for feature in data_set.columns:
-            value, counts = np.unique(data_set[feature], return_counts=True)
+            useless_value, counts = np.unique(data_set[feature], return_counts=True)
             feature_entropy = entropy(counts)
             feature_entropies[feature] = feature_entropy
 
