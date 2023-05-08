@@ -37,6 +37,7 @@ class Metrics(ABC):
             ]
         )
         self.data_sets_list: list[pd.DataFrame] = list()
+        self.metafeatures_dict: dict[str, list[int]] = dict()
 
     def load_single_csv_dataset(self, data_set: str) -> pd.DataFrame:
         """
@@ -52,16 +53,18 @@ class Metrics(ABC):
             pd.DataFrame
                 A DataFrame containing the loaded CSV dataset.
         """
+        full_file_path = os.path.join(self.file_path, data_set)
         try:
-            return pd.read_csv(
-                self.file_path + "/" + data_set,
+            df = pd.read_csv(
+                full_file_path,
                 usecols=lambda coloumn: coloumn != "LABEL_TARGET",
             )
-        except:
-            # TODO: Fix the Error to be from side_handler package
-            raise ImportError(
-                f"The given path: {self.file_path}/{data_set} or requested CSV: {data_set} does not exist."
-            )
+            df.name = data_set
+            return df
+        except (FileNotFoundError, pd.errors.EmptyDataError) as exception:
+            raise FileNotFoundError(
+                f"The given path: '{full_file_path}' or requested CSV: '{data_set}' does not exist."
+            ) from exception
 
     def load_all_csv_datasets(self) -> None:
         """
@@ -72,11 +75,33 @@ class Metrics(ABC):
         """
         for data_item in self.data_sets:
             tmp = self.load_single_csv_dataset(data_item)
-            tmp.name = data_item
             self.data_sets_list.append(tmp)
+
+    def number_of_features(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the number of features in a given DataFrame and store it in the metafeatures_dict.
+
+        This method calculates the number of features (columns) in the input DataFrame and appends the value
+        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
+        present in the metafeatures_dict, a new list is initialized for the key.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the number of features needs to be calculated.
+
+        """
+        features_n = len(data_set.columns)
+
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(features_n)
 
 
 if __name__ == "__main__":
     metric = Metrics("kp_test/datasets")
     metric.load_all_csv_datasets()
-    print(metric.data_sets_list)
+    # x = metric.load_single_csv_dataset("Iris.csv")
+    for data in metric.data_sets_list:
+        metric.number_of_features(data)
+
+    print(metric.metafeatures_dict)
