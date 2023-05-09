@@ -340,68 +340,33 @@ def calculate_all_metics(path) -> Metrics:
         metric.number_of_examples(data)
         metric.standard_deviation_mean(data)
         metric.variance_mean(data)
-        #  This seems very pointless! All the data sets in use have no nan --> no information gain
-        # metric.proportion_of_missing_values(data)
         metric.skewness_mean(data)
-        #  This produces a dict, we can not handle as parameter --> might still come in handy
-        #  same with kurtosis and entropy
-        #  metric.skewness_of_features(data)
         metric.kurtosis_mean(data)
-        #  metric.entropies_of_features(data)
         metric.entropy_mean(data)
         metric.covariance(data)
         metric.number_of_feature_correlations(data)
+        #  This seems very pointless! All the data sets in use have no nan --> no information gain
+        # metric.proportion_of_missing_values(data)
+        #  This produces a dict, we can not handle as parameter --> might still come in handy
+        #  same with kurtosis and entropy
+        #  metric.skewness_of_features(data)
+        #  metric.entropies_of_features(data)
     return metric
 
 
 def cosine_sim_scipy(data_set_a, data_set_b):
-    # metric = calculate_all_metics("kp_test/datasets")
     x = np.array(metric.metafeatures_dict[data_set_a])
     y = np.array(metric.metafeatures_dict[data_set_b])
-    #  [[0.99905276]]
-    #  y = np.array(metric.metafeatures_dict['appendicitis.csv'])   [[0.98639771]]
-    #  y = np.array(metric.metafeatures_dict['banana.csv'])         [[0.99897118]]
-    #  y = np.array(metric.metafeatures_dict['wine_origin.csv'])    [[0.96245431]]
-    #  y = np.array(metric.metafeatures_dict['tic_tac_toe.csv'])    [[0.99934275]]
+
     x = x.reshape(1, -1)
     y = y.reshape(1, -1)
-    # print(f"{data_set_a} is this one {x}")
-    print(f"{data_set_b} is this one {y}")
-    # print(f"This is there cosine-similarity: {1. - cdist(x, y, 'cosine')}")
+    # print(f"{data_set_a} has this this normalized Vector: {x}")
+    print(f"{data_set_b} has this this normalized Vector: {y}")
+
     return f"Cosine Sim between Iris.csv and {data_set_b}: {1. - cdist(x, y, 'cosine')}"
 
 
-def cosine_sim_sklearn():
-    """
-    I am sorry. I know this does not belong here.
-    """
-    metric = calculate_all_metics("kp_test/datasets")
-    x = np.array(metric.metafeatures_dict["Iris.csv"])
-    y = np.array(metric.metafeatures_dict["ThinCross.csv"])
-    #  [[0.99905276]]
-    #  y = np.array(metric.metafeatures_dict['appendicitis.csv'])  [[0.98639771]]
-    #  y = np.array(metric.metafeatures_dict['banana.csv']) [[0.99897118]]
-    #  y = np.array(metric.metafeatures_dict['wine_origin.csv']) [[0.96245431]]
-    #  y = np.array(metric.metafeatures_dict['tic_tac_toe.csv'])  [[0.99934275]]
-    x = x.reshape(1, -1)
-    y = y.reshape(1, -1)
-    print(f"Iris.csv is this one {x}")
-    print(f"ThinCross.csv is this one {y}")
-    print(f"This is there cosine-similarity: {cosine_similarity(x, y)}")
-
-
-def cosine_similarity(data_set_a, data_set_b):
-    a = np.array(metric.metafeatures_dict[data_set_a])
-    b = np.array(metric.metafeatures_dict[data_set_b])
-    dot_product = np.dot(a, b)
-
-    normalize_a = np.linalg.norm(a, ord=2)
-    normalize_b = np.linalg.norm(b, ord=2)
-    cos_similarity = dot_product / (normalize_a * normalize_b)
-    return f"{data_set_a} & {data_set_b}: {cos_similarity}"
-
-
-def extract_cosine_similarity(f_string):
+def extract_cosine_similarity(f_string: str) -> float:
     numbers = re.findall(r"[-+]?[\d]+(?:\.\d+)?(?:[eE][-+]?\d+)?", f_string)
     return float(numbers[-1]) if numbers else 0
 
@@ -410,7 +375,6 @@ if __name__ == "__main__":
     metric = calculate_all_metics("kp_test/datasets")
     # print(metric.metafeatures_dict)
     # cosine_sim_scipy()
-    cosine_similarity("Iris.csv", "ThinCross.csv")
     results = []
     for data in metric.data_sets_list:
         results.append(cosine_sim_scipy("Iris.csv", data.name))
