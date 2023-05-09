@@ -1,6 +1,6 @@
 .venv
 poetry.lock
-.DS_Store
+*.DS_Store
 .idea
 /project_code/__pycache__/
 /project_code/clustering/__pycache__/
