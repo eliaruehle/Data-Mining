@@ -123,16 +123,37 @@ class Metrics(ABC):
         self.add_to_meatafeatures_dict(data_set, examples_n)
 
     def standard_deviation_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean of the standard deviation for each column in the data_set and add it to the metafeatures dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the mean of the standard deviation is calculated.
+
+        """
         standard_deviation_mean = data_set.std().mean()
 
         self.add_to_meatafeatures_dict(data_set, standard_deviation_mean)
 
     def variance_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean of the variance for each column in the data_set and add it to the metafeatures dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the mean of the variance is calculated.
+
+        """
         variance_mean = data_set.var().mean()
 
         self.add_to_meatafeatures_dict(data_set, variance_mean)
 
     def quantile_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean of the quantiles for each column in the data_set and add it to the metafeatures dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the mean of the quantiles is calculated.
+
+        """
         quantile_mean = data_set.quantile().mean()
 
         self.add_to_meatafeatures_dict(data_set, quantile_mean)
