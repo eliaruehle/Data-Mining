@@ -16,12 +16,14 @@ class Metrics(ABC):
 
     Attributes
     ----------
-    file_path : str
-        The path to the directory containing the CSV datasets.
     data_sets : list[str]
         A sorted list of CSV file names in the specified directory.
-    data_sets_dict : dict[str, pd.DataFrame]
-        A dictionary to store loaded CSV datasets, keyed by their file names.
+    data_sets_list : list[pd.DataFrame]
+        A list to store loaded CSV datasets.
+    metafeatures_dict: dict[str, list[float]]
+        A dictionary which stores all the existing datasets with their corresponding metafeatures.
+        The key being the name of the dataset (ending with .csv), while the value is a list containing
+        all metafeatures.
 
     """
 
@@ -43,7 +45,7 @@ class Metrics(ABC):
             ]
         )
         self.data_sets_list: list[pd.DataFrame] = list()
-        self.metafeatures_dict: dict[str, list[int]] = dict()
+        self.metafeatures_dict: dict[str, list[float]] = dict()
 
     def load_single_csv_dataset(self, data_set: str) -> pd.DataFrame:
         """
@@ -86,6 +88,13 @@ class Metrics(ABC):
     def add_to_meatafeatures_dict(
         self, data_set: pd.DataFrame, metafeature: float
     ) -> None:
+        """
+        Add the calculated metafeature to the metafeatures_dict.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame for which the metafeature has been calculated.
+            metafeature (float): The calculated metafeature value.
+        """
         data_name = data_set.name
         if data_name not in self.metafeatures_dict:
             self.metafeatures_dict[data_name] = []
@@ -362,11 +371,12 @@ def calculate_all_metics(path) -> Metrics:
         metric.number_of_examples(data)
         metric.standard_deviation_mean(data)
         metric.variance_mean(data)
+        metric.quantile_mean(data)
         metric.skewness_mean(data)
         metric.kurtosis_mean(data)
-        metric.entropy_mean(data)
-        metric.covariance(data)
         metric.number_of_feature_correlations(data)
+        metric.covariance(data)
+        metric.entropy_mean(data)
         #  This seems very pointless! All the data sets in use have no nan --> no information gain
         # metric.proportion_of_missing_values(data)
         #  This produces a dict, we can not handle as parameter --> might still come in handy
