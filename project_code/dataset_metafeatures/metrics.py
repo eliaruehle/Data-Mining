@@ -82,6 +82,14 @@ class Metrics(ABC):
             tmp = self.load_single_csv_dataset(data_item)
             self.data_sets_list.append(tmp)
 
+    def add_to_meatafeatures_dict(
+        self, data_set: pd.DataFrame, metafeature: float
+    ) -> None:
+        data_name = data_set.name
+        if data_name not in self.metafeatures_dict:
+            self.metafeatures_dict[data_name] = []
+        self.metafeatures_dict[data_name].append(metafeature)
+
     def number_of_features(self, data_set: pd.DataFrame) -> None:
         """
         Calculate the number of features in a given DataFrame and store it in the metafeatures_dict.
