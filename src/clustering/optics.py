@@ -68,4 +68,4 @@ class OPTICSClustering(BaseClustering):
         --------
         None
         """
-        self.similarity_matrix.write_to_csv("centers")
+        self.similarity_matrix.write_to_csv("all")

@@ -54,6 +54,7 @@ class DBSCANClustering(BaseClustering):
         reduced_data: np.ndarray = pca.fit_transform(data_vecs)
         # create sklearn OPTICS object
         dbscan: DBSCAN = DBSCAN(eps=0.1, min_samples=1).fit(reduced_data)
+        print("DBSCAN labels: ", dbscan.labels_)
         # update the similarity matrix with retrieved labels‚
         self.similarity_matrix.update(self.labels, dbscan.labels_)
 
@@ -70,4 +71,4 @@ class DBSCANClustering(BaseClustering):
         --------
         None
         """
-        self.similarity_matrix.write_to_csv("centers")
+        self.similarity_matrix.write_to_csv("all")
