@@ -120,10 +120,22 @@ class Metrics(ABC):
         """
         examples_n = len(data_set)
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(examples_n)
+        self.add_to_meatafeatures_dict(data_set, examples_n)
+
+    def standard_deviation_mean(self, data_set: pd.DataFrame) -> None:
+        standard_deviation_mean = data_set.std().mean()
+
+        self.add_to_meatafeatures_dict(data_set, standard_deviation_mean)
+
+    def variance_mean(self, data_set: pd.DataFrame) -> None:
+        variance_mean = data_set.var().mean()
+
+        self.add_to_meatafeatures_dict(data_set, variance_mean)
+
+    def quantile_mean(self, data_set: pd.DataFrame) -> None:
+        quantile_mean = data_set.quantile().mean()
+
+        self.add_to_meatafeatures_dict(data_set, quantile_mean)
 
     def proportion_of_missing_values(self, data_set: pd.DataFrame) -> None:
         """
@@ -326,8 +338,10 @@ def calculate_all_metics(path) -> Metrics:
     for data in metric.data_sets_list:
         metric.number_of_features(data)
         metric.number_of_examples(data)
+        metric.standard_deviation_mean(data)
+        metric.variance_mean(data)
         #  This seems very pointless! All the data sets in use have no nan --> no information gain
-        #  metric.proportion_of_missing_values(data)
+        # metric.proportion_of_missing_values(data)
         metric.skewness_mean(data)
         #  This produces a dict, we can not handle as parameter --> might still come in handy
         #  same with kurtosis and entropy
