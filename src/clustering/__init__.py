@@ -4,3 +4,4 @@ from .kmeans import *
 from .optics import *
 from .similarity_matrix import *
 from .spectral_clustering import *
+from .gaussian_mixture import *

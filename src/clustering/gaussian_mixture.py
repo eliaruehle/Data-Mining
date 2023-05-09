@@ -1,18 +1,14 @@
 from typing import List
-
 import numpy as np
-from project_helper import Logger
-from sklearn.cluster import OPTICS
-from sklearn.decomposition import PCA
-
 from clustering.base_cluster import BaseClustering
+import numpy as np
+from sklearn.mixture import GaussianMixture
 
 
-
-class OPTICSClustering(BaseClustering):
+class GaussianMixtureClustering(BaseClustering):
 
     """
-    Class for setup a OPTICS clustering.
+    Class for setup a GaussianMixture clustering.
     """
 
     def __init__(self, cluster_name: str, labels: List[str]) -> None:
@@ -45,16 +41,12 @@ class OPTICSClustering(BaseClustering):
         --------
         None
         """
-        pca: PCA = PCA(n_components=2)
-        reduced_data: np.ndaarray = pca.fit_transform(data_vecs)
-        # create sklearn OPTICS object
-        optics: OPTICS = OPTICS(
-            min_samples=2, cluster_method="xi", xi=0.6, metric="euclidean"
-        ).fit(reduced_data)
+
+        gm: GaussianMixture = GaussianMixture(n_components=2, random_state=0).fit(data_vecs)
+        
         # update the similarity matrix with retrieved labels
-        # Logger.debug("OPTICS labels:", optics.labels_)
-        print(optics.labels_)
-        self.similarity_matrix.update(self.labels, optics.labels_)
+        self.similarity_matrix.update(self.labels, gm.predict(data_vecs))
+        print(gm.predict(data_vecs))
 
     def write_cluster_results(self) -> None:
         """
@@ -69,4 +61,4 @@ class OPTICSClustering(BaseClustering):
         --------
         None
         """
-        self.similarity_matrix.write_to_csv("all")
+        self.similarity_matrix.write_to_csv("centers")

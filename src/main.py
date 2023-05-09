@@ -38,6 +38,7 @@ def main() -> None:
             CLUSTER_STRAT.SPECTRAL,
             CLUSTER_STRAT.OPTICS,
             CLUSTER_STRAT.DBSCAN,
+            CLUSTER_STRAT.GAUSSIAN_MIXTURE,
         ],
         [3, 4, 5],
     )
