@@ -42,11 +42,12 @@ class GaussianMixtureClustering(BaseClustering):
         None
         """
 
-        gm: GaussianMixture = GaussianMixture(n_components=2, random_state=0).fit(data_vecs)
-        
+        gm: GaussianMixture = GaussianMixture(n_components=2, random_state=0).fit(
+            data_vecs
+        )
+
         # update the similarity matrix with retrieved labels
         self.similarity_matrix.update(self.labels, gm.predict(data_vecs))
-        print(gm.predict(data_vecs))
 
     def write_cluster_results(self) -> None:
         """

@@ -8,7 +8,6 @@ from sklearn.decomposition import PCA
 from clustering.base_cluster import BaseClustering
 
 
-
 class OPTICSClustering(BaseClustering):
 
     """
@@ -53,7 +52,6 @@ class OPTICSClustering(BaseClustering):
         ).fit(reduced_data)
         # update the similarity matrix with retrieved labels
         # Logger.debug("OPTICS labels:", optics.labels_)
-        print(optics.labels_)
         self.similarity_matrix.update(self.labels, optics.labels_)
 
     def write_cluster_results(self) -> None:

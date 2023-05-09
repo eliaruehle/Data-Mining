@@ -83,8 +83,10 @@ class ClusterRunner(BaseRunner):
                     Strat: DBSCANClustering = DBSCANClustering("dbscan", self.labels)
                 case 4:
                     Strat: OPTICSClustering = OPTICSClustering("optics", self.labels)
-                case 5: 
-                    Strat: GaussianMixtureClustering = GaussianMixtureClustering("gaussian_mixture", self.labels)
+                case 5:
+                    Strat: GaussianMixtureClustering = GaussianMixtureClustering(
+                        "gaussian_mixture", self.labels
+                    )
                 case _:
                     raise NoSuchClusterMethodError(
                         "Requested clustering method not registered"
@@ -140,7 +142,6 @@ class ClusterRunner(BaseRunner):
                             data_vectors.clear()
                     else:
                         data_vectors.clear()
-                break
             break
 
         # saves the results from the clusterings
