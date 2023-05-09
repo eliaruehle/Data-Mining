@@ -26,9 +26,12 @@ def main() -> None:
     # TODO: adjust OPTICS Parameters to get rid of RuntimeWarnings instead of ignoring them
     warnings.filterwarnings("ignore", category=RuntimeWarning)
 
+    print("DEBUG: start reading in data")
     # initialize one data object
     PROJECT_DATA: Loader = Loader("kp_test")
+    print("DEBUG: ready to load data")
 
+    print("DEBUG: intialize cluster-runner")
     # initialize experiment runners
     CLUSTER_RUNNER = ClusterRunner(
         PROJECT_DATA,
@@ -42,10 +45,13 @@ def main() -> None:
         ],
         [4, 5],
     )
+    print("DEBUG: ready to load cluster-runner")
 
     # Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
+    print("DEBUG: start cluster runner")
     CLUSTER_RUNNER.run()
 
 
-if __name__ == "__main__":
-    main()
+# start main
+print("now start main")
+main()
