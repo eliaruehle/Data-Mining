@@ -104,10 +104,7 @@ class Metrics(ABC):
         """
         features_n = len(data_set.columns)
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(features_n)
+        self.add_to_meatafeatures_dict(data_set, features_n)
 
     def number_of_examples(self, data_set: pd.DataFrame) -> None:
         """
@@ -145,10 +142,7 @@ class Metrics(ABC):
         prop_miss_values = data_set.isna().sum() / examples_n
         prop_miss_values = prop_miss_values.to_dict()
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(prop_miss_values)
+        self.add_to_meatafeatures_dict(data_set, prop_miss_values)
 
     def skewness_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -163,13 +157,9 @@ class Metrics(ABC):
 
         """
 
-        skew_features = skew(data_set.to_numpy())
-        skew_mean = np.mean(skew_features)
+        skew_mean = data_set.skew().mean()
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(skew_mean)
+        self.add_to_meatafeatures_dict(data_set, skew_mean)
 
     def skewness_of_features(self, data_set: pd.DataFrame) -> None:
         """
@@ -188,10 +178,7 @@ class Metrics(ABC):
             k: v for k, v in zip(data_set.columns, skew(data_set.to_numpy()))
         }
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(skew_features)
+        self.add_to_meatafeatures_dict(data_set, skew_features)
 
     def kurtosis_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -206,13 +193,9 @@ class Metrics(ABC):
 
         """
 
-        kurtosis_features = kurtosis(data_set.to_numpy())
-        kurtosis_mean = np.mean(kurtosis_features)
+        kurtosis = data_set.kurt().mean()
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(kurtosis_mean)
+        self.add_to_meatafeatures_dict(data_set, kurtosis)
 
     def kurtosis_of_features(self, data_set: pd.DataFrame) -> None:
         """
@@ -231,10 +214,7 @@ class Metrics(ABC):
             k: v for k, v in zip(data_set.columns, kurtosis(data_set.to_numpy()))
         }
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(kurtosis_features)
+        self.add_to_meatafeatures_dict(data_set, kurtosis_features)
 
     def number_of_feature_correlations(
         self, data_set: pd.DataFrame, correlation_threshold=0.75
@@ -264,10 +244,7 @@ class Metrics(ABC):
             ]
         )
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(feature_correlation_n)
+        self.add_to_meatafeatures_dict(data_set, feature_correlation_n)
 
     def covariance(self, data_set: pd.DataFrame) -> None:
         """
@@ -295,12 +272,9 @@ class Metrics(ABC):
             np.sum(np.sum(np.array(rounded_covariance) < 0, axis=0))
         )
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(number_of_positive_covariance)
-        self.metafeatures_dict[data_name].append(number_of_exact_zero_covariance)
-        self.metafeatures_dict[data_name].append(number_of_negative_covariance)
+        self.add_to_meatafeatures_dict(data_set, number_of_positive_covariance)
+        self.add_to_meatafeatures_dict(data_set, number_of_exact_zero_covariance)
+        self.add_to_meatafeatures_dict(data_set, number_of_negative_covariance)
 
     def entropy_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -322,10 +296,7 @@ class Metrics(ABC):
             feature_entropies = np.append(feature_entropies, feature_entropy)
         entropy_mean = np.mean(feature_entropies)
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(entropy_mean)
+        self.add_to_meatafeatures_dict(data_set, entropy_mean)
 
     def entropies_of_features(self, data_set: pd.DataFrame) -> None:
         """
@@ -346,10 +317,7 @@ class Metrics(ABC):
             feature_entropy = entropy(counts)
             feature_entropies[feature] = feature_entropy
 
-        data_name = data_set.name
-        if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(feature_entropies)
+        self.add_to_meatafeatures_dict(data_set, feature_entropies)
 
 
 def calculate_all_metics(path) -> Metrics:
@@ -383,8 +351,8 @@ def cosine_sim_scipy(data_set_a, data_set_b):
     #  y = np.array(metric.metafeatures_dict['tic_tac_toe.csv'])    [[0.99934275]]
     x = x.reshape(1, -1)
     y = y.reshape(1, -1)
-    # print(f"Iris.csv is this one {x}")
-    # print(f"ThinCross.csv is this one {y}")
+    # print(f"{data_set_a} is this one {x}")
+    print(f"{data_set_b} is this one {y}")
     # print(f"This is there cosine-similarity: {1. - cdist(x, y, 'cosine')}")
     return f"Cosine Sim between Iris.csv and {data_set_b}: {1. - cdist(x, y, 'cosine')}"
 
@@ -428,11 +396,10 @@ if __name__ == "__main__":
     metric = calculate_all_metics("kp_test/datasets")
     # print(metric.metafeatures_dict)
     # cosine_sim_scipy()
-    # cosine_similarity("Iris.csv", "ThinCross.csv")
+    cosine_similarity("Iris.csv", "ThinCross.csv")
     results = []
     for data in metric.data_sets_list:
-        results.append(cosine_similarity("Iris.csv", data.name))
-
+        results.append(cosine_sim_scipy("Iris.csv", data.name))
     sorted_f_strings = sorted(results, key=extract_cosine_similarity, reverse=True)
 
     print(sorted_f_strings)
