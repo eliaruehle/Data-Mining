@@ -1,4 +1,5 @@
 import os
+import re
 from abc import ABC
 
 import numpy as np
@@ -363,10 +364,10 @@ def calculate_all_metics(path) -> Metrics:
     return metric
 
 
-def cosine_sim_scipy():
-    metric = calculate_all_metics("kp_test/datasets")
-    x = np.array(metric.metafeatures_dict["Iris.csv"])
-    y = np.array(metric.metafeatures_dict["ThinCross.csv"])
+def cosine_sim_scipy(data_set_a, data_set_b):
+    # metric = calculate_all_metics("kp_test/datasets")
+    x = np.array(metric.metafeatures_dict[data_set_a])
+    y = np.array(metric.metafeatures_dict[data_set_b])
     #  [[0.99905276]]
     #  y = np.array(metric.metafeatures_dict['appendicitis.csv'])   [[0.98639771]]
     #  y = np.array(metric.metafeatures_dict['banana.csv'])         [[0.99897118]]
@@ -374,20 +375,10 @@ def cosine_sim_scipy():
     #  y = np.array(metric.metafeatures_dict['tic_tac_toe.csv'])    [[0.99934275]]
     x = x.reshape(1, -1)
     y = y.reshape(1, -1)
-    print(f"Iris.csv is this one {x}")
-    print(f"ThinCross.csv is this one {y}")
-    print(f"This is there cosine-similarity: {1. - cdist(x, y, 'cosine')}")
-
-
-def cosine_similarity(data_set_a, data_set_b):
-    a = np.array(metric.metafeatures_dict[data_set_a])
-    b = np.array(metric.metafeatures_dict[data_set_b])
-    dot_product = np.dot(a, b)
-
-    normalize_a = np.linalg.norm(a, ord=2)
-    normalize_b = np.linalg.norm(b, ord=2)
-    cos_similarity = dot_product / (normalize_a * normalize_b)
-    print(cos_similarity)
+    # print(f"Iris.csv is this one {x}")
+    # print(f"ThinCross.csv is this one {y}")
+    # print(f"This is there cosine-similarity: {1. - cdist(x, y, 'cosine')}")
+    return f"Cosine Sim between Iris.csv and {data_set_b}: {1. - cdist(x, y, 'cosine')}"
 
 
 def cosine_sim_sklearn():
@@ -409,8 +400,31 @@ def cosine_sim_sklearn():
     print(f"This is there cosine-similarity: {cosine_similarity(x, y)}")
 
 
+def cosine_similarity(data_set_a, data_set_b):
+    a = np.array(metric.metafeatures_dict[data_set_a])
+    b = np.array(metric.metafeatures_dict[data_set_b])
+    dot_product = np.dot(a, b)
+
+    normalize_a = np.linalg.norm(a, ord=2)
+    normalize_b = np.linalg.norm(b, ord=2)
+    cos_similarity = dot_product / (normalize_a * normalize_b)
+    return f"{data_set_a} & {data_set_b}: {cos_similarity}"
+
+
+def extract_cosine_similarity(f_string):
+    numbers = re.findall(r"[-+]?[\d]+(?:\.\d+)?(?:[eE][-+]?\d+)?", f_string)
+    return float(numbers[-1]) if numbers else 0
+
+
 if __name__ == "__main__":
     metric = calculate_all_metics("kp_test/datasets")
     # print(metric.metafeatures_dict)
     # cosine_sim_scipy()
-    cosine_similarity("Iris.csv", "ThinCross.csv")
+    # cosine_similarity("Iris.csv", "ThinCross.csv")
+    results = []
+    for data in metric.data_sets_list:
+        results.append(cosine_similarity("Iris.csv", data.name))
+
+    sorted_f_strings = sorted(results, key=extract_cosine_similarity, reverse=True)
+
+    print(sorted_f_strings)
