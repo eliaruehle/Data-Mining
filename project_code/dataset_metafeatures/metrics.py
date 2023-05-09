@@ -1,3 +1,4 @@
+import itertools
 import os
 import re
 from abc import ABC
@@ -382,9 +383,9 @@ def cosine_sim_scipy(data_set_a, data_set_b):
     x = x.reshape(1, -1)
     y = y.reshape(1, -1)
     # print(f"{data_set_a} has this this normalized Vector: {x}")
-    print(f"{data_set_b} has this this normalized Vector: {y}")
+    # print(f"{data_set_b} has this this normalized Vector: {y}")
 
-    return f"Cosine Sim between Iris.csv and {data_set_b}: {1. - cdist(x, y, 'cosine')}"
+    return f"{data_set_a} & {data_set_b}: {1. - cdist(x, y, 'cosine')}"
 
 
 def extract_cosine_similarity(f_string: str) -> float:
@@ -394,11 +395,13 @@ def extract_cosine_similarity(f_string: str) -> float:
 
 if __name__ == "__main__":
     metric = calculate_all_metics("kp_test/datasets")
-    # print(metric.metafeatures_dict)
-    # cosine_sim_scipy()
-    results = []
-    for data in metric.data_sets_list:
-        results.append(cosine_sim_scipy("Iris.csv", data.name))
-    sorted_f_strings = sorted(results, key=extract_cosine_similarity, reverse=True)
 
+    results = []
+
+    for data_set_a, data_set_b in itertools.combinations(metric.data_sets_list, 2):
+        # Calculate cosine similarity only for unique pairs
+        cos_sim = cosine_sim_scipy(data_set_a.name, data_set_b.name)
+        results.append(cos_sim)
+
+    sorted_f_strings = sorted(results, key=extract_cosine_similarity, reverse=True)
     print(sorted_f_strings)
