@@ -142,6 +142,7 @@ class ClusterRunner(BaseRunner):
                             data_vectors.clear()
                     else:
                         data_vectors.clear()
+                break
             break
 
         # saves the results from the clusterings

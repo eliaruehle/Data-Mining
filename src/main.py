@@ -40,7 +40,7 @@ def main() -> None:
             CLUSTER_STRAT.DBSCAN,
             CLUSTER_STRAT.GAUSSIAN_MIXTURE,
         ],
-        [3],
+        [4, 5],
     )
 
     # Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
