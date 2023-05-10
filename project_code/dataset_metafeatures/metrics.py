@@ -132,6 +132,21 @@ class Metrics(ABC):
 
         self.add_to_meatafeatures_dict(data_set, examples_n)
 
+    def overall_mean(self, data_set: pd.DataFrame) -> None:
+        overall_mean = data_set.mean().mean()
+
+        self.add_to_meatafeatures_dict(data_set, overall_mean)
+
+    def average_min(self, data_set: pd.DataFrame) -> None:
+        average_min = data_set.min().mean()
+
+        self.add_to_meatafeatures_dict(data_set, average_min)
+
+    def average_max(self, data_set: pd.DataFrame) -> None:
+        average_max = data_set.max().mean()
+
+        self.add_to_meatafeatures_dict(data_set, average_max)
+
     def standard_deviation_mean(self, data_set: pd.DataFrame) -> None:
         """
         Calculate the mean of the standard deviation for each column in the data_set and add it to the metafeatures dictionary.
@@ -369,6 +384,9 @@ def calculate_all_metics(path) -> Metrics:
     for data in metric.data_sets_list:
         metric.number_of_features(data)
         metric.number_of_examples(data)
+        metric.average_min(data)
+        metric.overall_mean(data)
+        metric.average_max(data)
         metric.standard_deviation_mean(data)
         metric.variance_mean(data)
         metric.quantile_mean(data)
