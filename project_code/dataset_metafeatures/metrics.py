@@ -2,6 +2,7 @@ import itertools
 import os
 import re
 from abc import ABC
+from math import log2
 
 import numpy as np
 import pandas as pd
@@ -112,7 +113,7 @@ class Metrics(ABC):
             data_set (pd.DataFrame): The input DataFrame for which the number of features needs to be calculated.
 
         """
-        features_n = len(data_set.columns)
+        features_n = log2(len(data_set.columns))
 
         self.add_to_meatafeatures_dict(data_set, features_n)
 
@@ -128,7 +129,7 @@ class Metrics(ABC):
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
 
         """
-        examples_n = len(data_set)
+        examples_n = log2(len(data_set))
 
         self.add_to_meatafeatures_dict(data_set, examples_n)
 
@@ -196,7 +197,7 @@ class Metrics(ABC):
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
 
         """
-        examples_n = len(data_set)
+        examples_n = log2(len(data_set))
         prop_miss_values = data_set.isna().sum() / examples_n
         prop_miss_values = prop_miss_values.to_dict()
 
