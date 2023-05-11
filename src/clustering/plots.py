@@ -7,7 +7,7 @@ from numpy import genfromtxt
 
 
 def create_heatmap(clustering_method: str, title: str):
-  data = pd.read_csv('./cl_res/'+ clustering_method +'.csv', index_col=0)
+  data = pd.read_csv('./src/cl_res/'+ clustering_method +'.csv', index_col=0)
 
   fig, ax = plt.subplots(figsize=(8, 8))
   heatmap = ax.imshow(data, cmap='YlGnBu')
@@ -32,12 +32,16 @@ def create_heatmap(clustering_method: str, title: str):
 
 
 if __name__ == "__main__":
-  #create_heatmap("kmeans_3_centers", "KMeans 3 centrer")
+  #create_heatmap("kmeans_Iris_3_centers", "KMeans Iris 3 centrer")
   #create_heatmap("kmeans_4_centers", "KMeans 4 centrer")
   #create_heatmap("kmeans_5_centers", "KMeans 5 centrer")
-  #create_heatmap("optics_centers", "OPTICS")
-  #create_heatmap("gaussian_mixture_centers", "Gaussian Mixture")
-  create_heatmap("spec_3_cnt", "Spectral 3 centrer")
-  create_heatmap("spec_4_cnt", "Spectral 4 centrer")
-  create_heatmap("spec_5_cnt", "Spectral 5 centrer")
+  #create_heatmap("optics_Iris", "OPTICS Iris")
+  #create_heatmap("dbscan_Iris", "DBSCAN Iris")
+  #create_heatmap("gaussian_mixture_Iris", "Gaussian Mixture Iris")
+  #create_heatmap("spec_Iris_3_centers", "Spectral Iris 3 centrer")
+  #create_heatmap("spec_Iris_4_cnt", "Spectral Iris 4 centrer")
+  #create_heatmap("spec_5_cnt", "Spectral 5 centrer")
+  #create_heatmap("spec_wine_origin_5_centers", "Spectral wine origin 5 centers")
+  create_heatmap("optics_wine_origin", "OPTICS wine origin")
+  create_heatmap("kmeans_wine_origin_5_centers", "KMeans wine origin 5 centrer")
    
