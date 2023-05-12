@@ -259,6 +259,11 @@ class Metrics(ABC):
 
         self.add_to_meatafeatures_dict(data_set, skew_mean)
 
+    def skewness_median(self, data_set: pd.DataFrame) -> None:
+        skew_median = data_set.skew().median()
+
+        self.add_to_meatafeatures_dict(data_set, skew_median)
+
     def skewness_of_features(self, data_set: pd.DataFrame) -> None:
         """
         Calculate the skewness for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
@@ -293,7 +298,10 @@ class Metrics(ABC):
 
         kurtosis = data_set.kurt().mean()
 
-        self.add_to_meatafeatures_dict(data_set, kurtosis)
+    def kurtosis_median(self, data_set: pd.DataFrame) -> None:
+        kurtosis_median = data_set.kurt().median()
+
+        self.add_to_meatafeatures_dict(data_set, kurtosis_median)
 
     def kurtosis_of_features(self, data_set: pd.DataFrame) -> None:
         """
