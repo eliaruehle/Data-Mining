@@ -423,15 +423,52 @@ def extract_cosine_similarity(f_string: str) -> float:
     return float(numbers[-1]) if numbers else 0
 
 
-if __name__ == "__main__":
-    metric = calculate_all_metics("kp_test/datasets")
-
+def calculate_all_cosine_similarities(data_sets: list[pd.DataFrame]) -> list[str]:
     results = []
 
     for data_set_a, data_set_b in itertools.combinations(metric.data_sets_list, 2):
         # Calculate cosine similarity only for unique pairs
         cos_sim = cosine_sim_scipy(data_set_a.name, data_set_b.name)
-        results.append(cos_sim)
+        results.append((f"{data_set_a.name} - {data_set_b.name}", cos_sim[0][0]))
 
-    sorted_f_strings = sorted(results, key=extract_cosine_similarity, reverse=True)
-    print(sorted_f_strings)
+    return results
+
+
+def sort_results(results: list[str]) -> list[str]:
+    sorted_results = sorted(results, key=lambda x: x[1], reverse=True)
+    return sorted_results
+
+
+def write_results_into_file(sorted_f_strings: list[str]) -> None:
+    with open("metrics.txt", "w") as file:
+        for item in sorted_f_strings:
+            file.write(f"{item[0]}: {item[1]}\n")
+
+
+def plot_cosine_distribution_graph(sorted_f_strings: list[str]) -> None:
+    sns.set(style="whitegrid")
+    plt.figure(figsize=(20, 5))
+
+    # Create a scatter plot with single points
+    dataset_pairs, cos_sim_values = zip(*sorted_f_strings)
+    sns.scatterplot(x=dataset_pairs, y=cos_sim_values, color="blue", alpha=0.5)
+
+    plt.xlabel("Dataset Pairs")
+    plt.xticks(rotation=90)
+    plt.ylabel("Cosine Similarity")
+    plt.title("Cosine Similarity between Datasets")
+    plt.ylim(-0.1, 1)
+
+    plt.yticks(np.arange(-0.1, 1.05, 0.1))
+    plt.show()
+
+
+if __name__ == "__main__":
+    metric = calculate_all_metrics("kp_test/datasets")
+    datasets_cosine_similarities = calculate_all_cosine_similarities(
+        metric.data_sets_list
+    )
+    sorted_f_strings = sort_results(datasets_cosine_similarities)
+    # print(sorted_f_strings)
+    write_results_into_file(sorted_f_strings)
+    plot_cosine_distribution_graph(sorted_f_strings)
