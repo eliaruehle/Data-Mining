@@ -2,13 +2,14 @@ import itertools
 import os
 import re
 from abc import ABC
-from math import log2
+from math import log2, log10
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from scipy.spatial.distance import cdist
-from scipy.stats import entropy, kurtosis, skew, zscore
-from sklearn.metrics.pairwise import cosine_similarity
+from scipy.stats import entropy, kurtosis, skew
 
 
 class Metrics(ABC):
