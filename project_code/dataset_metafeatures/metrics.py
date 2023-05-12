@@ -406,6 +406,17 @@ class Metrics(ABC):
 
         self.add_to_meatafeatures_dict(data_set, entropy_mean)
 
+    def entropy_median(self, data_set: pd.DataFrame) -> None:
+        feature_entropies = np.array([])
+        for feature in data_set.columns:
+            _, counts = np.unique(data_set[feature], return_counts=True)
+            feature_entropy = entropy(counts)
+            feature_entropies = np.append(feature_entropies, feature_entropy)
+
+        entropy_median = np.mean(feature_entropies)
+
+        self.add_to_meatafeatures_dict(data_set, entropy_median)
+
     def entropies_of_features(self, data_set: pd.DataFrame) -> None:
         """
         Calculate the entropy for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
