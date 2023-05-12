@@ -151,4 +151,99 @@ Die folgenden Active Learning Strategien sollen ähnlich sein:
 - Quire: 12,76
 - EER: 24,29,66
 - Coreset: 44,45
+
+Code von Julius zur Normalisierung von Daten (Vermutung): https://github.com/jgonsior/olympic-games-of-active-learning/blob/main/00_download_datasets.py#L29-L36
 ```
+
+### Dataset Characteristics (Metafeatures)
+
+All the following information is based upon the knowledge of: "Metalearning - Applications to Automated Machine Learning and Data Mining" (Chapter 4)
+
+#### What are good dataset features?
+
+- **Discriminative power:** The set of metafeatures should contain information that distinguishes between the base-algorithms in terms of their performance. Therefore they should be carefully selected and represented in an adequate way.
+
+- **Computational complexity:** The metafeatures should not be too computationally complex. If this is not the case, the savings obtained by not executing all the candidate algorithms may not compensate for the cost of computing the measures used to characterize the datasets. It is argued that the computational complexity of metafeatures should be at most $O(n \log n)$.
+
+- **Dimensionality:** The number of metafeatures should not be too large compared with the amount of available metadata; otherwise overfitting may occur.
+
+#### Types of Metafeatures
+
+1. Simple, statistical, and information-theoretic metafeatures
+2. Model-based metafeatures
+3. Performance-based metafeatures
+4. Concept and complexity metafeatures
+
+##### Simple, statistical, and information-theoretic metafeatures
+
+- **Simple metafeatures**
+  Typically, this set includes very simple descriptive measures, such as:
+
+  - Number of examples (instaces), $n$
+  - Number of attributes (features), $p$
+  - Number of classes, $c$
+  - Proportion of discrete attributes
+  - Proportion of missing values of feature $x_i$
+  - Proportion of outliers of feature $x_i$
+
+Some of these were used in the earliest metalearning approaches and are still among the most commonly used metafeatures. The metafeatures $number of classes$ characterizes the complexity of the classification task.
+Some ratios of the two metafeatures seem rather useful:
+
+- Number of examples per class $n/c$
+- Number of examples per dimension (feature) $n/p$
+
+Normally we would want the value of _number of examples per class_ $(n/c)$ to be sufficiently high, as it provides an estimate of data density.
+$\rightarrow$ If the value is low, it indicates that the data is sparse and analogously the opposite with a high value
+
+Similarly, we would want the value of \_number of examples per dimension $(n/p)$ to be high as well.
+$\rightarrow$ If it is low, then this indicates that we have rather too many base-level features to choose from. In literature this is referred to as _the curse of dimensionality_
+
+- **Statistical metafeatures**
+  The most common approach to data characteriztation consists of the use of descriptive statistics, typically associated with numeric features. Some metafeatures, such as the ones shown below, focus on a single independent feature ($x_i$) or a class ($y$)
+
+  - Skewness (Schiefe) of $x_i$
+  - Kurtosis (Wölbung) of $x_i$
+  - Probability of class $y$
+
+  Skewness and kurtosis chracterize the shape of the underlying distribution. Other metafeatures characterize the relationship between two or mroe independent features, these include, for instance:
+
+  - Correlation of $x_i$ and $x_j$, $p(x_i, x_j)$
+  - Covariance of $x_i$ and $x_j$
+  - Concentration of $x_i$ and $x_j$
+
+  These measure provide and estimate of feature independence. The metafeatures here can give a rise to different derived metafeatures. For instance, it is possible to apply _aggregation operations_ (e.g., mean & max) to derive new metafeatures, such as _mean correlation_, from individual values.
+
+- **Information-theoretic metafeatures**
+
+  These metafeatures originated in information theory and are typically associated with nominal attributes. Some metafeatures apply to just one attribute or the class:
+
+  - Feature entropy of $x_i$, $H(x_i)$
+  - Class entropy of $y$, $H(y)$
+
+  Class entropy can provide an estimate of class imbalance. Other metafeatures characterize the relationship between two or more independent features:
+
+  - Mutual information between $x_i$ and $y$, $MI(x_i, y)$
+
+  Other metafeatures can be derived from the basic ones above
+
+  - Instrinct task dimensionality, $\frac{H(y)}{MI(x_i, y)}$
+  - Noise-signal ratio, $\frac{H(y) - MI(x_i, y)}{MI(x_i, y)}$
+
+- **Concept and complexity-based metafeatures**
+
+  In this section we discuss a group of measures that characterize the complexity of supervised classification task. Some of these measures can serve as useful metafeatures. Here we consider the following types of measures:
+
+  - Overlap of indivdual features
+  - Separability of classes
+
+  ###### Overlap of individual features
+
+  **Feature efficiency:** The aim is to characterize how much each features contributes towards the separation of the two classes. If some features can lead to both classes, the classes are _ambigious_ in that region of values. It is possible to eliminate ambiguity progressively. In each pass, the features can be ordered by how many points are in the non-overlapping region. The _efficiency_ of each feature is defined as fraction of remaining points separable by that feature.
+
+  ###### Separability of classes
+
+  These metafeatures characterize whether the two sets of points (examples) come from two different distributions.
+
+  **Linear separability:** This approach presupposes the application of a linear classifier. One metafeature is defined as the error rate of the linear classifier.
+
+  **Fraction of points on the class boundary:** This aim is to determine whether two samples (of class 1 and 2) come from the same distribution. The method uses the concept of _minimum spanning tree (MST)_ to achieve this. The MST connects points (data samples) regardless of the class. Then the number of points connected to the opposite class represent the _points of the class boundary_
