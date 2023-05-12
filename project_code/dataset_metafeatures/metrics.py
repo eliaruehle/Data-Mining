@@ -134,6 +134,14 @@ class Metrics(ABC):
 
         self.add_to_meatafeatures_dict(data_set, examples_n)
 
+    def examples_feature_ratio(self, data_set: pd.DataFrame) -> None:
+        features = len(data_set.columns)
+        examples = len(data_set)
+
+        feature_examples_ratio = features / examples
+
+        self.add_to_meatafeatures_dict(data_set, feature_examples_ratio)
+
     def overall_mean(self, data_set: pd.DataFrame) -> None:
         overall_mean = data_set.mean().mean()
 
