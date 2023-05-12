@@ -296,7 +296,9 @@ class Metrics(ABC):
 
         """
 
-        kurtosis = data_set.kurt().mean()
+        kurtosis_mean = data_set.kurt().mean()
+
+        self.add_to_meatafeatures_dict(data_set, kurtosis_mean)
 
     def kurtosis_median(self, data_set: pd.DataFrame) -> None:
         kurtosis_median = data_set.kurt().median()
