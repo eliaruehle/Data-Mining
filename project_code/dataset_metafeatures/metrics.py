@@ -380,7 +380,7 @@ class Metrics(ABC):
         self.add_to_meatafeatures_dict(data_set, feature_entropies)
 
 
-def calculate_all_metics(path) -> Metrics:
+def calculate_all_metrics(path) -> Metrics:
     metric = Metrics(path)
     metric.load_all_csv_datasets()
     for data in metric.data_sets_list:
