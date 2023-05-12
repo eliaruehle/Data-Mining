@@ -413,9 +413,9 @@ def cosine_sim_scipy(data_set_a, data_set_b):
     x = x.reshape(1, -1)
     y = y.reshape(1, -1)
     # print(f"{data_set_a} has this this normalized Vector: {x}")
-    # print(f"{data_set_b} has this this normalized Vector: {y}")
+    # print(f"{data_set_b}: {y}")
 
-    return f"{data_set_a} & {data_set_b}: {1. - cdist(x, y, 'cosine')}"
+    return 1.0 - cdist(x, y, "cosine")
 
 
 def extract_cosine_similarity(f_string: str) -> float:
