@@ -130,7 +130,7 @@ class Metrics(ABC):
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
 
         """
-        examples_n = log2(len(data_set))
+        examples_n = log10(len(data_set))
 
         self.add_to_meatafeatures_dict(data_set, examples_n)
 
@@ -139,15 +139,30 @@ class Metrics(ABC):
 
         self.add_to_meatafeatures_dict(data_set, overall_mean)
 
+    def overall_median(self, data_set: pd.DataFrame) -> None:
+        overall_median = data_set.median().median()
+
+        self.add_to_meatafeatures_dict(data_set, overall_median)
+
     def average_min(self, data_set: pd.DataFrame) -> None:
         average_min = data_set.min().mean()
 
         self.add_to_meatafeatures_dict(data_set, average_min)
 
+    def median_min(self, data_set: pd.DataFrame) -> None:
+        median_min = data_set.min().median()
+
+        self.add_to_meatafeatures_dict(data_set, median_min)
+
     def average_max(self, data_set: pd.DataFrame) -> None:
         average_max = data_set.max().mean()
 
         self.add_to_meatafeatures_dict(data_set, average_max)
+
+    def median_max(self, data_set: pd.DataFrame) -> None:
+        median_max = data_set.max().median()
+
+        self.add_to_meatafeatures_dict(data_set, median_max)
 
     def standard_deviation_mean(self, data_set: pd.DataFrame) -> None:
         """
