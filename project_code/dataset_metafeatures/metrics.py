@@ -184,6 +184,11 @@ class Metrics(ABC):
 
         self.add_to_meatafeatures_dict(data_set, standard_deviation_mean)
 
+    def standard_deviation_median(self, data_set: pd.DataFrame) -> None:
+        standard_deviation_median = data_set.std().median()
+
+        self.add_to_meatafeatures_dict(data_set, standard_deviation_median)
+
     def variance_mean(self, data_set: pd.DataFrame) -> None:
         """
         Calculate the mean of the variance for each column in the data_set and add it to the metafeatures dictionary.
@@ -196,6 +201,11 @@ class Metrics(ABC):
 
         self.add_to_meatafeatures_dict(data_set, variance_mean)
 
+    def variance_median(self, data_set: pd.DataFrame) -> None:
+        variance_median = data_set.var().median()
+
+        self.add_to_meatafeatures_dict(data_set, variance_median)
+
     def quantile_mean(self, data_set: pd.DataFrame) -> None:
         """
         Calculate the mean of the quantiles for each column in the data_set and add it to the metafeatures dictionary.
@@ -207,6 +217,11 @@ class Metrics(ABC):
         quantile_mean = data_set.quantile().mean()
 
         self.add_to_meatafeatures_dict(data_set, quantile_mean)
+
+    def quantile_median(self, data_set: pd.DataFrame) -> None:
+        quantile_median = data_set.quantile().median()
+
+        self.add_to_meatafeatures_dict(data_set, quantile_median)
 
     def proportion_of_missing_values(self, data_set: pd.DataFrame) -> None:
         """
