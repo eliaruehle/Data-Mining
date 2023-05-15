@@ -20,7 +20,7 @@ class Metrics(ABC):
     ----------
     data_sets : list[str]
         A sorted list of CSV file names in the specified directory.
-    data_sets_list : list[pd.DataFrame]
+    data_frames_list : list[pd.DataFrame]
         A list to store loaded CSV datasets.
     metafeatures_dict: dict[str, list[float]]
         A dictionary which stores all the existing datasets with their corresponding metafeatures.
@@ -46,7 +46,7 @@ class Metrics(ABC):
                 if not os.path.isdir(os.path.join(self.file_path, data_set))
             ]
         )
-        self.data_sets_list: list[pd.DataFrame] = list()
+        self.data_frames_list: list[pd.DataFrame] = list()
         self.metafeatures_dict: dict[str, list[float]] = dict()
 
     def load_single_csv_dataset(self, data_set: str) -> pd.DataFrame:
@@ -81,11 +81,11 @@ class Metrics(ABC):
         Load all CSV datasets in the specified directory into a list of DataFrames.
 
         This method iterates through the `data_sets` attribute, calling the `load_single_csv_dataset()` method for each file,
-        and storing the resulting DataFrame in the `data_sets_list` attribute.
+        and storing the resulting DataFrame in the `data_frames_list` attribute.
         """
         for data_item in self.data_sets:
             tmp = self.load_single_csv_dataset(data_item)
-            self.data_sets_list.append(tmp)
+            self.data_frames_list.append(tmp)
 
     def add_to_meatafeatures_dict(
         self, data_set: pd.DataFrame, metafeature: float
@@ -107,8 +107,7 @@ class Metrics(ABC):
         Calculate the number of features in a given DataFrame and store it in the metafeatures_dict.
 
         This method calculates the number of features (columns) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
+        to the list associated with the DataFrame's name in the metafeatures_dict.
 
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the number of features needs to be calculated.
@@ -123,8 +122,7 @@ class Metrics(ABC):
         Calculate the number of examples (rows) in a given DataFrame and store it in the metafeatures_dict.
 
         This method calculates the number of examples (rows) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
+        to the list associated with the DataFrame's name in the metafeatures_dict.
 
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
@@ -229,8 +227,7 @@ class Metrics(ABC):
         metafeatures_dict.
 
         This method calculates the proportion of missing value per example (row) in the input DataFrame and appends the
-        value to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
+        value to the list associated with the DataFrame's name in the metafeatures_dict.
 
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
@@ -247,8 +244,7 @@ class Metrics(ABC):
         Calculate the mean skewness of all features (columns) in a given DataFrame and store it in the metafeatures_dict.
 
         This method calculates the mean skewness of all features (columns) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
+        to the list associated with the DataFrame's name in the metafeatures_dict.
 
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
@@ -269,8 +265,7 @@ class Metrics(ABC):
         Calculate the skewness for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
 
         This method calculates the number of examples (rows) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
+        to the list associated with the DataFrame's name in the metafeatures_dict.
 
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
@@ -288,8 +283,7 @@ class Metrics(ABC):
         Calculate the mean kurtosis of all features (columns) in a given DataFrame and store it in the metafeatures_dict.
 
         This method calculates the mean kurtosis of all features (columns) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
+        to the list associated with the DataFrame's name in the metafeatures_dict.
 
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
@@ -310,8 +304,7 @@ class Metrics(ABC):
         Calculate the kurtosis for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
 
         This method calculates the kurtosis for each feature (column) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
+        to the list associated with the DataFrame's name in the metafeatures_dict.
 
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
@@ -389,8 +382,7 @@ class Metrics(ABC):
         Calculate the mean entropy of all features (columns) in a given DataFrame and store it in the metafeatures_dict.
 
         This method calculates the mean entropy of all features (columns) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
+        to the list associated with the DataFrame's name in the metafeatures_dict.
 
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
@@ -422,8 +414,7 @@ class Metrics(ABC):
         Calculate the entropy for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
 
         This method calculates the entropy for each feature (column) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict. If the DataFrame's name is not
-        present in the metafeatures_dict, a new list is initialized for the key.
+        to the list associated with the DataFrame's name in the metafeatures_dict.
 
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
@@ -442,7 +433,7 @@ class Metrics(ABC):
 def calculate_all_metrics(path) -> Metrics:
     metric = Metrics(path)
     metric.load_all_csv_datasets()
-    for data in metric.data_sets_list:
+    for data in metric.data_frames_list:
         metric.number_of_features(data)
         metric.number_of_examples(data)
         metric.examples_feature_ratio(data)
@@ -495,7 +486,7 @@ def extract_cosine_similarity(f_string: str) -> float:
 def calculate_all_cosine_similarities(data_sets: list[pd.DataFrame]) -> list[str]:
     results = []
 
-    for data_set_a, data_set_b in itertools.combinations(metric.data_sets_list, 2):
+    for data_set_a, data_set_b in itertools.combinations(metric.data_frames_list, 2):
         # Calculate cosine similarity only for unique pairs
         cos_sim = cosine_sim_scipy(data_set_a.name, data_set_b.name)
         results.append((f"{data_set_a.name} - {data_set_b.name}", cos_sim[0][0]))
@@ -535,7 +526,7 @@ def plot_cosine_distribution_graph(sorted_f_strings: list[str]) -> None:
 if __name__ == "__main__":
     metric = calculate_all_metrics("kp_test/datasets")
     datasets_cosine_similarities = calculate_all_cosine_similarities(
-        metric.data_sets_list
+        metric.data_frames_list
     )
     sorted_f_strings = sort_results(datasets_cosine_similarities)
     # print(sorted_f_strings)
