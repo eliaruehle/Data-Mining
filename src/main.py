@@ -2,7 +2,7 @@ import warnings
 
 from sklearn.exceptions import ConvergenceWarning
 
-from datasets import Loader
+from datasets.loader import Loader
 from experiment_runner import ClusterRunner
 from project_helper.Logger import Logger
 from project_helper.method_types import CLUSTER_STRAT
