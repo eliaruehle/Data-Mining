@@ -10,7 +10,7 @@ import pandas as pd
 import seaborn as sns
 from scipy.spatial.distance import cdist
 from scipy.stats import entropy, kurtosis, skew
-from sklearn import preprocessing
+from sklearn.preprocessing import MinMaxScaler, RobustScaler
 
 
 class Metrics(ABC):
@@ -469,8 +469,16 @@ def calculate_all_metrics(path: str) -> Metrics:
     return metric
 
 
-def normalise_metrics_weights(metafeatures: np.array) -> None:
-    min_max_scaler = preprocessing.MinMaxScaler()
+def normalise_metrics_weights_robust_scaler(metafeatures: np.array) -> np.array:
+    robust_scaler = RobustScaler()
+
+    metafeatures_scaled = robust_scaler.fit_transform(metafeatures.reshape(-1, 1))
+
+    return metafeatures_scaled.flatten()
+
+
+def normalise_metrics_weights_min_max_scaler(metafeatures: np.array) -> np.array:
+    min_max_scaler = MinMaxScaler()
 
     metafeatures_scaled = min_max_scaler.fit_transform(metafeatures.reshape(-1, 1))
 
@@ -478,8 +486,8 @@ def normalise_metrics_weights(metafeatures: np.array) -> None:
 
 
 def cosine_sim_scipy(data_set_a, data_set_b):
-    x = normalise_metrics_weights(metric.metafeatures_dict[data_set_a])
-    y = normalise_metrics_weights(metric.metafeatures_dict[data_set_b])
+    x = normalise_metrics_weights_robust_scaler(metric.metafeatures_dict[data_set_a])
+    y = normalise_metrics_weights_robust_scaler(metric.metafeatures_dict[data_set_b])
 
     x = x.reshape(1, -1)
     y = y.reshape(1, -1)
