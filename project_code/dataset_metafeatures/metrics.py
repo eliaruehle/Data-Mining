@@ -10,6 +10,7 @@ import pandas as pd
 import seaborn as sns
 from scipy.spatial.distance import cdist
 from scipy.stats import entropy, kurtosis, skew
+from sklearn import preprocessing
 
 
 class Metrics(ABC):
@@ -47,7 +48,7 @@ class Metrics(ABC):
             ]
         )
         self.data_frames_list: list[pd.DataFrame] = list()
-        self.metafeatures_dict: dict[str, list[float]] = dict()
+        self.metafeatures_dict: dict[str, np.array] = dict()
 
     def load_single_csv_dataset(self, data_set: str) -> pd.DataFrame:
         """
@@ -99,8 +100,10 @@ class Metrics(ABC):
         """
         data_name = data_set.name
         if data_name not in self.metafeatures_dict:
-            self.metafeatures_dict[data_name] = []
-        self.metafeatures_dict[data_name].append(metafeature)
+            self.metafeatures_dict[data_name] = np.array([])
+        self.metafeatures_dict[data_name] = np.append(
+            self.metafeatures_dict[data_name], metafeature
+        )
 
     def number_of_features(self, data_set: pd.DataFrame) -> None:
         """
@@ -423,14 +426,14 @@ class Metrics(ABC):
 
         feature_entropies = {}
         for feature in data_set.columns:
-            useless_value, counts = np.unique(data_set[feature], return_counts=True)
+            _, counts = np.unique(data_set[feature], return_counts=True)
             feature_entropy = entropy(counts)
             feature_entropies[feature] = feature_entropy
 
         self.add_to_meatafeatures_dict(data_set, feature_entropies)
 
 
-def calculate_all_metrics(path) -> Metrics:
+def calculate_all_metrics(path: str) -> Metrics:
     metric = Metrics(path)
     metric.load_all_csv_datasets()
     for data in metric.data_frames_list:
@@ -440,23 +443,23 @@ def calculate_all_metrics(path) -> Metrics:
         metric.average_min(data)
         metric.median_min(data)
         metric.overall_mean(data)
-        metric.overall_median(data)
+        # metric.overall_median(data)
         metric.average_max(data)
-        metric.median_max(data)
+        # metric.median_max(data)
         metric.standard_deviation_mean(data)
-        metric.standard_deviation_median(data)
+        # metric.standard_deviation_median(data)
         metric.variance_mean(data)
-        metric.variance_median(data)
+        # metric.variance_median(data)
         metric.quantile_mean(data)
-        metric.quantile_median(data)
+        # metric.quantile_median(data)
         metric.skewness_mean(data)
-        metric.skewness_median(data)
+        # metric.skewness_median(data)
         metric.kurtosis_mean(data)
-        metric.kurtosis_median(data)
-        metric.number_of_feature_correlations(data)
+        # metric.kurtosis_median(data)
+        # metric.number_of_feature_correlations(data)
         metric.covariance(data)
         metric.entropy_mean(data)
-        metric.entropy_median(data)
+        # metric.entropy_median(data)
         #  This seems very pointless! All the data sets in use have no nan --> no information gain
         # metric.proportion_of_missing_values(data)
         #  This produces a dict, we can not handle as parameter --> might still come in handy
@@ -466,9 +469,17 @@ def calculate_all_metrics(path) -> Metrics:
     return metric
 
 
+def normalise_metrics_weights(metafeatures: np.array) -> None:
+    min_max_scaler = preprocessing.MinMaxScaler()
+
+    metafeatures_scaled = min_max_scaler.fit_transform(metafeatures.reshape(-1, 1))
+
+    return metafeatures_scaled.flatten()
+
+
 def cosine_sim_scipy(data_set_a, data_set_b):
-    x = np.array(metric.metafeatures_dict[data_set_a])
-    y = np.array(metric.metafeatures_dict[data_set_b])
+    x = normalise_metrics_weights(metric.metafeatures_dict[data_set_a])
+    y = normalise_metrics_weights(metric.metafeatures_dict[data_set_b])
 
     x = x.reshape(1, -1)
     y = y.reshape(1, -1)
