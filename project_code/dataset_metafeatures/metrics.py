@@ -2,6 +2,7 @@ import itertools
 import os
 import re
 from abc import ABC
+from concurrent.futures import ThreadPoolExecutor
 from math import log2, log10
 
 import matplotlib.pyplot as plt
@@ -84,9 +85,11 @@ class Metrics(ABC):
         This method iterates through the `data_sets` attribute, calling the `load_single_csv_dataset()` method for each file,
         and storing the resulting DataFrame in the `data_frames_list` attribute.
         """
-        for data_item in self.data_sets:
-            tmp = self.load_single_csv_dataset(data_item)
-            self.data_frames_list.append(tmp)
+
+        with ThreadPoolExecutor() as executor:
+            data_frames = executor.map(self.load_single_csv_dataset, self.data_sets)
+
+        self.data_frames_list = list(data_frames)
 
     def add_to_meatafeatures_dict(
         self, data_set: pd.DataFrame, metafeature: float
