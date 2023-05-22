@@ -106,6 +106,7 @@ class Metrics(ABC):
         data_name = data_set.name
         if data_name not in self.metafeatures_dict:
             self.metafeatures_dict[data_name] = np.array([])
+
         self.metafeatures_dict[data_name] = np.append(
             self.metafeatures_dict[data_name], metafeature
         )
@@ -121,7 +122,7 @@ class Metrics(ABC):
             data_set (pd.DataFrame): The input DataFrame for which the number of features needs to be calculated.
 
         """
-        features_n = log2(len(data_set.columns))
+        features_n = log10(len(data_set.columns))
 
         self.add_to_meatafeatures_dict(data_set, features_n)
 
