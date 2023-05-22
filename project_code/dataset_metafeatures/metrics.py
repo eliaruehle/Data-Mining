@@ -20,7 +20,7 @@ class Metrics(ABC):
 
     Attributes
     ----------
-    data_sets : list[str]
+    data_sets_list : list[str]
         A sorted list of CSV file names in the specified directory.
     data_frames_list : list[pd.DataFrame]
         A list to store loaded CSV datasets.
@@ -41,7 +41,7 @@ class Metrics(ABC):
                 The path to the directory containing the CSV datasets.
         """
         self.file_path = file_path
-        self.data_sets = sorted(
+        self.data_sets_list = sorted(
             [
                 data_set
                 for data_set in os.listdir(self.file_path)
@@ -82,14 +82,16 @@ class Metrics(ABC):
         """
         Load all CSV datasets in the specified directory into a list of DataFrames.
 
-        This method iterates through the `data_sets` attribute, calling the `load_single_csv_dataset()` method for each file,
+        This method iterates through the `data_sets_list` attribute, calling the `load_single_csv_dataset()` method for each file,
         and storing the resulting DataFrame in the `data_frames_list` attribute.
         """
 
         with ThreadPoolExecutor() as executor:
-            data_frames = executor.map(self.load_single_csv_dataset, self.data_sets)
+            data_frames = list(
+                executor.map(self.load_single_csv_dataset, self.data_sets_list)
+            )
 
-        self.data_frames_list = list(data_frames)
+        self.data_frames_list = data_frames
 
     def add_to_meatafeatures_dict(
         self, data_set: pd.DataFrame, metafeature: float
