@@ -133,86 +133,156 @@ class Evaluate_Metrics:
         ):
             # Calculate cosine similarity only for unique pairs
             cos_sim = self.cosine_sim_scipy(data_set_a.name, data_set_b.name)
-            results.append((f"{data_set_a.name},{data_set_b.name}", cos_sim[0][0]))
 
-        return results
+            # Explicit Tuple Notation [(data_set_a, data_set_b, cosine_similarity)]
+            results.append((data_set_a.name, data_set_b.name, cos_sim[0][0]))
 
-    def sort_results(self, results: list[str]) -> list[str]:
-        """Sorts the given list of results.
+        df = pd.DataFrame(
+            results, columns=["dataset_name_a", "dataset_name_b", "cosine_similarity"]
+        )
+
+        return df
+
+    def difference_between_results(
+        self, our_results: pd.DataFrame, other_results: pd.DataFrame
+    ) -> pd.DataFrame:
+        # Assume 'df1' and 'df2' are your DataFrames
+        file1_data = dict(
+            zip(
+                zip(our_results["dataset_name_a"], our_results["dataset_name_b"]),
+                our_results["cosine_similarity"],
+            )
+        )
+        file2_data = dict(
+            zip(
+                zip(other_results["dataset_name_a"], other_results["dataset_name_b"]),
+                other_results["cosine_similarity"],
+            )
+        )
+
+        common_keys = set(file1_data.keys()).intersection(file2_data.keys())
+
+        differences = {
+            key: abs(file1_data[key] - file2_data[key]) for key in common_keys
+        }
+
+        # Convert the dictionary to a pandas DataFrame for better visualization
+        df_diff = pd.DataFrame(
+            list(differences.items()), columns=["Datasets", "cosine_similarity"]
+        )
+
+        # Split the tuple into two separate columns for 'dataset_name_a' and 'dataset_name_b'
+        df_diff[["dataset_name_a", "dataset_name_b"]] = pd.DataFrame(
+            df_diff["Datasets"].tolist(), index=df_diff.index
+        )
+        df_diff = df_diff.drop(columns="Datasets")
+
+        # Reorder the columns
+        df_diff = df_diff[["dataset_name_a", "dataset_name_b", "cosine_similarity"]]
+
+        return df_diff
+
+    def sort_dataframe(
+        self, df: pd.DataFrame, columns: list[str], ascending=True
+    ) -> pd.DataFrame:
+        """Sorts the DataFrame by the given columns.
 
         Args:
-            results (list[str]): The results to be sorted.
+            df (pd.DataFrame): The DataFrame to be sorted.
+            columns (list): The list of columns to sort by. These can only be a combination of: ["dataset_name_a", "cosine_similarity"]
+            ascending (bool): If True, sort in ascending order. If False, sort in descending order.
 
         Returns:
-            list[str]: The sorted results.
+            pd.DataFrame: The sorted DataFrame.
         """
 
-        sorted_results = sorted(results, key=lambda x: x[0].lower(), reverse=False)
-        return sorted_results
+        valid_columns = ["dataset_name_a", "cosine_similarity"]
 
-    def write_results_into_file(self, sorted_f_strings: list[str]) -> None:
-        """Writes the given sorted results into a file.
+        # Check if the provided columns are valid
+        for column in columns:
+            if column not in valid_columns:
+                raise ValueError(
+                    f"Invalid column: {column}. Valid options are {valid_columns}"
+                )
 
-        Args:
-            sorted_f_strings (list[str]): The sorted results to be written into the file.
-        """
+        df_sorted = df.sort_values(by=columns, ascending=ascending)
+        return df_sorted
 
-        with open(
-            "./src/dataset_metafeatures/results/unsere_ergebnisse.txt", "w+"
-        ) as file:
-            file.write("dataset_name_a,dataset_name_b,cosine_similarity\n")
-            for item in sorted_f_strings:
-                file.write(f"{item[0]},{item[1]}\n")
 
-    def plot_cosine_distribution_graph(self, sorted_f_strings: list[str]) -> None:
-        """Plots a graph showing the distribution of cosine similarities for the given sorted results.
+def plot_cosine_distribution_graph(
+    dataframes: list[pd.DataFrame], colors: list[str]
+) -> None:
+    """Plots a graph showing the distribution of cosine similarities for the given sorted results.
 
-        Args:
-            sorted_f_strings (list[str]): The sorted results for which the graph is to be plotted.
-        """
+    Args:
+        dataframes (List[pd.DataFrame]): The sorted results for which the graph is to be plotted.
+    """
+    sns.set(style="whitegrid")
+    plt.figure(figsize=(20, 5))
 
-        sns.set(style="whitegrid")
-        plt.figure(figsize=(20, 5))
+    # Merge all dataframes into one for the purpose of getting unique dataset pairs
+    merged_df = pd.concat(dataframes)
 
-        # Create a scatter plot with single points
-        dataset_pairs, cos_sim_values = zip(*sorted_f_strings)
-        sns.scatterplot(x=dataset_pairs, y=cos_sim_values, color="blue", alpha=0.5)
+    # Create a new column combining 'dataset_name_a' and 'dataset_name_b'
+    merged_df["dataset_pair"] = (
+        merged_df["dataset_name_a"] + " - " + merged_df["dataset_name_b"]
+    )
 
-        plt.xlabel("Dataset Pairs")
-        plt.xticks(rotation=90)
-        plt.ylabel("Cosine Similarity")
-        plt.title("Cosine Similarity between Datasets")
-        plt.ylim(-0.1, 1)
+    # Get unique dataset pairs
+    dataset_pairs = merged_df["dataset_pair"].unique()
 
-        plt.yticks(np.arange(-0.1, 1.05, 0.1))
-        plt.show()
+    # Sort the merged dataframe by 'cosine_similarity' in descending order
+    merged_df = merged_df.sort_values(by="cosine_similarity", ascending=False)
+
+    # Reorder dataset_pairs according to 'cosine_similarity' in the sorted merged_df
+    dataset_pairs = merged_df["dataset_pair"].unique()
+
+    for i, df in enumerate(dataframes):
+        df["dataset_pair"] = df["dataset_name_a"] + " - " + df["dataset_name_b"]
+
+        # Set dataset pairs as categories for x-axis
+        df["dataset_pair"] = pd.Categorical(
+            df["dataset_pair"], categories=dataset_pairs
+        )
+
+        sns.scatterplot(
+            x="dataset_pair", y="cosine_similarity", data=df, color=colors[i], alpha=0.5
+        )
+
+    plt.xlabel("Dataset Pairs")
+    plt.xticks(rotation=90)
+    plt.ylabel("Cosine Similarity")
+    plt.title("Cosine Similarity between Datasets")
+    plt.ylim(-0.1, 1)
+    plt.yticks(np.arange(-0.1, 1.05, 0.1))
+    plt.legend(
+        [f"DataFrame {i+1}" for i in range(len(dataframes))]
+    )  # Add a legend to differentiate the points
+    plt.show()
 
 
 def main():
     evaluate_metrics = Evaluate_Metrics("kp_test/datasets")
     evaluate_metrics.calculate_all_metrics()
 
-    datasets_cosine_similarities = evaluate_metrics.calculate_all_cosine_similarities(
-        evaluate_metrics.metric.data_frames_list
+    df_cosine_similarities = evaluate_metrics.calculate_all_cosine_similarities()
+
+    # Load the Results from the Master Thesis
+    other_results_df = pd.read_csv("./src/dataset_metafeatures/cosine_sim_results.csv")
+
+    # Calculate the Absolute Difference between our and their cosine_similarity
+    df_diff = evaluate_metrics.difference_between_results(
+        df_cosine_similarities, other_results_df
     )
 
-    sorted_f_strings = evaluate_metrics.sort_results(datasets_cosine_similarities)
-    print(sorted_f_strings)
-    evaluate_metrics.write_results_into_file(sorted_f_strings)
-    # plot_cosine_distribution_graph(sorted_f_strings)
+    # Sort the Difference by name and cosine_similarity
+    df_diff = evaluate_metrics.sort_dataframe(
+        df_diff, ["dataset_name_a", "cosine_similarity"]
+    )
 
-    results = pd.read_csv("./src/dataset_metafeatures/cosine_sim_results.csv")
-    results = results.dropna(subset=["cosine_similarity"])
-
-    filtered_results = results[
-        results["dataset_name_a"].isin(evaluate_metrics.metric.data_sets_list)
-        & results["dataset_name_b"].isin(evaluate_metrics.metric.data_sets_list)
-    ]
-
-    filtered_results.to_csv(
-        "./src/dataset_metafeatures/results/master_ergebnisse.txt",
-        sep=",",
-        index=False,
+    # Plot the Differences in the Graph
+    plot_cosine_distribution_graph(
+        [df_cosine_similarities, df_diff], ["blue", "orange"]
     )
 
 
