@@ -116,29 +116,14 @@ class Evaluate_Metrics:
 
         return 1.0 - cdist(x, y, "cosine")
 
-    def extract_cosine_similarity(self, f_string: str) -> float:
-        """Extracts the cosine similarity from the given formatted string.
-
-        Args:
-            f_string (str): The formatted string containing the cosine similarity.
-
-        Returns:
-            float: The cosine similarity.
-        """
-
-        numbers = re.findall(r"[-+]?[\d]+(?:\.\d+)?(?:[eE][-+]?\d+)?", f_string)
-        return float(numbers[-1]) if numbers else 0
-
-    def calculate_all_cosine_similarities(
-        self, data_sets_list: list[pd.DataFrame]
-    ) -> list[str]:
+    def calculate_all_cosine_similarities(self) -> pd.DataFrame:
         """Calculates cosine similarities for all unique pairs of datasets in the given list.
 
         Args:
             data_sets_list (list[pd.DataFrame]): List of datasets for which cosine similarities are to be calculated.
 
         Returns:
-            list[str]: List of tuples containing pairs of dataset names and their cosine similarity.
+            pd.DataFrame: DataFrame containing pairs of dataset names and their cosine similarity.
         """
 
         results = []
