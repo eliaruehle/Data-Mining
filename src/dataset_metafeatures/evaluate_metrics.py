@@ -217,6 +217,11 @@ def plot_cosine_distribution_graph(
     Args:
         dataframes (List[pd.DataFrame]): The sorted results for which the graph is to be plotted.
     """
+    if len(dataframes) != len(colors):
+        raise ValueError(
+            f"Number of dataframes and colors must be equal. Provided: dataframes = {len(dataframes)} & colors = {len(colors)}"
+        )
+
     sns.set(style="whitegrid")
     plt.figure(figsize=(20, 5))
 
