@@ -1435,17 +1435,6 @@ files = [
 ]
 
 [[package]]
-name = "multiprocessing"
-version = "2.6.2.1"
-description = "Backport of the multiprocessing package to Python 2.4 and 2.5"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "multiprocessing-2.6.2.1.tar.gz", hash = "sha256:ef3b81ad85d7de252e5491b1daac028e17f9741cbe3625032e6eaa4ad4c79900"},
-]
-
-[[package]]
 name = "mypy"
 version = "1.2.0"
 description = "Optional static typing for Python"
@@ -2697,6 +2686,21 @@ pure-eval = "*"
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
+name = "termcolor"
+version = "2.3.0"
+description = "ANSI color formatting for output in terminal"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "termcolor-2.3.0-py3-none-any.whl", hash = "sha256:3afb05607b89aed0ffe25202399ee0867ad4d3cb4180d98aaf8eefa6a5f7d475"},
+    {file = "termcolor-2.3.0.tar.gz", hash = "sha256:b5b08f68937f138fe92f6c089b99f1e2da0ae56c52b78bf7075fd95420fd9a5a"},
+]
+
+[package.extras]
+tests = ["pytest", "pytest-cov"]
+
+[[package]]
 name = "terminado"
 version = "0.17.1"
 description = "Tornado websocket backend for the Xterm.js Javascript terminal emulator library."
@@ -2947,4 +2951,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "6b05ec17ca4e6cd7602d9e8cb18f112a9a3c07afe1aff64f04c1c1834d0ac8d0"
+content-hash = "cc551e601f93b34d7ee2ba92fb516ec7e62456d12577ceb44ba2333fdee997c0"
