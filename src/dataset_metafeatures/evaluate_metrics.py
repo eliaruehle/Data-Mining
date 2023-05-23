@@ -261,6 +261,18 @@ def plot_cosine_distribution_graph(
     plt.show()
 
 
+def filter_for_matching_pairs(
+    df1: pd.DataFrame, df_to_be_filtered: pd.DataFrame
+) -> pd.DataFrame:
+    df_filtered = pd.merge(
+        df1[["dataset_name_a", "dataset_name_b"]],
+        df_to_be_filtered,
+        on=["dataset_name_a", "dataset_name_b"],
+    )
+
+    return df_filtered
+
+
 def main():
     evaluate_metrics = Evaluate_Metrics("kp_test/datasets")
     evaluate_metrics.calculate_all_metrics()
@@ -270,9 +282,13 @@ def main():
     # Load the Results from the Master Thesis
     other_results_df = pd.read_csv("./src/dataset_metafeatures/cosine_sim_results.csv")
 
+    other_results_filtered = filter_for_matching_pairs(
+        df1=df_cosine_similarities, df_to_be_filtered=other_results_df
+    )
+
     # Calculate the Absolute Difference between our and their cosine_similarity
     df_diff = evaluate_metrics.difference_between_results(
-        df_cosine_similarities, other_results_df
+        df_cosine_similarities, other_results_filtered
     )
 
     # Sort the Difference by name and cosine_similarity
@@ -280,9 +296,9 @@ def main():
         df_diff, ["dataset_name_a", "cosine_similarity"]
     )
 
-    # Plot the Differences in the Graph
+    # # Plot the Differences in the Graph
     plot_cosine_distribution_graph(
-        [df_cosine_similarities, df_diff], ["blue", "orange"]
+        [df_cosine_similarities, other_results_filtered], ["blue", "orange"]
     )
 
 
