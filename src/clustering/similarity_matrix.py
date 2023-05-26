@@ -125,3 +125,74 @@ class SimilarityMatrix:
             mode = "x"
 
         self.values.to_csv(filepath, index=True, mode=mode)
+
+    @classmethod
+    def from_csv(cls, filepath: str) -> 'SimilarityMatrix':
+        """
+        Class method to create a SimilarityMatrix object from a .csv file.
+
+        Parameters:
+        -----------
+        filepath : str
+            The path to the .csv file containing the similarity matrix data.
+
+        Returns:
+        --------
+        SimilarityMatrix
+            The created SimilarityMatrix object.
+        """
+        if not os.path.exists(filepath):
+            raise FileNotFoundError("The specified file does not exist.")
+
+        # Extract the filename and cluster strategy name from the filepath
+        filename = os.path.splitext(os.path.basename(filepath))[0]
+        cluster_strat_name = filename.split("_")[0]
+
+        # Read the data from the .csv file into a DataFrame
+        values = pd.read_csv(filepath, index_col=0)
+
+        # Extract the labels from the DataFrame
+        labels = values.index.to_list()
+
+        # Create a new SimilarityMatrix object and initialize its attributes
+        similarity_matrix = cls(labels, cluster_strat_name)
+        similarity_matrix.values = values
+        similarity_matrix.filename = filename
+
+        return similarity_matrix
+
+    def normalize(self) -> 'SimilarityMatrix':
+        """
+        Normalize the similarity matrix by dividing the values by the sum of the upper half.
+
+        Parameters:
+        -----------
+        similarity_matrix : SimilarityMatrix
+            The SimilarityMatrix object to be normalized.
+
+        Returns:
+        --------
+        None
+        """
+        # Get the upper triangle of the similarity matrix
+        upper_triangle = np.triu(self.values)
+
+        # Calculate the sum of the upper triangle values
+        upper_sum = np.sum(upper_triangle)
+
+        # Normalize the similarity matrix values by dividing by the sum
+        self.values /= upper_sum
+
+        return self
+
+    def as_2d_list(self):
+        # Remove the strategy names (index and column names) from the DataFrame
+        matrix = self.values.iloc[:, :].values
+
+        # Convert any non-numeric values to floats
+        matrix = matrix.astype(float)
+
+        # Convert the matrix to a 2D list
+        matrix_list = matrix.tolist()
+
+        return matrix_list
