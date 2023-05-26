@@ -157,6 +157,69 @@ class TopK:
         else:
             return [strategy for series, strategy in valid_series[:k]]
 
+    def data_processing(self, directory: str):
+        # 1. For each strategy, batch_size and metric, find datasets they perform on the best
+
+        values = {}
+
+        for dataset in self.data.get_dataset_names():
+            # Add another dimension
+            if dataset not in values:
+                values[dataset] = {}
+
+            for batch_size in [1, 5, 10]:
+                # Add another dimension
+                if batch_size not in values[dataset]:
+                    values[dataset][batch_size] = {}
+
+                # Read CSV file
+                file_name = f"{directory}/{dataset}_{batch_size}.json"
+                with open(file_name, 'r') as file:
+                    data_dict: dict[str: list[str]] = json.load(file)
+
+                for metric in list(data_dict.keys()):
+                    # Add another dimension
+                    if metric not in values[dataset][batch_size]:
+                        values[dataset][batch_size][metric] = {}
+
+                    for index in range(len(data_dict[metric])):
+                        # Each dataset receives a score for a metric, batch_size and strategy
+                        values[dataset][batch_size][metric][data_dict[metric][index]] = values[dataset][batch_size][metric].get(data_dict[metric][index], 0) + 1 / (index + 1)
+
+        # Sort values: For a given batch-size, metric and strategy, what are some good datasets to use it on? (Good is
+        # relative as there might be other combinations of batch-size, metric and strategy that perform even better on
+        # those datasets)
+
+        sorted_datasets = {}
+
+        for dataset in values:
+            for batch_size in values[dataset]:
+                for metric in values[dataset][batch_size]:
+                    for strategy in values[dataset][batch_size][metric]:
+                        score = values[dataset][batch_size][metric][strategy]
+
+                        if batch_size not in sorted_datasets:
+                            sorted_datasets[batch_size] = {}
+                        if metric not in sorted_datasets[batch_size]:
+                            sorted_datasets[batch_size][metric] = {}
+                        if strategy not in sorted_datasets[batch_size][metric]:
+                            sorted_datasets[batch_size][metric][strategy] = []
+
+                        sorted_datasets[batch_size][metric][strategy].append((dataset, score))
+
+        # Sort the datasets by score in descending order
+        for batch_size in sorted_datasets:
+            for metric in sorted_datasets[batch_size]:
+                for strategy in sorted_datasets[batch_size][metric]:
+                    sorted_datasets[batch_size][metric][strategy] = sorted(
+                        sorted_datasets[batch_size][metric][strategy], key=lambda x: x[1], reverse=True
+                    )
+
+        file_name = f"{directory}/performance.json"
+        with open(file_name, 'w') as f:
+            json.dump(sorted_datasets, f)
+        print(f"Written to: {file_name}")
+
 
 PROJECT_DATA: Loader = Loader("../../../kp_test")
 base_directory = "/home/ature/Programming/Python/DB-Mining-Data"
@@ -166,3 +229,4 @@ top_k.collect_top_k(directory=base_directory, threshold=0.0, epsilon=0.05)
 top_k.collect_best_strategy_for_dataset(base_directory)
 top_k.calculate_generally_best_strategy(directory=base_directory)
 top_k.calculate_best_strategy_for_metric(directory=base_directory)
+top_k.data_processing(directory=base_directory)
