@@ -7,12 +7,34 @@ from typing import List
 
 
 class TopK:
+
     def __init__(self, data: Loader = None):
         self.data = data
 
+        self.unwanted = []  # List of weirdly formatted files, e.g. files that contain lists
+        self.blacklisted_words = [
+                                  # Metrics that are the first derivative
+                                  'lag', 'selected_indices',
+
+                                  # Metrics that contain lists
+                                  'CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS', 'CLOSENESS_TO_CLUSTER_CENTER',
+                                  'CLOSENESS_TO_SAMPLES_OF_SAME_CLASS', 'CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS_kNN',
+                                  'IMPROVES_ACCURACY_BY', 'COUNT_WRONG_CLASSIFICATIONS',
+                                  'CLOSENESS_TO_DECISION_BOUNDARY', 'class_distributions_chebyshev_batch',
+                                  'AVERAGE_UNCERTAINTY', 'OUTLIERNESS', 'class_distributions_manhattan_batch',
+                                  'CLOSENESS_TO_SAMPLES_OF_SAME_CLASS_kNN', 'MELTING_POT_REGION', 'REGION_DENSITY',
+                                  'SWITCHES_CLASS_OFTEN', 'y_pred_train', 'y_pred_test',
+
+                                  # Metrics that contain negative or only non-monotonic values
+                                  'class_distribution_chebyshev_added_up', 'class_distribution_manhattan_added_up',
+                                  'avg_dist_batch', 'avg_dist_labeled']
+
+        self.considered_metric = [string for string in self.data.get_metric_names() if
+                                  not any(word.lower() in string.lower() for word in self.blacklisted_words)]
+
     # Calculate for generally the best AL strategy for a given metric and save the result
     def calculate_best_strategy_for_metric(self, directory: str):
-        for metric in self.data.get_metric_names():     # TODO: Maybe not all metrics inside
+        for metric in self.considered_metric:
             for batch_size in [1, 5, 10]:
                 best_al_strats = {}
                 for dataset in self.data.get_dataset_names():
@@ -97,12 +119,10 @@ class TopK:
 
     # Do calculations of get_top_k(...) for all datasets and save the results
     def collect_top_k(self, directory: str, k: int = 50, threshold: float = 1, epsilon: float = 0):
-        # metrics_list = [string for string in self.data.get_metric_names() if "lag" not in string]
-
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
                 result_dict = {}
-                for metric in self.data.get_metric_names():
+                for metric in self.considered_metric:
                     result_dict[metric] = self.get_top_k(dataset, metric, batch_size=batch_size,
                                                          k=k, threshold=threshold, epsilon=epsilon)
 
@@ -112,7 +132,8 @@ class TopK:
                 print(f"Written to: {file_name}")
 
     # For a given dataset and metric, return an ordered list of AL strategies, representing its goodness
-    def get_top_k(self, dataset: str, metric: str, batch_size: int, k: int = 10, threshold: float = 1, max_iterations: int = 50, epsilon: float = 0):
+    def get_top_k(self, dataset: str, metric: str, batch_size: int, k: int = 10, threshold: float = 1,
+                  max_iterations: int = 50, epsilon: float = 0):
         # Load data
         time_series_list: List[np.ndarray] = []
         strategy_names: List[str] = []
@@ -149,7 +170,11 @@ class TopK:
 
         valid_series = []
         for series, strategy in combined_sorted:
-            if check_floats_or_integers(series) and is_monotonic_increasing(series, epsilon) and reaches_threshold(series):
+            if not check_floats_or_integers(series):
+                self.unwanted.append(metric)
+
+            if check_floats_or_integers(series) and is_monotonic_increasing(series, epsilon) and reaches_threshold(
+                    series):
                 valid_series.append((series, strategy))
 
         if k >= len(valid_series):
@@ -184,7 +209,9 @@ class TopK:
 
                     for index in range(len(data_dict[metric])):
                         # Each dataset receives a score for a metric, batch_size and strategy
-                        values[dataset][batch_size][metric][data_dict[metric][index]] = values[dataset][batch_size][metric].get(data_dict[metric][index], 0) + 1 / (index + 1)
+                        values[dataset][batch_size][metric][data_dict[metric][index]] = values[dataset][batch_size][
+                                                                                            metric].get(
+                            data_dict[metric][index], 0) + 1 / (index + 1)
 
         # Sort values: For a given batch-size, metric and strategy, what are some good datasets to use it on? (Good is
         # relative as there might be other combinations of batch-size, metric and strategy that perform even better on
