@@ -21,7 +21,7 @@ class Base_Loader(ABC):
     metrices: List[str] = list()
     data_dict: Dict[str, Dict[str, Dict[str, pd.DataFrame]]] = dict()
 
-    def __init__(self, base_dir: str) -> None:
+    def __init__(self, base_dir: str, wanted_metrics: List[str] = None) -> None:
         """
         Init function.
 
@@ -59,6 +59,28 @@ class Base_Loader(ABC):
             ],
             key=str.lower,
         )
+        self.wanted_metrics = wanted_metrics
+
+    @classmethod
+    def list_metrics(self, base_dir: str):
+        strategies = sorted(
+            [strat for strat in os.listdir(base_dir + "/") if strat[0].isupper()],
+            key=str.lower,
+        )
+        datasets = sorted(
+            [dset for dset in os.listdir(base_dir + "/" + strategies[0] + "/")],
+            key=str.lower,
+        )
+        metrices = sorted(
+            [
+                metric[:-7]
+                for metric in os.listdir(
+                    base_dir + "/" + strategies[0] + "/" + datasets[0] + "/"
+                )
+            ],
+            key=str.lower,
+        )
+        return metrices
 
     def load_single_csv(self, strategy: str, dataset: str, metric: str) -> pd.DataFrame:
         """
@@ -141,6 +163,30 @@ class Base_Loader(ABC):
                     )
                 dataset_metric[dataset] = metric_file.copy()
             self.data_dict[strategy] = dataset_metric.copy()
+
+    def load_selected_metric_csv(self) -> None:
+        """
+        Function to read in all data files at once.
+
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        None
+        """
+        for strategy in self.strategies:
+            dataset_metric: Dict[str, Dict[str, pd.DataFrame]] = dict()
+            for dataset in self.datasets:
+                metric_file: Dict[str, pd.DataFrame] = dict()
+                for metric in self.metrices:
+                    metric_file[metric] = self.load_single_csv(
+                        strategy, dataset, metric
+                    )
+                dataset_metric[dataset] = metric_file.copy()
+            self.data_dict[strategy] = dataset_metric.copy()
+
 
     def remove_nan_rows(self, data_frame: pd.DataFrame) -> pd.DataFrame:
         """

@@ -11,7 +11,7 @@ class Loader(Base_Loader):
     be used in the main function to unpack all data files at once.
     """
 
-    def __init__(self, base_dir: str) -> None:
+    def __init__(self, base_dir: str, wanted_metrics: List[str] = None) -> None:
         """
         Init function.
 
@@ -28,8 +28,13 @@ class Loader(Base_Loader):
         """
         # Logger.info("Start read in all data.")
         print("Start loading data")
-        super().__init__(base_dir)
-        self.load_all_csv()
+        super().__init__(base_dir, wanted_metrics)
+
+        if self.wanted_metrics is not None:
+            self.load_selected_metric_csv()
+        else:
+            self.load_all_csv()
+
         self.NUM_STRATS: int = len(self.strategies)
         self.NUM_DATASETS: int = len(self.datasets)
         # substract 1 because of unncecessary selected_indices.csv
