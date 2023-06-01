@@ -1,36 +1,54 @@
+import json
+from typing import List
+
 import numpy as np
 import pandas as pd
-import json
 
 from datasets.loader import Loader
-from typing import List
 
 
 class TopK:
-
     def __init__(self, data: Loader = None):
         self.data = data
 
-        self.unwanted = []  # List of weirdly formatted files, e.g. files that contain lists
+        # List of weirdly formatted files, e.g. files that contain lists
+        self.unwanted = []
         self.blacklisted_words = [
-                                  # Metrics that are the first derivative
-                                  'lag', 'selected_indices',
+            # Metrics that are the first derivative
+            "lag",
+            "selected_indices",
+            # Metrics that contain lists
+            "CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS",
+            "CLOSENESS_TO_CLUSTER_CENTER",
+            "CLOSENESS_TO_SAMPLES_OF_SAME_CLASS",
+            "CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS_kNN",
+            "IMPROVES_ACCURACY_BY",
+            "COUNT_WRONG_CLASSIFICATIONS",
+            "CLOSENESS_TO_DECISION_BOUNDARY",
+            "class_distributions_chebyshev_batch",
+            "AVERAGE_UNCERTAINTY",
+            "OUTLIERNESS",
+            "class_distributions_manhattan_batch",
+            "CLOSENESS_TO_SAMPLES_OF_SAME_CLASS_kNN",
+            "MELTING_POT_REGION",
+            "REGION_DENSITY",
+            "SWITCHES_CLASS_OFTEN",
+            "y_pred_train",
+            "y_pred_test",
+            # Metrics that contain negative or only non-monotonic values
+            "class_distribution_chebyshev_added_up",
+            "class_distribution_manhattan_added_up",
+            "avg_dist_batch",
+            "avg_dist_labeled",
+        ]
 
-                                  # Metrics that contain lists
-                                  'CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS', 'CLOSENESS_TO_CLUSTER_CENTER',
-                                  'CLOSENESS_TO_SAMPLES_OF_SAME_CLASS', 'CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS_kNN',
-                                  'IMPROVES_ACCURACY_BY', 'COUNT_WRONG_CLASSIFICATIONS',
-                                  'CLOSENESS_TO_DECISION_BOUNDARY', 'class_distributions_chebyshev_batch',
-                                  'AVERAGE_UNCERTAINTY', 'OUTLIERNESS', 'class_distributions_manhattan_batch',
-                                  'CLOSENESS_TO_SAMPLES_OF_SAME_CLASS_kNN', 'MELTING_POT_REGION', 'REGION_DENSITY',
-                                  'SWITCHES_CLASS_OFTEN', 'y_pred_train', 'y_pred_test',
-
-                                  # Metrics that contain negative or only non-monotonic values
-                                  'class_distribution_chebyshev_added_up', 'class_distribution_manhattan_added_up',
-                                  'avg_dist_batch', 'avg_dist_labeled']
-
-        self.considered_metric = [string for string in self.data.get_metric_names() if
-                                  not any(word.lower() in string.lower() for word in self.blacklisted_words)]
+        self.considered_metric = [
+            string
+            for string in self.data.get_metric_names()
+            if not any(
+                word.lower() in string.lower() for word in self.blacklisted_words
+            )
+        ]
 
     # Calculate for generally the best AL strategy for a given metric and save the result
     def calculate_best_strategy_for_metric(self, directory: str):
@@ -47,10 +65,15 @@ class TopK:
                     for index in range(len(entries)):
                         best_al_strats[entries[index]] = best_al_strats.get(entries[index], 0) + 1 / (index + 1)
 
-                sorted_best_al_strats = dict(sorted(best_al_strats.items(), key=lambda x: x[1], reverse=True))
+                sorted_best_al_strats = dict(
+                    sorted(best_al_strats.items(), key=lambda x: x[1], reverse=True)
+                )
 
                 total_sum = sum(sorted_best_al_strats.values())
-                percentages = {key: (value / total_sum) for key, value in sorted_best_al_strats.items()}
+                percentages = {
+                    key: (value / total_sum)
+                    for key, value in sorted_best_al_strats.items()
+                }
 
                 destination = f"{directory}/{metric}_{batch_size}.json"
                 with open(destination, 'w') as f:
@@ -76,10 +99,14 @@ class TopK:
             for index, key in enumerate(entry.keys(), start=1):
                 result_dict[key] = result_dict.get(key, 0) + 1 / index
 
-        sorted_result_dict = dict(sorted(result_dict.items(), key=lambda x: x[1], reverse=True))
+        sorted_result_dict = dict(
+            sorted(result_dict.items(), key=lambda x: x[1], reverse=True)
+        )
 
         total_sum = sum(sorted_result_dict.values())
-        percentages = {key: (value / total_sum) for key, value in sorted_result_dict.items()}
+        percentages = {
+            key: (value / total_sum) for key, value in sorted_result_dict.items()
+        }
 
         destination = f"{directory}/overall_best.json"
         with open(destination, 'w') as f:
@@ -90,7 +117,9 @@ class TopK:
     def collect_best_strategy_for_dataset(self, directory: str):
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
-                result_dict = self.best_al_strategy(dataset=dataset, batch_size=batch_size, directory=directory)
+                result_dict = self.best_al_strategy(
+                    dataset=dataset, batch_size=batch_size, directory=directory
+                )
 
                 file_name = f"{directory}/best_strategy_for_{dataset}_{batch_size}.json"
                 with open(file_name, 'w') as f:
@@ -148,7 +177,9 @@ class TopK:
                 strategy_names.extend([strategy] * len(vector))
 
         time_series = [list(arr) for arr in time_series_list]
-        combined_sorted = sorted(zip(time_series, strategy_names), key=lambda x: x[0], reverse=True)
+        combined_sorted = sorted(
+            zip(time_series, strategy_names), key=lambda x: x[0], reverse=True
+        )
 
         def is_monotonic_increasing(series, j):
             for i in range(1, len(series)):
@@ -173,8 +204,11 @@ class TopK:
             if not check_floats_or_integers(series):
                 self.unwanted.append(metric)
 
-            if check_floats_or_integers(series) and is_monotonic_increasing(series, epsilon) and reaches_threshold(
-                    series):
+            if (
+                check_floats_or_integers(series)
+                and is_monotonic_increasing(series, epsilon)
+                and reaches_threshold(series)
+            ):
                 valid_series.append((series, strategy))
 
         if k >= len(valid_series):
