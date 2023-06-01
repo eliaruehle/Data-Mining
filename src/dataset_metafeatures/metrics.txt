@@ -1,0 +1,23 @@
+Metrics for Exploratory Data Analysis (EDA)
+
+Range: Single value representing the difference between the maximum and minimum values of a variable.
+Coefficient of Variation (CV): Single value representing the standard deviation divided by the mean; measures relative variability.
+Percentiles: A small number of values representing the values below which a given percentage of data falls (e.g., 10th, 25th, 75th, 90th percentile).
+Mean Absolute Deviation (MAD): Single value representing the average absolute difference between each data point and the mean.
+Median Absolute Deviation (MAD): Single value representing the median of the absolute differences between each data point and the median.
+Geometric Mean: Single value representing the Nth root of the product of N numbers; useful for multiplicative relationships.
+Harmonic Mean: Single value representing the inverse of the arithmetic mean of the reciprocals of a set of numbers.
+Gini coefficient: Single value representing the measure of inequality in a distribution; commonly used in economics.
+Benford's Law Deviation: Single value representing the measure of deviation from Benford's Law, which describes the expected distribution of leading digits in many datasets.
+Shannon Diversity Index: Single value representing the measure of the diversity or richness of a dataset.
+Bit Error Rate (BER): Single value representing the percentage of bits in a data stream that are received incorrectly.
+Root Mean Square (RMS): Single value representing the square root of the mean of the squares of a set of values; provides a measure of the overall magnitude.
+Energy: Single value representing the sum of the squared values in a variable.
+Power: Single value representing the energy per unit time; calculated as the square of the RMS value.
+Persistence: Single value representing the measure of how long a value persists before changing significantly.
+Hurst Rescaled Range: Single value representing the measure of long-term memory or self-similarity in a time series.
+Information Gain: Single value representing the measure of the reduction in uncertainty after splitting a dataset based on a specific feature.
+Anomaly Score: Single value representing the measure of how anomalous or unusual a data point is compared to the rest of the dataset.
+Similarity Score: Single value representing the measure of similarity or proximity between data points.
+Cross-validation Score: Single value representing the performance score obtained by applying cross-validation techniques to evaluate a model.
+Residual Sum of Squares (RSS): Single value representing the sum of the squared differences between observed and predicted values in a regression model.
