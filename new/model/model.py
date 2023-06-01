@@ -55,7 +55,9 @@ class MatrixFactorizationClustering(nn.Module):
     ):
         data = data.to(self.device)
         target_clusters = target_clusters.to(self.device)
-        loss = nn.CrossEntropyLoss().to(device)
+        # adjust the loss to data
+        loss = nn.KLDivLoss().to(device)
+        # maybe change the optimizer and adjust the way the gradient is calculated
         optimizer = optim.Adam(self.parameters(), lr=0.001)
 
         for epoch in range(num_epochs):
@@ -67,13 +69,12 @@ class MatrixFactorizationClustering(nn.Module):
             loss_val = loss(reconstructed_matrices, data) + loss(
                 cluster_outputs, target_clusters
             )
+            loss_val2 = loss(cluster_outputs, target_clusters)
 
             loss_val.backward()
             optimizer.step()
 
             print(f"Epoch {epoch+1}/{num_epochs}, Loss: {loss_val.item()}")
-        self.eval()
-        _, _, predicted_labels = self.forward(data)
         return predicted_labels
 
 
@@ -88,10 +89,10 @@ if __name__ == "__main__":
         )
     )
 
-    num_matrices = 10
-    matrix_dim = 100
-    latent_dim = 20
-    num_clusters = 4
+    num_matrices = 40
+    matrix_dim = 81000
+    latent_dim = 50
+    num_clusters = 8
 
     model = MatrixFactorizationClustering(
         num_matrices, matrix_dim, latent_dim, num_clusters
