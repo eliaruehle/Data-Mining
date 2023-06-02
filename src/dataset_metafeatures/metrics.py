@@ -1,17 +1,12 @@
-import itertools
 import os
-import re
 from abc import ABC
 from concurrent.futures import ThreadPoolExecutor
 from math import log2, log10
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-from scipy.spatial.distance import cdist
 from scipy.stats import entropy, kurtosis, skew
-from sklearn.preprocessing import MinMaxScaler, RobustScaler
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class Metrics(ABC):
@@ -385,6 +380,77 @@ class Metrics(ABC):
         self.add_to_meatafeatures_dict(data_set, number_of_positive_covariance)
         self.add_to_meatafeatures_dict(data_set, number_of_exact_zero_covariance)
         self.add_to_meatafeatures_dict(data_set, number_of_negative_covariance)
+
+    def percentile(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate percentiles for the given DataFrame and add the mean percentiles to the metadata features dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame.
+
+        Returns:
+            None
+        """
+
+        percentiles = data_set.quantile([0.25, 0.5, 0.75, 0.9])
+        mean_percentiles = percentiles.mean(axis=1)
+
+        mean_percentiles_nparray = mean_percentiles.to_numpy()
+        for percentile in mean_percentiles_nparray:
+            self.add_to_meatafeatures_dict(data_set, percentile)
+
+    def coloumn_cosine_similarity_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the cosine similarity matrix for the columns of the given DataFrame,
+        compute the mean of the matrix, and add it to the metadata features dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame.
+
+        Returns:
+            None
+        """
+
+        cos_sim = cosine_similarity(data_set.T)
+
+        cos_sim_df_mean = pd.DataFrame(
+            cos_sim, index=data_set.columns, columns=data_set.columns
+        ).mean()
+
+        cos_sim_overall_mean = cos_sim_df_mean.mean()
+        self.add_to_meatafeatures_dict(data_set, cos_sim_overall_mean)
+
+    def range_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean range of the columns in the given DataFrame and add it to the metadata features dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame.
+
+        Returns:
+            None
+        """
+
+        range_mean = (data_set.max() - data_set.min()).mean()
+
+        self.add_to_meatafeatures_dict(data_set, range_mean)
+
+    def coefficient_variation_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean coefficient of variation for the columns in the given DataFrame
+        and add it to the metadata features dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame.
+
+        Returns:
+            None
+        """
+
+        coefficient_var_df = (data_set.std() / data_set.mean()) * 100
+
+        mean_coefficient_var = coefficient_var_df.mean()
+        self.add_to_meatafeatures_dict(data_set, mean_coefficient_var)
 
     def entropy_mean(self, data_set: pd.DataFrame) -> None:
         """
