@@ -11,7 +11,7 @@ class KMeansTorch:
     """
 
     # sets the device for running accelerated on graphic cards
-    device = (
+    device: str = (
         torch.device("cuda")
         if torch.cuda.is_available()
         else (
@@ -141,6 +141,7 @@ class KMeansTorch:
         """
         self.num_clusters = num_clusters
 
+    @property
     def get_device(self) -> str:
         """
         Function that returns the device for accelaration.
