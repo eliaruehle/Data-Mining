@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch import Tensor
-from torch.optim import Adam
+from torch.optim import Adam, lr_scheduler
 from typing import List
 from tqdm import tqdm
 
@@ -105,6 +105,7 @@ def train(
     """
     criterion = nn.MSELoss()
     optimizer = Adam(model.parameters(), lr=learning_rate)
+    scheduler = lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.1)
 
     for epoch in range(num_epochs):
         sum_loss: float = 0.0
@@ -122,14 +123,17 @@ def train(
             # save the loss
             sum_loss += loss.item()
         print(f"Everage loss in epoch {epoch}: {sum_loss/len(train_samples)}")
+    # make a scheduler step
+    scheduler.step()
 
 
 if __name__ == "__main__":
     matrix = torch.rand(2, 100, 50).to("mps")
     trainings_data = [torch.rand(40, 100, 50).to("mps") for _ in range(20)]
     autoencoder = Autoencoder(100 * 50, 10)
-    reduced_vec = autoencoder(matrix)
-    print(reduced_vec.shape)
-    reduced_vec = autoencoder.encoder(reduced_vec)
     print("Start Training")
-    train(autoencoder, trainings_data, learning_rate=0.001, num_epochs=10)
+    # train(autoencoder, trainings_data, learning_rate=0.001, num_epochs=50)
+    reduced_vec = autoencoder(matrix)
+    reduced_vec = autoencoder.encoder(reduced_vec)
+    reduced_vec = reduced_vec.unsqueeze(2)
+    print(reduced_vec.shape)
