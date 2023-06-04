@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from typing import List
 
 import numpy as np
@@ -9,9 +10,7 @@ from loader import Loader, logger
 class TopK:
     def __init__(self, data: Loader = None):
         self.data = data
-
-        # List of weirdly formatted files, e.g. files that contain lists
-        self.unwanted = []
+        self.unwanted = set()
         self.blacklisted_words = [
             # Metrics that are the first derivative
             "lag",
@@ -49,11 +48,10 @@ class TopK:
             )
         ]
 
-    # Calculate for generally the best AL strategy for a given metric and save the result
     def calculate_best_strategy_for_metric(self, directory: str):
         for metric in self.considered_metric:
             for batch_size in [1, 5, 10]:
-                best_al_strats = {}
+                best_al_strats = defaultdict(float)
                 for dataset in self.data.get_dataset_names():
                     file_name = f"{directory}/{dataset}_{batch_size}.json"
 
@@ -61,19 +59,12 @@ class TopK:
                         data_dict = json.load(file)
 
                     entries = data_dict.get(metric, [])
-                    for index in range(len(entries)):
-                        best_al_strats[entries[index]] = best_al_strats.get(
-                            entries[index], 0
-                        ) + 1 / (index + 1)
+                    for index, entry in enumerate(entries):
+                        best_al_strats[entry] += 1 / (index + 1)
 
-                sorted_best_al_strats = dict(
-                    sorted(best_al_strats.items(), key=lambda x: x[1], reverse=True)
-                )
-
-                total_sum = sum(sorted_best_al_strats.values())
+                total_sum = sum(best_al_strats.values())
                 percentages = {
-                    key: (value / total_sum)
-                    for key, value in sorted_best_al_strats.items()
+                    key: (value / total_sum) for key, value in best_al_strats.items()
                 }
 
                 destination = f"{directory}/{metric}_{batch_size}.json"
@@ -81,40 +72,27 @@ class TopK:
                     json.dump(percentages, f)
                 logger.info(f"Written to: {destination}")
 
-    # Calculate which AL strategy gives the best result over all datasets and metrics. The result is normalized to
-    # individual_score / sum(all_scores) and saved as a JSON file
     def calculate_generally_best_strategy(self, directory: str):
-        dicts = []
+        result_dict = defaultdict(float)
 
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
                 file_name = f"{directory}/best_strategy_for_{dataset}_{batch_size}.json"
 
                 with open(file_name, "r") as file:
-                    best_strategies: dict[str : list[str]] = json.load(file)
-                    dicts.append(best_strategies)
+                    best_strategies: dict[str, list[str]] = json.load(file)
 
-        result_dict = {}
+                for index, key in enumerate(best_strategies.keys(), start=1):
+                    result_dict[key] += 1 / index
 
-        for entry in dicts:
-            for index, key in enumerate(entry.keys(), start=1):
-                result_dict[key] = result_dict.get(key, 0) + 1 / index
-
-        sorted_result_dict = dict(
-            sorted(result_dict.items(), key=lambda x: x[1], reverse=True)
-        )
-
-        total_sum = sum(sorted_result_dict.values())
-        percentages = {
-            key: (value / total_sum) for key, value in sorted_result_dict.items()
-        }
+        total_sum = sum(result_dict.values())
+        percentages = {key: (value / total_sum) for key, value in result_dict.items()}
 
         destination = f"{directory}/overall_best.json"
         with open(destination, "w") as f:
             json.dump(percentages, f)
         logger.info(f"Written to: {destination}")
 
-    # Do calculations of best_al_strategy(...) for all datasets and save the results
     def collect_best_strategy_for_dataset(self, directory: str):
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
@@ -127,33 +105,21 @@ class TopK:
                     json.dump(result_dict, f)
                 logger.info(f"Written to: {file_name}")
 
-    # Order the AL strategies by how good they generally apply to all the metrics of a given dataset. The more often
-    # an AL strategy performs well for a metric, the higher its score is. At the end, all scores are normalized to
-    # individual_score / sum(all_scores)
     def best_al_strategy(self, dataset: str, batch_size: int, directory: str):
         file_name = f"{directory}/{dataset}_{batch_size}.json"
         with open(file_name, "r") as file:
-            top_k_data: dict[str : list[str]] = json.load(file)
+            top_k_data: dict[str, list[str]] = json.load(file)
 
-        result_dict = {}
-        for key, value_list in top_k_data.items():
-            for index in range(len(value_list)):
-                result_dict[value_list[index]] = result_dict.get(
-                    value_list[index], 0
-                ) + 1 / (index + 1)
+        result_dict = defaultdict(float)
+        for value_list in top_k_data.values():
+            for index, entry in enumerate(value_list):
+                result_dict[entry] += 1 / (index + 1)
 
-        sorted_result_dict = dict(
-            sorted(result_dict.items(), key=lambda x: x[1], reverse=True)
-        )
-
-        total_sum = sum(sorted_result_dict.values())
-        percentages = {
-            key: (value / total_sum) for key, value in sorted_result_dict.items()
-        }
+        total_sum = sum(result_dict.values())
+        percentages = {key: (value / total_sum) for key, value in result_dict.items()}
 
         return percentages
 
-    # Do calculations of get_top_k(...) for all datasets and save the results
     def collect_top_k(
         self, directory: str, k: int = 50, threshold: float = 1, epsilon: float = 0
     ):
@@ -175,7 +141,6 @@ class TopK:
                     json.dump(result_dict, f)
                 logger.info(f"Written to: {file_name}")
 
-    # For a given dataset and metric, return an ordered list of AL strategies, representing its goodness
     def get_top_k(
         self,
         dataset: str,
@@ -186,9 +151,7 @@ class TopK:
         max_iterations: int = 50,
         epsilon: float = 0,
     ):
-        # Load data
-        time_series_list: List[np.ndarray] = []
-        strategy_names: List[str] = []
+        strategy_scores = defaultdict(list)
 
         for strategy in self.data.get_strategy_names():
             frame: pd.DataFrame = self.data.get_single_dataframe(
@@ -198,12 +161,17 @@ class TopK:
             vector = vector.iloc[:, :-9].dropna(axis=1)
 
             if not vector.empty:
-                time_series_list.extend(vector.to_numpy())
-                strategy_names.extend([strategy] * len(vector))
+                time_series = vector.to_numpy(dtype=np.float32)
+                strategy_scores[strategy].extend(time_series)
 
-        time_series = [list(arr) for arr in time_series_list]
         combined_sorted = sorted(
-            zip(time_series, strategy_names), key=lambda x: x[0], reverse=True
+            (
+                (list(arr), strategy)
+                for strategy, series in strategy_scores.items()
+                for arr in series
+            ),
+            key=lambda x: x[0],
+            reverse=True,
         )
 
         def is_monotonic_increasing(series, j):
@@ -214,7 +182,7 @@ class TopK:
 
         def check_floats_or_integers(series):
             for element in series:
-                if not isinstance(element, (float, int)):
+                if not np.issubdtype(type(element), np.number):
                     return False
             return True
 
@@ -227,7 +195,7 @@ class TopK:
         valid_series = []
         for series, strategy in combined_sorted:
             if not check_floats_or_integers(series):
-                self.unwanted.append(metric)
+                self.unwanted.add(metric)
 
             if (
                 check_floats_or_integers(series)
@@ -242,64 +210,31 @@ class TopK:
             return [strategy for series, strategy in valid_series[:k]]
 
     def data_processing(self, directory: str):
-        # 1. For each strategy, batch_size and metric, find datasets they perform on the best
-
-        values = {}
+        values = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
+        )
 
         for dataset in self.data.get_dataset_names():
-            # Add another dimension
-            if dataset not in values:
-                values[dataset] = {}
-
             for batch_size in [1, 5, 10]:
-                # Add another dimension
-                if batch_size not in values[dataset]:
-                    values[dataset][batch_size] = {}
-
-                # Read CSV file
                 file_name = f"{directory}/{dataset}_{batch_size}.json"
                 with open(file_name, "r") as file:
-                    data_dict: dict[str : list[str]] = json.load(file)
+                    data_dict: dict[str, list[str]] = json.load(file)
 
-                for metric in list(data_dict.keys()):
-                    # Add another dimension
-                    if metric not in values[dataset][batch_size]:
-                        values[dataset][batch_size][metric] = {}
+                for metric, entries in data_dict.items():
+                    for index, entry in enumerate(entries):
+                        values[dataset][batch_size][metric][entry] += 1 / (index + 1)
 
-                    for index in range(len(data_dict[metric])):
-                        # Each dataset receives a score for a metric, batch_size and strategy
-                        values[dataset][batch_size][metric][
-                            data_dict[metric][index]
-                        ] = values[dataset][batch_size][metric].get(
-                            data_dict[metric][index], 0
-                        ) + 1 / (
-                            index + 1
-                        )
-
-        # Sort values: For a given batch-size, metric and strategy, what are some good datasets to use it on? (Good is
-        # relative as there might be other combinations of batch-size, metric and strategy that perform even better on
-        # those datasets)
-
-        sorted_datasets = {}
+        sorted_datasets = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
         for dataset in values:
             for batch_size in values[dataset]:
                 for metric in values[dataset][batch_size]:
                     for strategy in values[dataset][batch_size][metric]:
                         score = values[dataset][batch_size][metric][strategy]
-
-                        if batch_size not in sorted_datasets:
-                            sorted_datasets[batch_size] = {}
-                        if metric not in sorted_datasets[batch_size]:
-                            sorted_datasets[batch_size][metric] = {}
-                        if strategy not in sorted_datasets[batch_size][metric]:
-                            sorted_datasets[batch_size][metric][strategy] = []
-
                         sorted_datasets[batch_size][metric][strategy].append(
                             (dataset, score)
                         )
 
-        # Sort the datasets by score in descending order
         for batch_size in sorted_datasets:
             for metric in sorted_datasets[batch_size]:
                 for strategy in sorted_datasets[batch_size][metric]:
@@ -316,7 +251,7 @@ class TopK:
 
 
 PROJECT_DATA: Loader = Loader("/Users/user/GitHub/Data-Mining/kp_test")
-base_directory = "/Users/user/GitHub/Data-Mining/stuff"
+base_directory = "/Users/user/GitHub/Data-Mining/HPC_Processing"
 
 top_k = TopK(PROJECT_DATA)
 top_k.collect_top_k(directory=base_directory, threshold=0.0, epsilon=0.05)
