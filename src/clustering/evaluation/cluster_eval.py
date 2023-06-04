@@ -13,7 +13,7 @@ def get_csv_files(directory):
     return csv_files
 
 
-def do_eval(directory: str):
+def calculate_similarity(directory: str):
     csv_files = get_csv_files(directory)
 
     # Load and normalize matrices
@@ -86,4 +86,8 @@ def average_similarity_cosine(matrices):
     return average_similarity
 
 
-do_eval(directory="/home/ature/University/6th-Semester/Data-Mining/src/cl_res")
+# Directory where similarity matrices are stored
+source_directory = "/home/ature/University/6th-Semester/Data-Mining/src/cl_res"
+
+# Calculate both average Euclidean and average cosine similarity
+calculate_similarity(directory=source_directory)

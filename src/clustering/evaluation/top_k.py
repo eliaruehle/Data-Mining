@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import json
+import os as os
 
 from datasets.loader import Loader
 from typing import List
@@ -8,37 +9,43 @@ from typing import List
 
 class TopK:
 
-    def __init__(self, data: Loader = None):
-        self.data = data
-
+    def __init__(self, loader_directory: str):
         self.unwanted = []  # List of weirdly formatted files, e.g. files that contain lists
         self.blacklisted_words = [
-                                  # Metrics that are the first derivative
-                                  'lag', 'selected_indices',
+            # Metrics that are the first derivative
+            'lag', 'selected_indices',
 
-                                  # Metrics that contain lists
-                                  'CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS', 'CLOSENESS_TO_CLUSTER_CENTER',
-                                  'CLOSENESS_TO_SAMPLES_OF_SAME_CLASS', 'CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS_kNN',
-                                  'IMPROVES_ACCURACY_BY', 'COUNT_WRONG_CLASSIFICATIONS',
-                                  'CLOSENESS_TO_DECISION_BOUNDARY', 'class_distributions_chebyshev_batch',
-                                  'AVERAGE_UNCERTAINTY', 'OUTLIERNESS', 'class_distributions_manhattan_batch',
-                                  'CLOSENESS_TO_SAMPLES_OF_SAME_CLASS_kNN', 'MELTING_POT_REGION', 'REGION_DENSITY',
-                                  'SWITCHES_CLASS_OFTEN', 'y_pred_train', 'y_pred_test',
+            # Metrics that contain lists
+            'CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS', 'CLOSENESS_TO_CLUSTER_CENTER',
+            'CLOSENESS_TO_SAMPLES_OF_SAME_CLASS', 'CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS_kNN',
+            'IMPROVES_ACCURACY_BY', 'COUNT_WRONG_CLASSIFICATIONS',
+            'CLOSENESS_TO_DECISION_BOUNDARY', 'class_distributions_chebyshev_batch',
+            'AVERAGE_UNCERTAINTY', 'OUTLIERNESS', 'class_distributions_manhattan_batch',
+            'CLOSENESS_TO_SAMPLES_OF_SAME_CLASS_kNN', 'MELTING_POT_REGION', 'REGION_DENSITY',
+            'SWITCHES_CLASS_OFTEN', 'y_pred_train', 'y_pred_test',
 
-                                  # Metrics that contain negative or only non-monotonic values
-                                  'class_distribution_chebyshev_added_up', 'class_distribution_manhattan_added_up',
-                                  'avg_dist_batch', 'avg_dist_labeled']
+            # Metrics that contain negative or only non-monotonic values
+            'class_distribution_chebyshev_added_up', 'class_distribution_manhattan_added_up',
+            'avg_dist_batch', 'avg_dist_labeled']
 
-        self.considered_metric = [string for string in self.data.get_metric_names() if
+        self.considered_metric = [string for string in Loader.list_metrics(base_dir=loader_directory) if
                                   not any(word.lower() in string.lower() for word in self.blacklisted_words)]
+
+        self.data = Loader(base_dir=loader_directory, wanted_metrics=self.considered_metric)
 
     # Calculate for generally the best AL strategy for a given metric and save the result
     def calculate_best_strategy_for_metric(self, directory: str):
+
+        # Create directory 'metric_batch_size' if it doesn't exist
+        subdirectory = f"{directory}/metric_batch_size"
+        if not os.path.exists(subdirectory):
+            os.makedirs(subdirectory)
+
         for metric in self.considered_metric:
             for batch_size in [1, 5, 10]:
                 best_al_strats = {}
                 for dataset in self.data.get_dataset_names():
-                    file_name = f"{directory}/{dataset}_{batch_size}.json"
+                    file_name = f"{directory}/dataset_batch_size/{dataset}_{batch_size}.json"
 
                     with open(file_name, 'r') as file:
                         data_dict = json.load(file)
@@ -52,10 +59,9 @@ class TopK:
                 total_sum = sum(sorted_best_al_strats.values())
                 percentages = {key: (value / total_sum) for key, value in sorted_best_al_strats.items()}
 
-                destination = f"{directory}/{metric}_{batch_size}.json"
+                destination = f"{directory}/metric_batch_size/{metric}_{batch_size}.json"
                 with open(destination, 'w') as f:
                     json.dump(percentages, f)
-                print(f"Written to: {destination}")
 
     # Calculate which AL strategy gives the best result over all datasets and metrics. The result is normalized to
     # individual_score / sum(all_scores) and saved as a JSON file
@@ -64,7 +70,7 @@ class TopK:
 
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
-                file_name = f"{directory}/best_strategy_for_{dataset}_{batch_size}.json"
+                file_name = f"{directory}/best_strategy_for/best_strategy_for_{dataset}_{batch_size}.json"
 
                 with open(file_name, 'r') as file:
                     best_strategies: dict[str: list[str]] = json.load(file)
@@ -84,24 +90,29 @@ class TopK:
         destination = f"{directory}/overall_best.json"
         with open(destination, 'w') as f:
             json.dump(percentages, f)
-        print(f"Written to: {destination}")
 
     # Do calculations of best_al_strategy(...) for all datasets and save the results
     def collect_best_strategy_for_dataset(self, directory: str):
+
+        # Create directory 'best_strategy_for' if it doesn't exist
+        subdirectory = f"{directory}/best_strategy_for"
+        if not os.path.exists(subdirectory):
+            os.makedirs(subdirectory)
+
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
                 result_dict = self.best_al_strategy(dataset=dataset, batch_size=batch_size, directory=directory)
 
-                file_name = f"{directory}/best_strategy_for_{dataset}_{batch_size}.json"
+                file_name = f"{directory}/best_strategy_for/best_strategy_for_{dataset}_{batch_size}.json"
                 with open(file_name, 'w') as f:
                     json.dump(result_dict, f)
-                print(f"Written to: {file_name}")
 
     # Order the AL strategies by how good they generally apply to all the metrics of a given dataset. The more often
     # an AL strategy performs well for a metric, the higher its score is. At the end, all scores are normalized to
     # individual_score / sum(all_scores)
-    def best_al_strategy(self, dataset: str, batch_size: int, directory: str):
-        file_name = f"{directory}/{dataset}_{batch_size}.json"
+    @staticmethod
+    def best_al_strategy(dataset: str, batch_size: int, directory: str):
+        file_name = f"{directory}/dataset_batch_size/{dataset}_{batch_size}.json"
         with open(file_name, 'r') as file:
             top_k_data: dict[str: list[str]] = json.load(file)
 
@@ -119,6 +130,12 @@ class TopK:
 
     # Do calculations of get_top_k(...) for all datasets and save the results
     def collect_top_k(self, directory: str, k: int = 50, threshold: float = 1, epsilon: float = 0):
+
+        # Create directory 'dataset_batch_size' if it doesn't exist
+        subdirectory = f"{directory}/dataset_batch_size"
+        if not os.path.exists(subdirectory):
+            os.makedirs(subdirectory)
+
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
                 result_dict = {}
@@ -126,10 +143,9 @@ class TopK:
                     result_dict[metric] = self.get_top_k(dataset, metric, batch_size=batch_size,
                                                          k=k, threshold=threshold, epsilon=epsilon)
 
-                file_name = f"{directory}/{dataset}_{batch_size}.json"
+                file_name = f"{directory}/dataset_batch_size/{dataset}_{batch_size}.json"
                 with open(file_name, 'w') as f:
                     json.dump(result_dict, f)
-                print(f"Written to: {file_name}")
 
     # For a given dataset and metric, return an ordered list of AL strategies, representing its goodness
     def get_top_k(self, dataset: str, metric: str, batch_size: int, k: int = 10, threshold: float = 1,
@@ -182,7 +198,7 @@ class TopK:
         else:
             return [strategy for series, strategy in valid_series[:k]]
 
-    def data_processing(self, directory: str):
+    def gen_performance_json(self, directory: str):
         # 1. For each strategy, batch_size and metric, find datasets they perform on the best
 
         values = {}
@@ -198,7 +214,7 @@ class TopK:
                     values[dataset][batch_size] = {}
 
                 # Read CSV file
-                file_name = f"{directory}/{dataset}_{batch_size}.json"
+                file_name = f"{directory}/dataset_batch_size/{dataset}_{batch_size}.json"
                 with open(file_name, 'r') as file:
                     data_dict: dict[str: list[str]] = json.load(file)
 
@@ -245,15 +261,23 @@ class TopK:
         file_name = f"{directory}/performance.json"
         with open(file_name, 'w') as f:
             json.dump(sorted_datasets, f)
-        print(f"Written to: {file_name}")
 
 
-PROJECT_DATA: Loader = Loader("../../../kp_test")
-base_directory = "/home/ature/Programming/Python/DB-Mining-Data"
+# Directory where all the data provided by Julius lies
+source_directory = "../../../kp_test"
 
-top_k = TopK(PROJECT_DATA)
-top_k.collect_top_k(directory=base_directory, threshold=0.0, epsilon=0.05)
-top_k.collect_best_strategy_for_dataset(base_directory)
-top_k.calculate_generally_best_strategy(directory=base_directory)
-top_k.calculate_best_strategy_for_metric(directory=base_directory)
-top_k.data_processing(directory=base_directory)
+# Directory where the JSON files are stored to
+destination_directory = "/home/ature/Programming/Python/DB-Mining-Data/JSON"
+
+# Initialize TopK
+top_k = TopK(loader_directory=source_directory)
+
+# For each dataset and batch size, create a list for all metrics with a ranging of AL strategies
+top_k.collect_top_k(directory=destination_directory, threshold=0.0, epsilon=0.05)
+
+top_k.collect_best_strategy_for_dataset(destination_directory)
+top_k.calculate_generally_best_strategy(directory=destination_directory)
+top_k.calculate_best_strategy_for_metric(directory=destination_directory)
+
+# Calculate rankings of datasets for provided AL strategy, metric and batch size
+top_k.gen_performance_json(directory=destination_directory)

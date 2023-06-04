@@ -1,8 +1,6 @@
 from typing import List, Dict, Set, Tuple
 from datasets import Base_Loader
 import pandas as pd
-import numpy as np
-from project_helper.Logger import Logger
 
 
 class Loader(Base_Loader):
@@ -38,7 +36,7 @@ class Loader(Base_Loader):
         self.NUM_STRATS: int = len(self.strategies)
         self.NUM_DATASETS: int = len(self.datasets)
         # substract 1 because of unncecessary selected_indices.csv
-        self.NUM_METRICS: int = len(self.metrices) - 1
+        self.NUM_METRICS: int = len(self.metrics) - 1
         print("End loading data")
         # Logger.info("Finished read in all data.")
 
@@ -123,7 +121,7 @@ class Loader(Base_Loader):
             a list of all metric names
         """
         # removes selected indices to avoid multiple data samples per AL cycle
-        final_metrices: List[str] = self.metrices.copy()
+        final_metrices: List[str] = self.metrics.copy()
         final_metrices.remove("selected_indices")
         return final_metrices
 
@@ -142,7 +140,7 @@ class Loader(Base_Loader):
         hyperparam_set : Set[Tuple[int, int, int, int, int]]
             a set of tuples containing the hyperparameter values in tuple
         """
-        frame = self.hyperparamters.copy()
+        frame = self.hyperparameters.copy()
         # get the frame with the important columns
         frame = frame[
             [

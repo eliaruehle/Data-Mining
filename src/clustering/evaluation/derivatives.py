@@ -122,7 +122,14 @@ class Derivation:
                 self.save_as_one(strategy=strategy, metric=metric, directory=directory)
 
 
-base_directory = "/home/ature/Programming/Python/DB-Mining-Data/plots"
+# Directory where all the data provided by Julius lies
+source_directory = "../../../kp_test"
 
-derivation = Derivation("../../../kp_test")
-derivation.save_all_averages(directory=base_directory)
+# Directory where the plots should be saved to
+destination_directory = "/home/ature/Programming/Python/DB-Mining-Data/PLOTS"
+
+# Initialize Derivation
+derivation = Derivation(directory=source_directory)
+
+# Generate and save all plots
+derivation.save_all_averages(directory=destination_directory)

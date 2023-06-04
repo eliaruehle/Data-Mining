@@ -15,10 +15,10 @@ class Base_Loader(ABC):
     """
 
     base_dir: str = ""
-    hyperparamters: pd.DataFrame
+    hyperparameters: pd.DataFrame
     strategies: List[str] = list()
     datasets: List[str] = list()
-    metrices: List[str] = list()
+    metrics: List[str] = list()
     data_dict: Dict[str, Dict[str, Dict[str, pd.DataFrame]]] = dict()
 
     def __init__(self, base_dir: str, wanted_metrics: List[str] = None) -> None:
@@ -37,7 +37,7 @@ class Base_Loader(ABC):
             only the initialized object
         """
         self.base_dir = base_dir
-        self.hyperparamters = pd.read_csv(
+        self.hyperparameters = pd.read_csv(
             base_dir
             + "/"
             + list(filter(lambda x: "done_workload" in x, os.listdir(base_dir)))[0]
@@ -50,12 +50,12 @@ class Base_Loader(ABC):
             [dset for dset in os.listdir(base_dir + "/" + self.strategies[0] + "/")],
             key=str.lower,
         )
-        self.metrices = sorted(
+        self.metrics = sorted(
             [
                 metric[:-7]
                 for metric in os.listdir(
-                    base_dir + "/" + self.strategies[0] + "/" + self.datasets[0] + "/"
-                )
+                base_dir + "/" + self.strategies[0] + "/" + self.datasets[0] + "/"
+            )
             ],
             key=str.lower,
         )
@@ -75,8 +75,8 @@ class Base_Loader(ABC):
             [
                 metric[:-7]
                 for metric in os.listdir(
-                    base_dir + "/" + strategies[0] + "/" + datasets[0] + "/"
-                )
+                base_dir + "/" + strategies[0] + "/" + datasets[0] + "/"
+            )
             ],
             key=str.lower,
         )
@@ -119,7 +119,7 @@ class Base_Loader(ABC):
                         + ".csv.xz"
                     )
                 ),
-                self.hyperparamters,
+                self.hyperparameters,
                 on="EXP_UNIQUE_ID",
             )
         except:
@@ -136,7 +136,7 @@ class Base_Loader(ABC):
                         + ".csv.xz"
                     )
                 ),
-                self.hyperparamters,
+                self.hyperparameters,
                 on="EXP_UNIQUE_ID",
             ))
             raise NoSuchPathOrCSV("Path or requestes CSV does not exist!")
@@ -157,7 +157,7 @@ class Base_Loader(ABC):
             dataset_metric: Dict[str, Dict[str, pd.DataFrame]] = dict()
             for dataset in self.datasets:
                 metric_file: Dict[str, pd.DataFrame] = dict()
-                for metric in self.metrices:
+                for metric in self.metrics:
                     metric_file[metric] = self.load_single_csv(
                         strategy, dataset, metric
                     )
@@ -180,13 +180,12 @@ class Base_Loader(ABC):
             dataset_metric: Dict[str, Dict[str, pd.DataFrame]] = dict()
             for dataset in self.datasets:
                 metric_file: Dict[str, pd.DataFrame] = dict()
-                for metric in self.metrices:
+                for metric in self.metrics:
                     metric_file[metric] = self.load_single_csv(
                         strategy, dataset, metric
                     )
                 dataset_metric[dataset] = metric_file.copy()
             self.data_dict[strategy] = dataset_metric.copy()
-
 
     def remove_nan_rows(self, data_frame: pd.DataFrame) -> pd.DataFrame:
         """
