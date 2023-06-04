@@ -9,85 +9,96 @@ from numpy import nan
 def data_interpolation():
     data:Loader = Loader("kp_test") 
 
-    helper = False
+    is_list = False
     for strategy in data.get_strategy_names():
         for dataset in data.get_dataset_names():
             for metric in data.get_metric_names():
                 frame: pd.DataFrame = data.get_single_dataframe(
                     strategy, dataset, metric
                 )
-                if metric == 'y_pred_test' or metric == 'y_pred_train':
-                    continue
 
-                helper = False
+                if frame.shape[1] < 11:
+                    continue
+                
+                is_list = False
                 pattern = r'\[(?!\s*\])[\d.,\s]+\]'
 
                 for ind, r in frame.iterrows():
                     if any(re.match(pattern, str(value)) for value in r):
-                        helper = True
+                        is_list = True
                 
-                if helper:
-                    #print("with arrays")
-                    print(metric, strategy, dataset)
-
+                if is_list:
+                    print("with arrays")
                     frame = interpolation_with_arrays(frame)
-                    frame = change_arrays_to_values(frame)
-                    frame.to_csv(f"with_"+ metric +".csv", index=False, sep = ',')
-
-                else: 
-                    #print("without arrays")
                     frame = interpolation_without_arrays(frame)
-                    frame.to_csv(f"without_"+ metric +".csv", index=False, sep = ',')
+                    frame.to_csv(f"with_"+ metric +".csv", index=False, sep = ',')
+                
+                else:
+                    if re.search(r'_lag', metric):
+                        print("lag metrics")
+                        frame = interpolation_lag_metrics(frame)
+                        frame.to_csv(f"without_lag_"+ metric +".csv", index=False, sep = ',')
+                    
+                    else:
+                        print("without arrays")  
+                        frame = interpolation_without_arrays(frame)        
+                        frame.to_csv(f"without_"+ metric +".csv", index=False, sep = ',')
 
             break
         break
-    print(frame.shape)
 
     
-
 def interpolation_with_arrays(frame: pd.DataFrame):
     for index, row in frame.iterrows():
         if any(type(el)==str and el == '[]' for el in row):
-            first_empty = int((row == '[]').idxmax())
+            first_empty = int((row == '[]').idxmax())           
         elif any(type(el) == float and math.isnan(el) for el in row):
-            first_empty = np.argwhere(np.isnan(row))
-            if len(first_empty) > 0:
-                first_empty = first_empty[0][0]
-                print(type(first_empty))
-        else: continue
-        filler = np.stack(row.apply(pd.eval).iloc[first_empty - 5: first_empty - 1].values).mean(axis = 0) #last four valid arrays                  
-        numbers_string = np.array2string(filler, separator=',')
-        frame.iloc[index, first_empty - 1:50] = pd.Series([numbers_string for _ in row.iloc[first_empty - 1:50]])
-        
+            first_empty = int(row.isnull().idxmax())
+        else: 
+            first_empty = 51
+
+        frame = change_arrays_to_values(frame, first_empty)
+    return frame
+
+
+def change_arrays_to_values(frame: pd.DataFrame, first_empty: int):
+    for index, row in frame.iterrows():
+        for position, value in row.iloc[:first_empty-1].items():
+            if type(value) == str and value != '[]':
+                data_list = value.strip('[]').split(",")                     
+                d = [float(x) for x in data_list]                  
+                mean_value = sum(d) / len(d)                   
+                frame.loc[index, position] = mean_value
+            elif type(value) == float and not math.isnan(value):
+                mean_value = np.mean(value)
+                frame.loc[index, position] = mean_value   
+            else : continue  
     return frame
 
 
 def interpolation_without_arrays(frame: pd.DataFrame):
     for index, row in frame.iterrows():
         if any(type(el) == float and math.isnan(el) for el in row):
-            first_empty = np.argwhere(np.isnan(row))
-            if len(first_empty) > 0:
-                first_empty = first_empty[0][0]
-            filler = np.mean(row[first_empty-5:first_empty-1])
-            frame.iloc[index, first_empty - 1:50] = filler
+            first_empty = int(row.isnull().idxmax())
         elif any(row == '[]'):
             first_empty = int((row == '[]').idxmax())
-            filler = row.apply(pd.eval).iloc[first_empty- 5: first_empty - 1].values.mean(axis = 0)
-            frame.iloc[index, first_empty - 1:50] = filler
-            print(first_empty)
         else: continue
+
+        last_not_empty = row[first_empty - 1]
+        frame.iloc[index, first_empty:50] = last_not_empty
+
     return frame
 
 
-def change_arrays_to_values(frame: pd.DataFrame):
+def interpolation_lag_metrics(frame: pd.DataFrame):
     for index, row in frame.iterrows():
-        for position, value in row.iloc[:50].items():  
-            print(index, position)                   
-            print(type(value), value)
-            data_list = value.strip('[]').split(",")                     
-            d = [float(x) for x in data_list]                  
-            mean_value = sum(d) / len(d)                   
-            frame.loc[index, position] = mean_value
+        if any(type(el) == float and math.isnan(el) for el in row):
+            first_empty = int(row.isnull().idxmax())
+        elif any(row == '[]'):
+            first_empty = int((row == '[]').idxmax())
+        else: continue
+
+        frame.iloc[index, first_empty:50] = 0
     return frame
 
 
