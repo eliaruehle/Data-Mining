@@ -17,7 +17,6 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     handlers=[
-        logging.FileHandler(log_file),  # logs are written to a new file with timestamp
         logging.StreamHandler(),  # logs are printed to console
     ],
 )
@@ -104,14 +103,9 @@ class Base_Loader(ABC):
             return None
 
         try:
+            logger.info(f"Loading: {file_path}")
             return pd.merge(
-                self.remove_nan_rows(
-                    pd.read_csv(
-                        os.path.join(
-                            self.base_dir, strategy, dataset, metric + ".csv.xz"
-                        )
-                    )
-                ),
+                self.remove_nan_rows(pd.read_csv(file_path)),
                 self.hyperparamters,
                 on="EXP_UNIQUE_ID",
             )
