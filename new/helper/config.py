@@ -187,10 +187,15 @@ def get_metrices():
     conf_dict["metrices"] = metrices
 
 
+def get_hyperparamter_path():
+    conf_dict["hyperparameter"] = "new/05_done_workload.csv"
+
+
 def get_data() -> Dict[str, List[str]]:
     get_strategies()
     get_datasets()
     get_metrices()
+    get_hyperparamter_path()
 
 
 # this need to be adjustet for new environments -> for example after merge

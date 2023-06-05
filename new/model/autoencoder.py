@@ -80,7 +80,6 @@ class Autoencoder(nn.Module):
         x = x.view(s, -1)
         return x
 
-    @property
     def get_device(self) -> str:
         """
         Returns the used device for the model.
@@ -96,7 +95,6 @@ class Autoencoder(nn.Module):
         """
         return self.device
 
-    @property
     def get_input_output_sizes(self) -> Tuple[int, int]:
         """
         Returns input and output sizes as tuple.
