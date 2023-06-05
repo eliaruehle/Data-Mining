@@ -6,6 +6,7 @@ from datasets import Loader
 from experiment_runner import ClusterRunner
 from project_helper.Logger import Logger
 from project_helper.method_types import CLUSTER_STRAT
+from src.clustering.evaluation.top_k import TopK
 
 
 def main() -> None:
@@ -28,7 +29,7 @@ def main() -> None:
 
     print("DEBUG: start reading in data")
     # initialize one data object
-    PROJECT_DATA: Loader = Loader("kp_test")
+    PROJECT_DATA: Loader = Loader("/home/wilhelm/Uni/data_mining/Data-Mining/kp_test")
     print("DEBUG: ready to load data")
 
     print("DEBUG: intialize cluster-runner")
@@ -47,11 +48,15 @@ def main() -> None:
     )
     print("DEBUG: ready to load cluster-runner")
 
-    # Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
+    """# Logger.info(f"Start Running {str(CLUSTER_RUNNER)}")
     print("DEBUG: start cluster runner")
-    CLUSTER_RUNNER.run()
+    CLUSTER_RUNNER.run()"""
 
+    base_directory = "/home/wilhelm/Uni/data_mining/Data-Mining/strategies"
 
+    top_k = TopK(PROJECT_DATA)
+    top_k.collect_top_k(directory=base_directory, threshold=0.0, epsilon=0.05)
+    top_k.collect_best_strategy_for_dataset(base_directory)
 # start main
 print("now start main")
 main()

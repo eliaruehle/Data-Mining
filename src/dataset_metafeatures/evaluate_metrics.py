@@ -279,13 +279,14 @@ def filter_for_matching_pairs(
 
 
 def main():
-    evaluate_metrics = Evaluate_Metrics("kp_test/datasets")
+    evaluate_metrics = Evaluate_Metrics("/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets")
     evaluate_metrics.calculate_all_metrics()
+    print(evaluate_metrics.calculate_all_metrics())
 
     df_cosine_similarities = evaluate_metrics.calculate_all_cosine_similarities()
 
     # Load the Results from the Master Thesis
-    other_results_df = pd.read_csv("./src/dataset_metafeatures/cosine_sim_results.csv")
+    other_results_df = pd.read_csv("/home/wilhelm/Uni/data_mining/Data-Mining/src/dataset_metafeatures/cosine_sim_results.csv")
 
     other_results_filtered = filter_for_matching_pairs(
         df1=df_cosine_similarities, df_to_be_filtered=other_results_df
