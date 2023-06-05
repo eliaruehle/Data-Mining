@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import json
 
-from src.datasets.loader import Loader
+from datasets.loader import Loader
 from typing import List
 
 
@@ -248,8 +248,8 @@ class TopK:
         print(f"Written to: {file_name}")
 
 
-"""PROJECT_DATA: Loader = Loader("../../../kp_test")
-base_directory = "/home/ature/Programming/Python/DB-Mining-Data"
+PROJECT_DATA: Loader = Loader("../../../kp_test/")
+base_directory = "/home/wilhelm/Uni/data_mining/Data-Mining/"
 
 top_k = TopK(PROJECT_DATA)
 top_k.collect_top_k(directory=base_directory, threshold=0.0, epsilon=0.05)
@@ -257,4 +257,3 @@ top_k.collect_best_strategy_for_dataset(base_directory)
 top_k.calculate_generally_best_strategy(directory=base_directory)
 top_k.calculate_best_strategy_for_metric(directory=base_directory)
 top_k.data_processing(directory=base_directory)
-"""
