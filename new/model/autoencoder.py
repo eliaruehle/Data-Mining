@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 from torch import Tensor
 from torch.optim import Adam, lr_scheduler
-from typing import List
+from typing import List, Tuple
 from tqdm import tqdm
 
 
@@ -57,6 +57,8 @@ class Autoencoder(nn.Module):
             nn.ReLU(),
             nn.Linear(16384, input_size),
         ).to(self.device)
+        self.input_size = input_size
+        self.output_size = output_size
 
     def forward(self, x: Tensor):
         """
@@ -77,6 +79,39 @@ class Autoencoder(nn.Module):
         x = self.decoder(x)
         x = x.view(s, -1)
         return x
+
+    @property
+    def get_device(self) -> str:
+        """
+        Returns the used device for the model.
+
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        device : str
+            The used device.
+        """
+        return self.device
+
+    @property
+    def get_input_output_sizes(self) -> Tuple[int, int]:
+        """
+        Returns input and output sizes as tuple.
+
+        Paramters:
+        ----------
+        None
+
+        Returns:
+        --------
+        input_size, output_size : Tuple[int, int]
+            The input and output size.
+        """
+
+        return self.input_size, self.output_size
 
 
 def train(
