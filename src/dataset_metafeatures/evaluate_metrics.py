@@ -7,6 +7,7 @@ import pandas as pd
 import seaborn as sns
 from metrics import Metrics
 from scipy.spatial.distance import cdist
+from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler, RobustScaler
 
 
@@ -15,7 +16,10 @@ class Evaluate_Metrics:
 
     Attributes:
         metric (Metrics): Metrics object for calculating various metrics.
+        reduced_metafeatures_dict (dict[str, np.array]): Dictionary containing reduced metafeatures obtained through Principal Component Analysis.
     """
+
+    reduced_metafeatures_dict: dict[str, np.array] = dict()
 
     def __init__(self, file_path) -> Metrics:
         """Initializes an Evaluate_Metrics object with Metrics object created with the given file_path.
@@ -100,6 +104,28 @@ class Evaluate_Metrics:
         metafeatures_scaled = min_max_scaler.fit_transform(metafeatures.reshape(-1, 1))
 
         return metafeatures_scaled.flatten()
+
+    def calculate_normalisation_for_all_metafeatures(
+        self, metafeatures: dict[str, np.array], normalisation_method
+    ) -> None:
+        """Calculate the normalisation for all metafeatures.
+
+        Args:
+            metafeatures (dict[str, np.array]): Dictionary of metafeatures, where the keys
+                are the names and the values are NumPy arrays representing the metafeatures.
+            normalisation_method: The normalisation method to be applied to each metafeature.
+
+        Returns:
+            dict[str, np.array]: Dictionary of normalised metafeatures, where the keys
+                are the names and the values are the normalised metafeature arrays.
+        """
+
+        normalised_dict = {}
+
+        for key, value in metafeatures.items():
+            normalised_dict[key] = normalisation_method(value)
+
+        return normalised_dict
 
     def cosine_sim_scipy(self, data_set_a, data_set_b):
         """Calculates the cosine similarity between the two given datasets.
@@ -214,6 +240,29 @@ class Evaluate_Metrics:
         df_sorted = df.sort_values(by=columns, ascending=ascending)
         return df_sorted
 
+    def principal_component_analysis(
+        self, normalised_metafeatures: dict[str, np.array]
+    ) -> dict[str, np.array]:
+        """Perform Principal Component Analysis (PCA) on normalised metafeatures.
+
+        Args:
+            normalised_metafeatures (dict[str, np.array]): Dictionary of normalised metafeatures,
+                where the keys are the names and the values are NumPy arrays representing
+                the normalised metafeatures.
+
+        Returns:
+            dict[str, np.array]: Dictionary of reduced metafeatures obtained through PCA,
+                where the keys are the names and the values are the reduced metafeature arrays.
+        """
+        X = np.vstack(list(normalised_metafeatures.values()))
+
+        pca = PCA(n_components=8)
+        X_pca = pca.fit_transform(X)
+
+        self.reduced_metafeatures_dict = {
+            name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_pca)
+        }
+
 
 def plot_cosine_distribution_graph(
     dataframes: list[pd.DataFrame], colors: list[str]
@@ -316,4 +365,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    evaluate_metrics = Evaluate_Metrics("kp_test/datasets")
+    evaluate_metrics.calculate_all_metrics()
+
+    normalised_metafeatures = evaluate_metrics.calculate_normalisation_for_all_metafeatures(
+        evaluate_metrics.metric.metafeatures_dict,
+        normalisation_method=evaluate_metrics.normalise_metrics_weights_robust_scaler,
+    )
+
+    evaluate_metrics.principal_component_analysis(normalised_metafeatures)
+    print(evaluate_metrics.reduced_metafeatures_dict)
