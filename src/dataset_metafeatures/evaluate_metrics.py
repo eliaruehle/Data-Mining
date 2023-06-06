@@ -35,6 +35,8 @@ class Evaluate_Metrics:
             self.metric.average_min(data)
             self.metric.median_min(data)
             self.metric.overall_mean(data)
+            self.metric.total_geometric_mean(data)
+            self.metric.total_harmonic_mean(data)
             # metric.overall_median(data)
             self.metric.average_max(data)
             # metric.median_max(data)

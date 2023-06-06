@@ -5,7 +5,7 @@ from math import log2, log10
 
 import numpy as np
 import pandas as pd
-from scipy.stats import entropy, kurtosis, skew
+from scipy.stats import entropy, gmean, hmean, kurtosis, skew
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -148,6 +148,52 @@ class Metrics(ABC):
         overall_mean = data_set.mean().mean()
 
         self.add_to_meatafeatures_dict(data_set, overall_mean)
+
+    def total_geometric_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Compute and store the geometric mean of all values in the data_set.
+
+        The data_set is flattened to a single series, and the geometric mean is computed.
+        The geometric mean is then added to a metadata features dictionary.
+
+        Parameters
+        ----------
+        data_set : pd.DataFrame
+            The input data set (a pandas DataFrame) for which the total geometric mean
+            will be computed. It is assumed that the DataFrame only contains numerical
+            data and no missing or null values.
+
+        Returns
+        -------
+        None
+        """
+        flattened_df = data_set.values.flatten()
+        total_geometric_mean = gmean(flattened_df)
+
+        self.add_to_meatafeatures_dict(data_set, total_geometric_mean)
+
+    def total_harmonic_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Compute and store the harmonic mean of all values in the data_set.
+
+        The data_set is flattened to a single series, and the harmonic mean is computed.
+        The harmonic mean is then added to a metadata features dictionary.
+
+        Parameters
+        ----------
+        data_set : pd.DataFrame
+            The input data set (a pandas DataFrame) for which the total harmonic mean
+            will be computed. It is assumed that the DataFrame only contains numerical
+            data and no missing or null values.
+
+        Returns
+        -------
+        None
+        """
+        flattened_df = data_set.values.flatten()
+        total_harmonic_mean = hmean(flattened_df)
+
+        self.add_to_meatafeatures_dict(data_set, total_harmonic_mean)
 
     def overall_median(self, data_set: pd.DataFrame) -> None:
         overall_median = data_set.median().median()
