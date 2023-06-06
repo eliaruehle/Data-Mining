@@ -69,7 +69,7 @@ def main():
     results = get_top_n_strategies_for_datasets(datasets=datasets)
 
     with open(
-        "/Users/user/GitHub/Data-Mining/src/dataset_metafeatures/results/result.json",
+        "/Users/user/GitHub/Data-Mining/src/dataset_metafeatures/results/final_results.json",
         "w",
     ) as f:
         json.dump(results, f)

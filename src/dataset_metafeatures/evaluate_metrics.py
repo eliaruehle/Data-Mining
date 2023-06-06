@@ -289,7 +289,9 @@ def main():
     df_cosine_similarities = evaluate_metrics.calculate_all_cosine_similarities()
 
     # Load the Results from the Master Thesis
-    other_results_df = pd.read_csv("./src/dataset_metafeatures/cosine_sim_results.csv")
+    other_results_df = pd.read_csv(
+        "./src/dataset_metafeatures/results/cos_sim_mastergroup.csv"
+    )
 
     other_results_filtered = filter_for_matching_pairs(
         df1=df_cosine_similarities, df_to_be_filtered=other_results_df
