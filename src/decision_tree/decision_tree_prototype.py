@@ -3,10 +3,9 @@ from sklearn import tree
 import graphviz
 
 # from src.dataset_metafeatures.evaluate_metrics import Evaluate_Metrics
-sys.path.append('/home/wilhelm/Uni/data_mining/Data-Mining/src/dataset_metafeatures/')
 
-from metrics import Metrics
-from evaluate_metrics import Evaluate_Metrics
+from dataset_metafeatures.metrics import Metrics
+from dataset_metafeatures.evaluate_metrics import Evaluate_Metrics
 
 
 def draw_dataset_classification_tree(path_to_datasets):
