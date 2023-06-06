@@ -65,7 +65,15 @@ def get_top_n_strategies_for_datasets(
     return results
 
 
-results = get_top_n_strategies_for_datasets(datasets=datasets)
+def main():
+    results = get_top_n_strategies_for_datasets(datasets=datasets)
 
-with open("results/result.json", "w") as f:
-    json.dump(results, f)
+    with open(
+        "/Users/user/GitHub/Data-Mining/src/dataset_metafeatures/results/result.json",
+        "w",
+    ) as f:
+        json.dump(results, f)
+
+
+if __name__ == "__main__":
+    main()
