@@ -1,8 +1,6 @@
 Metrics for Exploratory Data Analysis (EDA)
 
-Geometric Mean: Single value representing the Nth root of the product of N numbers; useful for multiplicative relationships.
-Harmonic Mean: Single value representing the inverse of the arithmetic mean of the reciprocals of a set of numbers.
-Gini coefficient: Single value representing the measure of inequality in a distribution; commonly used in economics.
+---> Could be useful for evaluating Decision Tree: Gini coefficient: Single value representing the measure of inequality in a distribution; commonly used in economics.
 Shannon Diversity Index: Single value representing the measure of the diversity or richness of a dataset.
 Root Mean Square (RMS): Single value representing the square root of the mean of the squares of a set of values; provides a measure of the overall magnitude.
 Persistence: Single value representing the measure of how long a value persists before changing significantly.
