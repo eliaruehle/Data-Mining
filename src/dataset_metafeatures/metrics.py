@@ -392,7 +392,7 @@ class Metrics(ABC):
             None
         """
 
-        percentiles = data_set.quantile([0.25, 0.5, 0.75, 0.9])
+        percentiles = data_set.quantile([0.25, 0.5, 0.75])
         mean_percentiles = percentiles.mean(axis=1)
 
         mean_percentiles_nparray = mean_percentiles.to_numpy()
