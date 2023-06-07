@@ -1,100 +1,104 @@
 import math
-import re
+import warnings
 
 import numpy as np
 import pandas as pd
+import os as os
+import ast
 
 from datasets import Loader
 
 
 class Extrapolation:
 
-    def __init__(self, source_directory: str):
+    def __init__(self, source_directory: str, destination_directory: str):
         self.source_directory = source_directory
+        self.destination_directory = destination_directory
+        self.LAST = 50
         self.data = Loader(self.source_directory)
 
-    def data_interpolation(self, strategy: str, dataset: str, metric: str):
+    # Do extrapolation for the entire dataset
+    def extrapolate_all(self):
+        for strategy in self.data.get_strategy_names():
+            for dataset in self.data.get_dataset_names():
+                for metric in self.data.get_metric_names():
+                    self.extrapolate(strategy, dataset, metric)
+
+    # Extrapolate the dataframe of a given strategy, dataset and metric
+    def extrapolate(self, strategy: str, dataset: str, metric: str):
+
+        # Path where changed CSV file is written to
+        subdirectories: str = f"{self.destination_directory}/{strategy}/{dataset}"
 
         # Load dataframe from given 'strategy', 'dataset' and 'metric'
-        frame: pd.DataFrame = self.data.get_single_dataframe(strategy, dataset, metric)
+        frame: pd.DataFrame = pd.read_csv(f"{self.source_directory}/{strategy}/{dataset}/{metric}.csv.xz")
 
-        # If the number of columns is less than 11, quit
-        if frame.shape[1] < 11:
-            return
+        # Check if dataframe is a lag metric
+        is_lag_metric: bool = "_lag" in metric
 
-        is_list = False
-        pattern = r'\[(?!\s*\])[\d.,\s]+\]'
+        # 1. Calculate the average of all list elements. Empty lists are replaced with np.nan
+        frame = Extrapolation.calculate_list_mean(frame=frame)
 
-        for ind, r in frame.iterrows():
-            if any(re.match(pattern, str(value)) for value in r):
-                is_list = True
-
-        if is_list:
-            print("with arrays")
-            frame = self.interpolation_with_arrays(frame)
-            frame = self.interpolation_without_arrays(frame)
-            frame.to_csv(f"with_" + metric + ".csv", index=False, sep=',')
-
+        # 2. Extrapolate missing values according to 'is_lag_metric'
+        if is_lag_metric:
+            frame = self.extrapolate_lag(frame=frame)
         else:
-            if re.search(r'_lag', metric):
-                print("lag metrics")
-                frame = self.interpolation_lag_metrics(frame)
-                frame.to_csv(f"without_lag_" + metric + ".csv", index=False, sep=',')
+            frame = self.extrapolate_normal(frame=frame)
 
-            else:
-                print("without arrays")
-                frame = self.interpolation_without_arrays(frame)
-                frame.to_csv(f"without_" + metric + ".csv", index=False, sep=',')
+        # Save changed dataframe
+        if not os.path.exists(subdirectories):
+            os.makedirs(subdirectories)
 
-    def interpolation_with_arrays(self, frame: pd.DataFrame):
-        for index, row in frame.iterrows():
-            if any(type(el) == str and el == '[]' for el in row):
-                first_empty = int((row == '[]').idxmax())
-            elif any(type(el) == float and math.isnan(el) for el in row):
-                first_empty = int(row.isnull().idxmax())
-            else:
-                first_empty = 51
+        frame.to_csv(f"{subdirectories}/{metric}.csv.xz", index=False)
 
-            frame = self.change_arrays_to_values(frame, first_empty)
+    # Calculates the mean of all lists and propagates the mean of the valid list
+    @staticmethod
+    def calculate_list_mean(frame: pd.DataFrame):
+        for column in frame.columns:
+            for index, value in frame[column].items():
+                element = value
+                # Check if value is a string
+                if isinstance(value, str):
+                    element = ast.literal_eval(value)
+                if isinstance(element, list):
+                    frame.at[index, column] = np.mean(element)
+                elif isinstance(element, float):
+                    frame.at[index, column] = element
+                elif element == '[]':
+                    frame.at[index, column] = np.nan
+                    break  # Stop checking other values in this row
         return frame
 
-    def change_arrays_to_values(self, frame: pd.DataFrame, first_empty: int):
+    # Replace all values following a NaN with the last valid value
+    def extrapolate_normal(self, frame: pd.DataFrame):
         for index, row in frame.iterrows():
-            for position, value in row.iloc[:first_empty - 1].items():
-                if type(value) == str and value != '[]':
-                    data_list = value.strip('[]').split(",")
-                    d = [float(x) for x in data_list]
-                    mean_value = sum(d) / len(d)
-                    frame.loc[index, position] = mean_value
-                elif type(value) == float and not math.isnan(value):
-                    mean_value = np.mean(value)
-                    frame.loc[index, position] = mean_value
+            last_valid = None
+            for column_idx, value in enumerate(row):
+                if pd.isna(value) or math.isnan(value):
+                    if last_valid is not None:
+                        frame.iloc[index, column_idx:self.LAST] = last_valid
+                        break   # Stop checking other values in this row
                 else:
-                    continue
+                    last_valid = value
         return frame
 
-    def interpolation_without_arrays(self, frame: pd.DataFrame):
+    # Replace all values following a NaN with 0
+    def extrapolate_lag(self, frame: pd.DataFrame):
         for index, row in frame.iterrows():
-            if any(type(el) == float and math.isnan(el) for el in row):
-                first_empty = int(row.isnull().idxmax())
-            elif any(row == '[]'):
-                first_empty = int((row == '[]').idxmax())
-            else:
-                continue
-
-            last_not_empty = row[first_empty - 1]
-            frame.iloc[index, first_empty:50] = last_not_empty
-
+            for column_idx, value in enumerate(row):
+                if pd.isna(value):
+                    frame.iloc[index, column_idx:self.LAST] = 0
+                    break  # Stop checking other values in this row
         return frame
 
-    def interpolation_lag_metrics(self, frame: pd.DataFrame):
-        for index, row in frame.iterrows():
-            if any(type(el) == float and math.isnan(el) for el in row):
-                first_empty = int(row.isnull().idxmax())
-            elif any(row == '[]'):
-                first_empty = int((row == '[]').idxmax())
-            else:
-                continue
 
-            frame.iloc[index, first_empty:50] = 0
-        return frame
+extrapolation = Extrapolation(
+    source_directory="/home/ature/University/6th-Semester/Data-Mining/kp_test",
+    destination_directory="/home/ature/Programming/Python/DB-Mining-Data/EXTRAPOLATION"
+)
+
+warnings.filterwarnings('ignore')
+
+extrapolation.extrapolate_all()
+
+# extrapolation.extrapolate("ALIPY_RANDOM", "Iris", "AVERAGE_UNCERTAINTY")
