@@ -261,7 +261,7 @@ class Evaluate_Metrics:
     def difference_between_results(
         self, our_results: pd.DataFrame, other_results: pd.DataFrame
     ) -> pd.DataFrame:
-        # Assume 'df1' and 'df2' are your DataFrames
+        # Assume 'our_results' and 'other_results' are DataFrames
         file1_data = dict(
             zip(
                 zip(our_results["dataset_name_a"], our_results["dataset_name_b"]),
@@ -375,9 +375,9 @@ def plot_cosine_distribution_graph(
     plt.title("Cosine Similarity between Datasets")
     plt.ylim(-0.1, 1)
     plt.yticks(np.arange(-0.1, 1.05, 0.1))
-    plt.legend(
-        [f"DataFrame {i+1}" for i in range(len(dataframes))]
-    )  # Add a legend to differentiate the points
+
+    # Add a legend to differentiate the points
+    plt.legend([f"DataFrame {i+1}" for i in range(len(dataframes))])
     plt.show()
 
 
