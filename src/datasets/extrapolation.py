@@ -1,4 +1,4 @@
-import math
+import sys
 import warnings
 
 import numpy as np
@@ -17,12 +17,15 @@ class Extrapolation:
         self.LAST = 50
         self.data = Loader(self.source_directory)
 
-    # Do extrapolation for the entire dataset
-    def extrapolate_all(self):
-        for strategy in self.data.get_strategy_names():
-            for dataset in self.data.get_dataset_names():
-                for metric in self.data.get_metric_names():
-                    self.extrapolate(strategy, dataset, metric)
+    # Extrapolate data of a given strategy
+    def extrapolate_strategy(self, strategy_index: int):
+        strategy = Extrapolation.get_subdirectories(self.source_directory)[strategy_index]
+
+        dataset_path = f"{self.source_directory}/{strategy}/"
+        for dataset in Extrapolation.get_subdirectories(dataset_path):
+            metric_path = f"{dataset_path}/{dataset}/"
+            for metric in Extrapolation.get_files(metric_path):
+                self.extrapolate(strategy, dataset, metric)
 
     # Extrapolate the dataframe of a given strategy, dataset and metric
     def extrapolate(self, strategy: str, dataset: str, metric: str):
@@ -77,6 +80,14 @@ class Extrapolation:
         # Return the frame
         return frame
 
+    @staticmethod
+    def get_subdirectories(path: str):
+        return [entry.name for entry in os.scandir(path) if entry.is_dir()]
+
+    @staticmethod
+    def get_files(path: str):
+        return [entry.name[:-7] for entry in os.scandir(path) if entry.is_file()]
+
 
 extrapolation = Extrapolation(
     source_directory="/home/ature/University/6th-Semester/Data-Mining/kp_test",
@@ -85,4 +96,6 @@ extrapolation = Extrapolation(
 
 warnings.filterwarnings('ignore')
 
-extrapolation.extrapolate_all()
+if len(sys.argv) > 1:
+    index = int(sys.argv[1])
+    extrapolation.extrapolate_strategy(index)
