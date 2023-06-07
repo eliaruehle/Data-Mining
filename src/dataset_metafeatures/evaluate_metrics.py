@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from metrics import Metrics
+from dataset_metafeatures.metrics import Metrics
 from scipy.spatial.distance import cdist
 from sklearn.preprocessing import MinMaxScaler, RobustScaler
 

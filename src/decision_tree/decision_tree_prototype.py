@@ -1,6 +1,7 @@
 import sys
 from sklearn import tree
 import graphviz
+from decision_tree.recommendation_handler import get_best_strategy
 
 # from src.dataset_metafeatures.evaluate_metrics import Evaluate_Metrics
 
@@ -31,9 +32,10 @@ def draw_strategy_classification_tree(path_to_datasets, batchsize):
     metric_names = get_metric_names()
     x = []
     for dataset in evaluate_metrics.metric.metafeatures_dict:
-        if dataset == "Iris.csv" or dataset == "seeds.csv" or dataset == "wine_origin.csv":
-            x.append(evaluate_metrics.metric.metafeatures_dict[dataset])
-            print(dataset)
+        x.append(evaluate_metrics.metric.metafeatures_dict[dataset])
+        print(dataset)
+        dataset_name = dataset.split(".")[0]
+        print(get_best_strategy(dataset=dataset_name))
     y = get_y_for_batch_size(batchsize)
     clf = tree.DecisionTreeClassifier()
     clf = clf.fit(x, y)
