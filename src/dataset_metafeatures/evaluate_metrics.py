@@ -231,8 +231,6 @@ class Evaluate_Metrics:
 
         x = x.reshape(1, -1)
         y = y.reshape(1, -1)
-        # print(f"{data_set_a} has this this normalized Vector: {x}")
-        # print(f"{data_set_b}: {y}")
 
         return 1.0 - cdist(x, y, "cosine")
 
