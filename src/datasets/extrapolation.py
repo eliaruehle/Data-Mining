@@ -27,23 +27,17 @@ class Extrapolation:
     # Extrapolate the dataframe of a given strategy, dataset and metric
     def extrapolate(self, strategy: str, dataset: str, metric: str):
 
-        # Path where changed CSV file is written to
-        subdirectories: str = f"{self.destination_directory}/{strategy}/{dataset}"
-
         # Load dataframe from given 'strategy', 'dataset' and 'metric'
         frame: pd.DataFrame = pd.read_csv(f"{self.source_directory}/{strategy}/{dataset}/{metric}.csv.xz")
 
         # Check if dataframe is a lag metric
         is_lag_metric: bool = "_lag" in metric
 
-        # 1. Calculate the average of all list elements. Empty lists are replaced with np.nan
-        frame = Extrapolation.calculate_list_mean(frame=frame)
+        # Do extrapolation
+        frame = self.do_everything(frame=frame, is_lag=is_lag_metric)
 
-        # 2. Extrapolate missing values according to 'is_lag_metric'
-        if is_lag_metric:
-            frame = self.extrapolate_lag(frame=frame)
-        else:
-            frame = self.extrapolate_normal(frame=frame)
+        # Path where changed CSV file is written to
+        subdirectories: str = f"{self.destination_directory}/{strategy}/{dataset}"
 
         # Save changed dataframe
         if not os.path.exists(subdirectories):
@@ -51,44 +45,36 @@ class Extrapolation:
 
         frame.to_csv(f"{subdirectories}/{metric}.csv.xz", index=False)
 
-    # Calculates the mean of all lists and propagates the mean of the valid list
-    @staticmethod
-    def calculate_list_mean(frame: pd.DataFrame):
-        for column in frame.columns:
-            for index, value in frame[column].items():
-                element = value
-                # Check if value is a string
-                if isinstance(value, str):
-                    element = ast.literal_eval(value)
-                if isinstance(element, list):
-                    frame.at[index, column] = np.mean(element)
-                elif isinstance(element, float):
-                    frame.at[index, column] = element
-                elif element == '[]':
-                    frame.at[index, column] = np.nan
-                    break  # Stop checking other values in this row
-        return frame
-
-    # Replace all values following a NaN with the last valid value
-    def extrapolate_normal(self, frame: pd.DataFrame):
-        for index, row in frame.iterrows():
+    def do_everything(self, frame: pd.DataFrame, is_lag: bool):
+        for row_idx, row in frame.iterrows():
             last_valid = None
-            for column_idx, value in enumerate(row):
-                if pd.isna(value) or math.isnan(value):
-                    if last_valid is not None:
-                        frame.iloc[index, column_idx:self.LAST] = last_valid
-                        break   # Stop checking other values in this row
-                else:
-                    last_valid = value
-        return frame
+            for col_idx, column in enumerate(frame.columns):
+                # Get the current value
+                value = frame.iloc[row_idx, col_idx]
 
-    # Replace all values following a NaN with 0
-    def extrapolate_lag(self, frame: pd.DataFrame):
-        for index, row in frame.iterrows():
-            for column_idx, value in enumerate(row):
+                # If 'value' is NaN, set all of its successors according to is_leg
                 if pd.isna(value):
-                    frame.iloc[index, column_idx:self.LAST] = 0
-                    break  # Stop checking other values in this row
+                    frame.iloc[row_idx, col_idx:self.LAST] = 0 if is_lag else last_valid
+                    break   # Stop checking other values in this row
+
+                # Check if 'value' is a string
+                if isinstance(value, str):
+                    value = ast.literal_eval(value)
+
+                    # If 'parsed' == [], set all of its successors according to is_leg
+                    if not value:
+                        frame.iloc[row_idx, col_idx:self.LAST] = 0 if is_lag else last_valid
+                        break   # Stop checking other values in this row
+
+                    # If 'parsed' is a float, save its float version
+                    if isinstance(value, float):
+                        frame.iloc[row_idx, col_idx] = value
+
+                # If it is a list, calculate the mean
+                if isinstance(value, list):
+                    frame.iloc[row_idx, col_idx] = np.mean(value)
+
+        # Return the frame
         return frame
 
 
@@ -100,5 +86,3 @@ extrapolation = Extrapolation(
 warnings.filterwarnings('ignore')
 
 extrapolation.extrapolate_all()
-
-# extrapolation.extrapolate("ALIPY_RANDOM", "Iris", "AVERAGE_UNCERTAINTY")
