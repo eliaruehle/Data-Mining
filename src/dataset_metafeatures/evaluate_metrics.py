@@ -13,11 +13,15 @@ from sklearn.preprocessing import MinMaxScaler, RobustScaler
 
 
 class Evaluate_Metrics:
-    """Evaluate_Metrics class for evaluating various metrics for datasets.
+    """A class for evaluating various metrics for datasets.
+
+    This class uses the RobustScaler and MinMaxScaler preprocessing techniques from the sklearn library to normalize data.
+    After normalization, it provides the ability to evaluate different metrics using a Metrics object.
 
     Attributes:
-        metric (Metrics): Metrics object for calculating various metrics.
-        reduced_metafeatures_dict (dict[str, np.array]): Dictionary containing reduced metafeatures obtained through Principal Component Analysis.
+        robust_scaler (RobustScaler): Scaler object to scale features using statistics that are robust to outliers. This Scaler removes the median and scales the data according to the quantile range (defaults to IQR: Interquartile Range).
+        min_max_scaler (MinMaxScaler): Transforms features by scaling each feature to a given range. This estimator scales and translates each feature individually such that it is in the given range on the training set, e.g., between zero and one.
+        reduced_metafeatures_dict (dict[str, np.array]): Dictionary that contains the metafeatures that have been reduced through Principal Component Analysis. The keys represent the names of the metafeatures and the values are numpy arrays containing the values of the reduced metafeatures.
     """
 
     reduced_metafeatures_dict: dict[str, np.array] = dict()
