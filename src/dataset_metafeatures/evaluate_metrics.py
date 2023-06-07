@@ -5,9 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import umap.umap_ as umap
 from metrics import Metrics
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 from sklearn.preprocessing import MinMaxScaler, RobustScaler
 
 
@@ -127,6 +129,86 @@ class Evaluate_Metrics:
 
         return normalised_dict
 
+    def principal_component_analysis(
+        self, normalised_metafeatures: dict[str, np.array], n_components: int = 8
+    ) -> dict[str, np.array]:
+        """Perform Principal Component Analysis (PCA) on normalised metafeatures.
+
+        Args:
+            normalised_metafeatures (dict[str, np.array]): Dictionary of normalised metafeatures,
+                where the keys are the names and the values are NumPy arrays representing
+                the normalised metafeatures.
+            n_components (int, optional): The number of dimensions for the reduced data. Defaults to 8.
+
+        Returns:
+            dict[str, np.array]: Dictionary of reduced metafeatures obtained through PCA,
+                where the keys are the names and the values are the reduced metafeature arrays.
+        """
+        X = np.vstack(list(normalised_metafeatures.values()))
+
+        pca = PCA(n_components=n_components)
+        X_pca = pca.fit_transform(X)
+
+        self.reduced_metafeatures_dict = {
+            name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_pca)
+        }
+
+    def t_distributed_stochastic_neighbor_embedding(
+        self,
+        normalised_metafeatures: dict[str, np.array],
+        method: str = "barnes_hut",
+        n_components: int = 2,
+    ) -> dict[str, np.array]:
+        """Perform t-SNE on normalised metafeatures.
+
+        Args:
+            normalised_metafeatures (dict[str, np.array]): Dictionary of normalised metafeatures,
+                where the keys are the names and the values are NumPy arrays representing
+                the normalised metafeatures.
+            method (str, optional): The method to use for t-SNE. Options are 'barnes_hut' or 'exact'.
+                Defaults to 'barnes_hut'.
+            n_components (int, optional): The number of dimensions for the reduced data.
+                Defaults to 8 for compatibility with the 'barnes_hut' method.
+
+        Returns:
+            dict[str, np.array]: Dictionary of reduced metafeatures obtained through t-SNE,
+                where the keys are the names and the values are the reduced metafeature arrays.
+        """
+
+        X = np.vstack(list(normalised_metafeatures.values()))
+
+        tsne = TSNE(n_components=n_components, method=method)
+        X_tsne = tsne.fit_transform(X)
+
+        self.reduced_metafeatures_dict = {
+            name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_tsne)
+        }
+
+    def uniform_manifold_approximation_and_projection(
+        self, normalised_metafeatures: dict[str, np.array], n_components: int = 8
+    ) -> dict[str, np.array]:
+        """Perform UMAP on normalised metafeatures.
+
+        Args:
+            normalised_metafeatures (dict[str, np.array]): Dictionary of normalised metafeatures,
+                where the keys are the names and the values are NumPy arrays representing
+                the normalised metafeatures.
+            n_components (int, optional): The number of dimensions for the reduced data. Defaults to 8.
+
+        Returns:
+            dict[str, np.array]: Dictionary of reduced metafeatures obtained through UMAP,
+                where the keys are the names and the values are the reduced metafeature arrays.
+        """
+
+        X = np.vstack(list(normalised_metafeatures.values()))
+
+        reducer = umap.UMAP(n_components=8)
+        X_umap = reducer.fit_transform(X)
+
+        self.reduced_metafeatures_dict = {
+            name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_umap)
+        }
+
     def cosine_sim_scipy(self, data_set_a, data_set_b):
         """Calculates the cosine similarity between the two given datasets.
 
@@ -240,29 +322,6 @@ class Evaluate_Metrics:
         df_sorted = df.sort_values(by=columns, ascending=ascending)
         return df_sorted
 
-    def principal_component_analysis(
-        self, normalised_metafeatures: dict[str, np.array]
-    ) -> dict[str, np.array]:
-        """Perform Principal Component Analysis (PCA) on normalised metafeatures.
-
-        Args:
-            normalised_metafeatures (dict[str, np.array]): Dictionary of normalised metafeatures,
-                where the keys are the names and the values are NumPy arrays representing
-                the normalised metafeatures.
-
-        Returns:
-            dict[str, np.array]: Dictionary of reduced metafeatures obtained through PCA,
-                where the keys are the names and the values are the reduced metafeature arrays.
-        """
-        X = np.vstack(list(normalised_metafeatures.values()))
-
-        pca = PCA(n_components=8)
-        X_pca = pca.fit_transform(X)
-
-        self.reduced_metafeatures_dict = {
-            name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_pca)
-        }
-
 
 def plot_cosine_distribution_graph(
     dataframes: list[pd.DataFrame], colors: list[str]
@@ -375,4 +434,12 @@ if __name__ == "__main__":
     )
 
     evaluate_metrics.principal_component_analysis(normalised_metafeatures)
+    print(evaluate_metrics.reduced_metafeatures_dict)
+    evaluate_metrics.t_distributed_stochastic_neighbor_embedding(
+        normalised_metafeatures
+    )
+    print(evaluate_metrics.reduced_metafeatures_dict)
+    evaluate_metrics.uniform_manifold_approximation_and_projection(
+        normalised_metafeatures
+    )
     print(evaluate_metrics.reduced_metafeatures_dict)
