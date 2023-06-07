@@ -15,7 +15,6 @@ class Extrapolation:
         self.source_directory = source_directory
         self.destination_directory = destination_directory
         self.LAST = 50
-        self.data = Loader(self.source_directory)
 
     # Extrapolate data of a given strategy
     def extrapolate_strategy(self, strategy_index: int):
