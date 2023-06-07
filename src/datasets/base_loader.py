@@ -180,14 +180,15 @@ class Base_Loader(ABC):
             dataset_metric: Dict[str, Dict[str, pd.DataFrame]] = dict()
             for dataset in self.datasets:
                 metric_file: Dict[str, pd.DataFrame] = dict()
-                for metric in self.metrics:
+                for metric in self.wanted_metrics:
                     metric_file[metric] = self.load_single_csv(
                         strategy, dataset, metric
                     )
                 dataset_metric[dataset] = metric_file.copy()
             self.data_dict[strategy] = dataset_metric.copy()
 
-    def remove_nan_rows(self, data_frame: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def remove_nan_rows(data_frame: pd.DataFrame) -> pd.DataFrame:
         """
         Function for preprocessing. Removes all rows who only have np.nan values.
 
