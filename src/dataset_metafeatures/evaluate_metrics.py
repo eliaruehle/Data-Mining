@@ -24,6 +24,9 @@ class Evaluate_Metrics:
         reduced_metafeatures_dict (dict[str, np.array]): Dictionary that contains the metafeatures that have been reduced through Principal Component Analysis. The keys represent the names of the metafeatures and the values are numpy arrays containing the values of the reduced metafeatures.
     """
 
+    robust_scaler = RobustScaler()
+    min_max_scaler = MinMaxScaler()
+
     reduced_metafeatures_dict: dict[str, np.array] = dict()
 
     def __init__(self, file_path) -> Metrics:
@@ -86,9 +89,9 @@ class Evaluate_Metrics:
             np.array: The normalized metafeatures.
         """
 
-        robust_scaler = RobustScaler()
-
-        metafeatures_scaled = robust_scaler.fit_transform(metafeatures.reshape(-1, 1))
+        metafeatures_scaled = self.robust_scaler.fit_transform(
+            metafeatures.reshape(-1, 1)
+        )
 
         return metafeatures_scaled.flatten()
 
@@ -104,9 +107,9 @@ class Evaluate_Metrics:
             np.array: The normalized metafeatures.
         """
 
-        min_max_scaler = MinMaxScaler()
-
-        metafeatures_scaled = min_max_scaler.fit_transform(metafeatures.reshape(-1, 1))
+        metafeatures_scaled = self.min_max_scaler.fit_transform(
+            metafeatures.reshape(-1, 1)
+        )
 
         return metafeatures_scaled.flatten()
 
