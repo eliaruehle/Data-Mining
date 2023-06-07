@@ -11,7 +11,7 @@ from typing import List, Tuple, Dict
 
 class TopK:
 
-    def __init__(self, loader_directory: str):
+    def __init__(self, loader_directory: str, destination: str):
         self.unwanted = []  # List of weirdly formatted files, e.g. files that contain lists. Only here for debugging
         self.blacklisted_words = [
             # Metrics that are the first derivative
@@ -34,12 +34,13 @@ class TopK:
                                   not any(word.lower() in string.lower() for word in self.blacklisted_words)]
 
         self.data = Loader(base_dir=loader_directory, wanted_metrics=self.considered_metric)
+        self.destination_directory = destination
 
     # Calculate for generally the best AL strategy for a given metric and save the result
-    def calculate_best_strategy_for_metric(self, directory: str):
+    def calculate_best_strategy_for_metric(self):
 
         # Create directory 'metric_batch_size' if it doesn't exist
-        subdirectory = f"{directory}/metric_batch_size"
+        subdirectory = f"{self.destination_directory}/metric_batch_size"
         if not os.path.exists(subdirectory):
             os.makedirs(subdirectory)
 
@@ -47,7 +48,7 @@ class TopK:
             for batch_size in [1, 5, 10]:
                 best_al_strats = {}
                 for dataset in self.data.get_dataset_names():
-                    file_name = f"{directory}/dataset_batch_size/{dataset}_{batch_size}.json"
+                    file_name = f"{self.destination_directory}/dataset_batch_size/{dataset}_{batch_size}.json"
 
                     with open(file_name, 'r') as file:
                         data_dict = json.load(file)
@@ -61,18 +62,19 @@ class TopK:
                 total_sum = sum(sorted_best_al_strats.values())
                 percentages = {key: (value / total_sum) for key, value in sorted_best_al_strats.items()}
 
-                destination = f"{directory}/metric_batch_size/{metric}_{batch_size}.json"
+                destination = f"{self.destination_directory}/metric_batch_size/{metric}_{batch_size}.json"
                 with open(destination, 'w') as f:
                     json.dump(percentages, f)
 
     # Calculate which AL strategy gives the best result over all datasets and metrics. The result is normalized to
     # individual_score / sum(all_scores) and saved as a JSON file
-    def calculate_generally_best_strategy(self, directory: str):
+    def calculate_generally_best_strategy(self):
         dicts = []
 
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
-                file_name = f"{directory}/best_strategy_for/best_strategy_for_{dataset}_{batch_size}.json"
+                file_name =\
+                    f"{self.destination_directory}/best_strategy_for/best_strategy_for_{dataset}_{batch_size}.json"
 
                 with open(file_name, 'r') as file:
                     best_strategies: dict[str: list[str]] = json.load(file)
@@ -89,32 +91,32 @@ class TopK:
         total_sum = sum(sorted_result_dict.values())
         percentages = {key: (value / total_sum) for key, value in sorted_result_dict.items()}
 
-        destination = f"{directory}/overall_best.json"
+        destination = f"{self.destination_directory}/overall_best.json"
         with open(destination, 'w') as f:
             json.dump(percentages, f)
 
     # Do calculations of best_al_strategy(...) for all datasets and save the results
-    def collect_best_strategy_for_dataset(self, directory: str):
+    def collect_best_strategy_for_dataset(self):
 
         # Create directory 'best_strategy_for' if it doesn't exist
-        subdirectory = f"{directory}/best_strategy_for"
+        subdirectory = f"{self.destination_directory}/best_strategy_for"
         if not os.path.exists(subdirectory):
             os.makedirs(subdirectory)
 
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
-                result_dict = self.best_al_strategy(dataset=dataset, batch_size=batch_size, directory=directory)
+                result_dict = self.best_al_strategy(dataset=dataset, batch_size=batch_size)
 
-                file_name = f"{directory}/best_strategy_for/best_strategy_for_{dataset}_{batch_size}.json"
+                file_name =\
+                    f"{self.destination_directory}/best_strategy_for/best_strategy_for_{dataset}_{batch_size}.json"
                 with open(file_name, 'w') as f:
                     json.dump(result_dict, f)
 
     # Order the AL strategies by how good they generally apply to all the metrics of a given dataset. The more often
     # an AL strategy performs well for a metric, the higher its score is. At the end, all scores are normalized to
     # individual_score / sum(all_scores)
-    @staticmethod
-    def best_al_strategy(dataset: str, batch_size: int, directory: str):
-        file_name = f"{directory}/dataset_batch_size/{dataset}_{batch_size}.json"
+    def best_al_strategy(self, dataset: str, batch_size: int):
+        file_name = f"{self.destination_directory}/dataset_batch_size/{dataset}_{batch_size}.json"
         with open(file_name, 'r') as file:
             top_k_data: dict[str: list[str]] = json.load(file)
 
@@ -148,36 +150,35 @@ class TopK:
 
         time_series = [list(arr) for arr in time_series_list]
 
-        def is_monotonic_increasing(series, j):
-            for i in range(1, len(series)):
-                if series[i] < series[i - 1] - j:
+        def is_monotonic_increasing(input_series):
+            for i in range(1, len(input_series)):
+                if input_series[i] < input_series[i - 1] - epsilon:
                     return False
             return True
 
-        def check_floats_or_integers(series):
-            for element in series:
+        def check_floats_or_integers(input_series):
+            for element in input_series:
                 if not isinstance(element, (float, int)):
                     return False
             return True
 
-        def reaches_threshold(series):
+        def reaches_threshold(input_series):
             if threshold == -1:
                 return True
-            for i in range(len(series)):
-                if i < (max_iterations - 1) and series[i] >= threshold:
+            for i in range(len(input_series)):
+                if i < (max_iterations - 1) and input_series[i] >= threshold:
                     return True
             return False
 
-        def calculate_score(series):
-            score = sum(series)  # Use sum() to calculate the score
-            return score
+        def calculate_score(input_series):
+            return sum(input_series)  # Use sum() to calculate the score
 
         valid_series = []
         for series, strategy in zip(time_series, strategy_names):
             if not check_floats_or_integers(series):
                 self.unwanted.append(metric)
 
-            if check_floats_or_integers(series) and is_monotonic_increasing(series, epsilon) and reaches_threshold(
+            if check_floats_or_integers(series) and is_monotonic_increasing(series) and reaches_threshold(
                     series):
                 valid_series.append((strategy, calculate_score(series)))
 
@@ -205,10 +206,10 @@ class TopK:
         return sorted_average_list
 
     # Do calculations of get_top_k(...) for all datasets and save the results
-    def collect_top_k(self, directory: str, k: int = 500, threshold: float = 1, epsilon: float = 0):
+    def collect_top_k(self, k: int = 500, threshold: float = 1, epsilon: float = 0):
 
         # Create directory 'dataset_batch_size' if it doesn't exist
-        subdirectory = f"{directory}/dataset_batch_size"
+        subdirectory = f"{self.destination_directory}/dataset_batch_size"
         if not os.path.exists(subdirectory):
             os.makedirs(subdirectory)
 
@@ -219,11 +220,11 @@ class TopK:
                     result_dict[metric] = self.get_top_k(dataset, metric, batch_size=batch_size, k=k,
                                                          threshold=threshold, epsilon=epsilon)
 
-                file_name = f"{directory}/dataset_batch_size/{dataset}_{batch_size}.json"
+                file_name = f"{self.destination_directory}/dataset_batch_size/{dataset}_{batch_size}.json"
                 with open(file_name, 'w') as f:
                     json.dump(result_dict, f)
 
-    def collect_average_score(self, directory: str):
+    def gen_average_performance_json(self):
         result_dict = {}
         for dataset in self.data.get_dataset_names():
             for batch_size in [1, 5, 10]:
@@ -231,7 +232,7 @@ class TopK:
                 if batch_size not in result_dict:
                     result_dict[batch_size] = {}
 
-                file_name = f"{directory}/dataset_batch_size/{dataset}_{batch_size}.json"
+                file_name = f"{self.destination_directory}/dataset_batch_size/{dataset}_{batch_size}.json"
                 with open(file_name, 'r') as file:
                     top_k_data: Dict[str, List[Tuple[str, int]]] = json.load(file)
 
@@ -242,11 +243,11 @@ class TopK:
 
                     result_dict[batch_size][dataset][strategy] = top_k_data[strategy]
 
-        file_name = f"{directory}/average_performance.json"
+        file_name = f"{self.destination_directory}/average_performance.json"
         with open(file_name, 'w') as f:
             json.dump(result_dict, f)
 
-    def gen_performance_json(self, directory: str):
+    def gen_performance_json(self):
         # 1. For each strategy, batch_size and metric, find datasets they perform on the best
 
         values = {}
@@ -262,7 +263,7 @@ class TopK:
                     values[dataset][batch_size] = {}
 
                 # Read CSV file
-                file_name = f"{directory}/dataset_batch_size/{dataset}_{batch_size}.json"
+                file_name = f"{self.destination_directory}/dataset_batch_size/{dataset}_{batch_size}.json"
                 with open(file_name, 'r') as file:
                     data_dict: dict[str: list[str]] = json.load(file)
 
@@ -307,12 +308,12 @@ class TopK:
                         sorted_datasets[batch_size][metric][strategy], key=lambda x: x[1], reverse=True
                     )
 
-        file_name = f"{directory}/performance.json"
+        file_name = f"{self.destination_directory}/performance.json"
         with open(file_name, 'w') as f:
             json.dump(sorted_datasets, f)
 
-    def filter_json_data(self, directory: str, k: int):
-        with open(f"{directory}/performance.json") as file:
+    def gen_top_k_performance_json(self, k: int):
+        with open(f"{self.destination_directory}/performance.json") as file:
             data: dict = json.load(file)
 
         results = {}
@@ -333,7 +334,7 @@ class TopK:
                             results[batch_size][metric][strategy] = []
                         results[batch_size][metric][strategy].append([dataset, score])
 
-        with open(f"{directory}/top_k_performance.json", 'w') as f:
+        with open(f"{self.destination_directory}/top_k_performance.json", 'w') as f:
             json.dump(results, f)
 
 
@@ -344,17 +345,17 @@ source_directory = "../../../kp_test"
 destination_directory = "/home/ature/Programming/Python/DB-Mining-Data/JSON"
 
 # Initialize TopK
-top_k = TopK(loader_directory=source_directory)
+top_k = TopK(loader_directory=source_directory, destination=destination_directory)
 
 # For each dataset and batch size, create a list for all metrics with a ranging of AL strategies
 # threshold of -1 disables the threshold
-top_k.collect_top_k(directory=destination_directory, threshold=-1.0, epsilon=1)
+top_k.collect_top_k(threshold=-1.0, epsilon=1)
 
-# top_k.collect_best_strategy_for_dataset(destination_directory)
-# top_k.calculate_generally_best_strategy(directory=destination_directory)
-# top_k.calculate_best_strategy_for_metric(directory=destination_directory)
+# top_k.collect_best_strategy_for_dataset()
+# top_k.calculate_generally_best_strategy()
+# top_k.calculate_best_strategy_for_metric()
 
 # Calculate rankings of datasets for provided AL strategy, metric and batch size
-# top_k.gen_performance_json(directory=destination_directory)
-# top_k.filter_json_data(directory=destination_directory, k=5)
-top_k.collect_average_score(directory=destination_directory)
+top_k.gen_performance_json()
+top_k.gen_top_k_performance_json(k=5)
+top_k.gen_average_performance_json()
