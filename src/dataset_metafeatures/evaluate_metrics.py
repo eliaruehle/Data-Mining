@@ -234,7 +234,8 @@ class Evaluate_Metrics:
         """Calculates cosine similarities for all unique pairs of datasets in the given list.
 
         Args:
-            data_sets_list (list[pd.DataFrame]): List of datasets for which cosine similarities are to be calculated.
+            data_sets_list (list[pd.DataFrame]): List of datasets for which cosine similarities
+                are to be calculated.
 
         Returns:
             pd.DataFrame: DataFrame containing pairs of dataset names and their cosine similarity.
