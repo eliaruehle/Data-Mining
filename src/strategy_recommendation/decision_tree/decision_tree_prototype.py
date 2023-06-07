@@ -1,12 +1,7 @@
-import sys
 from sklearn import tree
 import graphviz
-from decision_tree.recommendation_handler import get_best_strategy
-
-# from src.dataset_metafeatures.evaluate_metrics import Evaluate_Metrics
-
-from dataset_metafeatures.metrics import Metrics
-from dataset_metafeatures.evaluate_metrics import Evaluate_Metrics
+from strategy_recommendation.strategy_performance.recommendation_handler import get_best_strategy
+from strategy_recommendation.dataset_metafeatures.evaluate_metrics import Evaluate_Metrics
 
 
 def draw_dataset_classification_tree(path_to_datasets):
@@ -77,8 +72,9 @@ def get_metric_names():
                  ]
     return name_list
 
+
 def main():
-    path_to_datasets = "/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets"
+    path_to_datasets = '/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'
     draw_strategy_classification_tree(path_to_datasets, 1)
 
 
