@@ -13,3 +13,4 @@
 /cl_res/**
 log
 __pycache__/**
+**/__pycache__/
