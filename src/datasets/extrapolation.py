@@ -18,6 +18,8 @@ class Extrapolation:
     def extrapolate_strategy(self, strategy_index: int):
         strategy = Extrapolation.get_subdirectories(self.source_directory)[strategy_index]
 
+        print(f"STRATEGY: {strategy}\n")
+
         dataset_path = f"{self.source_directory}/{strategy}/"
         for dataset in Extrapolation.get_subdirectories(dataset_path):
             metric_path = f"{dataset_path}/{dataset}/"
@@ -28,13 +30,16 @@ class Extrapolation:
     def extrapolate(self, strategy: str, dataset: str, metric: str):
 
         # Load dataframe from given 'strategy', 'dataset' and 'metric'
-        frame: pd.DataFrame = pd.read_csv(f"{self.source_directory}/{strategy}/{dataset}/{metric}.csv.xz")
+        path_to_metric = f"{self.source_directory}/{strategy}/{dataset}/{metric}.csv.xz"
+        frame: pd.DataFrame = pd.read_csv(path_to_metric)
+
+        print(f"Interpolating file: {path_to_metric} \n")
 
         # Check if dataframe is a lag metric
         is_lag_metric: bool = "_lag" in metric
 
         # Do extrapolation
-        frame = self.do_everything(frame=frame, is_lag=is_lag_metric)
+        frame = self.do_everything(frame=frame, is_lag=is_lag_metric, file_name=path_to_metric)
 
         # Path where changed CSV file is written to
         subdirectories: str = f"{self.destination_directory}/{strategy}/{dataset}"
@@ -45,7 +50,7 @@ class Extrapolation:
 
         frame.to_csv(f"{subdirectories}/{metric}.csv.xz", index=False)
 
-    def do_everything(self, frame: pd.DataFrame, is_lag: bool):
+    def do_everything(self, frame: pd.DataFrame, is_lag: bool, file_name: str):
         for row_idx, row in frame.iterrows():
             last_valid = None
             for col_idx, column in enumerate(frame.columns):
@@ -59,16 +64,21 @@ class Extrapolation:
 
                 # Check if 'value' is a string
                 if isinstance(value, str):
-                    value = ast.literal_eval(value)
+                    try:
+                        value = ast.literal_eval(value)
 
-                    # If 'parsed' == [], set all of its successors according to is_leg
-                    if not value:
-                        frame.iloc[row_idx, col_idx:self.LAST] = 0 if is_lag else last_valid
-                        break   # Stop checking other values in this row
+                        # If 'parsed' == [], set all of its successors according to is_leg
+                        if not value:
+                            frame.iloc[row_idx, col_idx:self.LAST] = 0 if is_lag else last_valid
+                            break   # Stop checking other values in this row
 
-                    # If 'parsed' is a float, save its float version
-                    if isinstance(value, float):
-                        frame.iloc[row_idx, col_idx] = value
+                        # If 'parsed' is a float, save its float version
+                        if isinstance(value, float):
+                            frame.iloc[row_idx, col_idx] = value
+                    # If the value is weirdly formatted, set it to 0
+                    except ValueError:
+                        print(f"Tried to cast {value} of {file_name} at index:({row_idx},{col_idx})\n")
+                        value = 0
 
                 # If it is a list, calculate the mean
                 if isinstance(value, list):
@@ -95,4 +105,7 @@ warnings.filterwarnings('ignore')
 
 if len(sys.argv) > 1:
     index = int(sys.argv[1])
+
+    print(f"Starting extrapolation with index: {index}\n")
+
     extrapolation.extrapolate_strategy(index)
