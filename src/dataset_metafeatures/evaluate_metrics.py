@@ -154,9 +154,11 @@ class Evaluate_Metrics:
         pca = PCA(n_components=n_components)
         X_pca = pca.fit_transform(X)
 
-        self.reduced_metafeatures_dict = {
+        pca_dict = {
             name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_pca)
         }
+
+        self.reduced_metafeatures_dict["pca"] = pca_dict
 
     def t_distributed_stochastic_neighbor_embedding(
         self,
@@ -185,9 +187,11 @@ class Evaluate_Metrics:
         tsne = TSNE(n_components=n_components, method=method)
         X_tsne = tsne.fit_transform(X)
 
-        self.reduced_metafeatures_dict = {
+        tsne_dict = {
             name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_tsne)
         }
+
+        self.reduced_metafeatures_dict["tsne"] = tsne_dict
 
     def uniform_manifold_approximation_and_projection(
         self, normalised_metafeatures: dict[str, np.array], n_components: int = 8
@@ -210,9 +214,11 @@ class Evaluate_Metrics:
         reducer = umap.UMAP(n_components=8)
         X_umap = reducer.fit_transform(X)
 
-        self.reduced_metafeatures_dict = {
+        umap_dict = {
             name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_umap)
         }
+
+        self.reduced_metafeatures_dict["umap"] = umap_dict
 
     def cosine_sim_scipy(self, data_set_a, data_set_b):
         """Calculates the cosine similarity between the two given datasets.
