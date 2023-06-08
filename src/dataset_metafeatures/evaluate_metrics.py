@@ -344,7 +344,17 @@ class Evaluate_Metrics:
             normalisation (bool): Whether to perform normalisation on the metrics before applying dimension reduction.
             dimension_reductions (List[List[Union[str, Dict[str, Union[int, str]]]]]): List of dimension reduction methods to be applied.
                 Each method is represented as a list, where the first element is the method name and the second element is a dictionary of parameters for the method.
+
+        Raises:
+            TypeError: If `normalisation` is not a boolean.
+            ValueError: If a dimension reduction method is not recognised.
+
         """
+        if not isinstance(normalisation, bool):
+            raise TypeError(
+                f"`normalision` must be of type `bool`, not {type(normalisation)}"
+            )
+
         self.calculate_all_metrics()
 
         if normalisation:
@@ -364,11 +374,16 @@ class Evaluate_Metrics:
             for tup in dimension_reductions:
                 method = tup[0]
                 parameters = tup[1]
-                if method in dimension_reduction_methods:
-                    # Call the corresponding function
-                    dimension_reduction_methods[method](
-                        normalised_metafeatures, **parameters
+
+                if method not in dimension_reduction_methods:
+                    raise ValueError(
+                        f"Unrecognised dimension reduction method: {method}. Please use one of the following: {list(dimension_reduction_methods.keys())}."
                     )
+
+                # Call the corresponding function
+                dimension_reduction_methods[method](
+                    normalised_metafeatures, **parameters
+                )
 
 
 def plot_cosine_distribution_graph(
