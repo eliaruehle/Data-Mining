@@ -332,6 +332,44 @@ class Evaluate_Metrics:
         df_sorted = df.sort_values(by=columns, ascending=ascending)
         return df_sorted
 
+    def generate_evaluations(
+        self,
+        normalisation: bool,
+        dimension_reductions: List[List[Union[str, Dict[str, Union[int, str]]]]],
+    ):
+        """
+        Generate evaluations based on various dimension reduction methods.
+
+        Args:
+            normalisation (bool): Whether to perform normalisation on the metrics before applying dimension reduction.
+            dimension_reductions (List[List[Union[str, Dict[str, Union[int, str]]]]]): List of dimension reduction methods to be applied.
+                Each method is represented as a list, where the first element is the method name and the second element is a dictionary of parameters for the method.
+        """
+        self.calculate_all_metrics()
+
+        if normalisation:
+            normalised_metafeatures = self.calculate_normalisation_for_all_metafeatures(
+                metafeatures=self.metric.metafeatures_dict,
+                normalisation_method=self.normalise_metrics_weights_robust_scaler,
+            )
+
+        if normalisation and dimension_reductions:
+            # Mapping dimension reduction methods to their corresponding functions
+            dimension_reduction_methods = {
+                "pca": self.principal_component_analysis,
+                "tsne": self.t_distributed_stochastic_neighbor_embedding,
+                "umap": self.uniform_manifold_approximation_and_projection,
+            }
+
+            for tup in dimension_reductions:
+                method = tup[0]
+                parameters = tup[1]
+                if method in dimension_reduction_methods:
+                    # Call the corresponding function
+                    dimension_reduction_methods[method](
+                        normalised_metafeatures, **parameters
+                    )
+
 
 def plot_cosine_distribution_graph(
     dataframes: list[pd.DataFrame], colors: list[str]
@@ -435,21 +473,13 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    evaluate_metrics = Evaluate_Metrics("kp_test/datasets")
-    evaluate_metrics.calculate_all_metrics()
+    eval_metrics = Evaluate_Metrics(file_path="kp_test/datasets")
 
-    normalised_metafeatures = evaluate_metrics.calculate_normalisation_for_all_metafeatures(
-        evaluate_metrics.metric.metafeatures_dict,
-        normalisation_method=evaluate_metrics.normalise_metrics_weights_robust_scaler,
+    eval_metrics.generate_evaluations(
+        normalisation=True,
+        dimension_reductions=[
+            ["pca", {"n_components": 8}],
+            ["tsne", {"n_components": 8, "method": "exact"}],
+            ["umap", {"n_components": 8}],
+        ],
     )
-
-    evaluate_metrics.principal_component_analysis(normalised_metafeatures)
-    print(evaluate_metrics.reduced_metafeatures_dict)
-    evaluate_metrics.t_distributed_stochastic_neighbor_embedding(
-        normalised_metafeatures
-    )
-    print(evaluate_metrics.reduced_metafeatures_dict)
-    evaluate_metrics.uniform_manifold_approximation_and_projection(
-        normalised_metafeatures
-    )
-    print(evaluate_metrics.reduced_metafeatures_dict)
