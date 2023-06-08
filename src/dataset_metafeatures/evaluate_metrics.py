@@ -1,4 +1,5 @@
 import itertools
+from typing import Dict, List, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,18 +25,16 @@ class Evaluate_Metrics:
         reduced_metafeatures_dict (dict[str, np.array]): Dictionary that contains the metafeatures that have been reduced through Principal Component Analysis. The keys represent the names of the metafeatures and the values are numpy arrays containing the values of the reduced metafeatures.
     """
 
-    robust_scaler = RobustScaler()
-    min_max_scaler = MinMaxScaler()
-
-    reduced_metafeatures_dict: dict[str, np.array] = dict()
-
-    def __init__(self, file_path) -> Metrics:
+    def __init__(self, file_path: str):
         """Initializes an Evaluate_Metrics object with Metrics object created with the given file_path.
 
         Args:
             file_path (str): Path to the datasets file.
         """
         self.metric = Metrics(file_path)
+        self.reduced_metafeatures_dict: dict[str, np.array] = {}
+        self.robust_scaler = RobustScaler()
+        self.min_max_scaler = MinMaxScaler()
 
     def calculate_all_metrics(self) -> None:
         """Calculates all metrics for all datasets in data_frames_list of the Metrics object."""
@@ -174,7 +173,7 @@ class Evaluate_Metrics:
             method (str, optional): The method to use for t-SNE. Options are 'barnes_hut' or 'exact'.
                 Defaults to 'barnes_hut'.
             n_components (int, optional): The number of dimensions for the reduced data.
-                Defaults to 8 for compatibility with the 'barnes_hut' method.
+                Defaults to 2 for compatibility with the 'barnes_hut' method.
 
         Returns:
             dict[str, np.array]: Dictionary of reduced metafeatures obtained through t-SNE,
