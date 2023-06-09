@@ -1,6 +1,5 @@
 import json
 from collections import defaultdict
-from statistics import mean
 from typing import List
 
 import numpy as np
