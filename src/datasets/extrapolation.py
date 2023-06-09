@@ -1,3 +1,4 @@
+import math
 import sys
 import warnings
 
@@ -12,13 +13,11 @@ class Extrapolation:
     def __init__(self, source_directory: str, destination_directory: str):
         self.source_directory = source_directory
         self.destination_directory = destination_directory
-        self.LAST = 50
+        self.LAST = 49
 
     # Extrapolate data of a given strategy
     def extrapolate_strategy(self, strategy_index: int):
         strategy = Extrapolation.get_subdirectories(self.source_directory)[strategy_index]
-
-        print(f"STRATEGY: {strategy}\n")
 
         dataset_path = f"{self.source_directory}/{strategy}/"
         for dataset in Extrapolation.get_subdirectories(dataset_path):
@@ -32,8 +31,6 @@ class Extrapolation:
         # Load dataframe from given 'strategy', 'dataset' and 'metric'
         path_to_metric = f"{self.source_directory}/{strategy}/{dataset}/{metric}.csv.xz"
         frame: pd.DataFrame = pd.read_csv(path_to_metric)
-
-        print(f"Interpolating file: {path_to_metric} \n")
 
         # Check if dataframe is a lag metric
         is_lag_metric: bool = "_lag" in metric
@@ -50,42 +47,70 @@ class Extrapolation:
 
         frame.to_csv(f"{subdirectories}/{metric}.csv.xz", index=False)
 
-    def do_everything(self, frame: pd.DataFrame, is_lag: bool, file_name: str):
-        for row_idx, row in frame.iterrows():
-            last_valid = None
-            for col_idx, column in enumerate(frame.columns):
+    @staticmethod
+    def do_everything(frame: pd.DataFrame, is_lag: bool, file_name: str):
+        second_last_columns = len(frame.columns) - 1
+        for col_idx, column in enumerate(frame.columns):
+            last_valid = 0
+            for row_idx, row in frame.iterrows():
                 # Get the current value
                 value = frame.iloc[row_idx, col_idx]
 
                 # If 'value' is NaN, set all of its successors according to is_leg
-                if pd.isna(value):
-                    frame.iloc[row_idx, col_idx:self.LAST] = 0 if is_lag else last_valid
-                    break   # Stop checking other values in this row
+                if Extrapolation.is_nan(value):
+                    value = last_valid
+                    frame.iloc[row_idx, col_idx:second_last_columns] = 0 if is_lag else last_valid
 
                 # Check if 'value' is a string
-                if isinstance(value, str):
+                if isinstance(value, str) and not isinstance(value, list):
                     try:
                         value = ast.literal_eval(value)
 
                         # If 'parsed' == [], set all of its successors according to is_leg
                         if not value:
-                            frame.iloc[row_idx, col_idx:self.LAST] = 0 if is_lag else last_valid
-                            break   # Stop checking other values in this row
+                            frame.iloc[row_idx, col_idx:second_last_columns] = 0 if is_lag else last_valid
 
                         # If 'parsed' is a float, save its float version
                         if isinstance(value, float):
                             frame.iloc[row_idx, col_idx] = value
-                    # If the value is weirdly formatted, set it to 0
+
+                    # If the value is weirdly formatted, pass
                     except ValueError:
-                        print(f"Tried to cast {value} of {file_name} at index:({row_idx},{col_idx})\n")
-                        value = 0
+                        if not isinstance(value, list):
+                            print(f"Tried to cast {value} (Type: {type(value)}) of {file_name} at index:({row_idx},{col_idx})\n")
+                            value = frame.iloc[row_idx, col_idx]
 
                 # If it is a list, calculate the mean
                 if isinstance(value, list):
-                    frame.iloc[row_idx, col_idx] = np.mean(value)
+                    mean = np.mean(value)
+                    value = mean if not Extrapolation.is_nan(mean) else 0
+                    frame.iloc[row_idx, col_idx] = value
+
+                # Update last valid value
+                last_valid = value
 
         # Return the frame
         return frame
+
+    @staticmethod
+    def is_nan(value) -> bool:
+        if pd.isna(value):
+            return True
+
+        if isinstance(value, str):
+            if "nan" in value.lower():
+                return True
+
+            try:
+                parsed = ast.literal_eval(value)
+
+                if isinstance(parsed, (float, int, np.float_)) and math.isnan(parsed) or pd.isna(parsed):
+                    return True
+
+            except ValueError:
+                pass
+
+        return False
 
     @staticmethod
     def get_subdirectories(path: str):
@@ -97,7 +122,7 @@ class Extrapolation:
 
 
 extrapolation = Extrapolation(
-    source_directory="/home/ature/University/6th-Semester/Data-Mining/kp_test",
+    source_directory="/home/ature/University/6th-Semester/Data-Mining/kp_test/strategies",
     destination_directory="/home/ature/Programming/Python/DB-Mining-Data/EXTRAPOLATION"
 )
 
@@ -105,7 +130,4 @@ warnings.filterwarnings('ignore')
 
 if len(sys.argv) > 1:
     index = int(sys.argv[1])
-
-    print(f"Starting extrapolation with index: {index}\n")
-
     extrapolation.extrapolate_strategy(index)
