@@ -180,8 +180,6 @@ destination_directory = "/home/ature/Programming/Python/DB-Mining-Data/JSON"
 
 json_all = JsonAll(loader_directory=source_directory, destination=destination_directory)
 
-# json_all.write_dataset_batch_size(score=json_all.score_integral)
-
 if len(sys.argv) > 1:
     index = int(sys.argv[1])
     # json_all.write_dataset_batch_size_for(json_all.get_all_datasets()[index], score=json_all.score_integral)
