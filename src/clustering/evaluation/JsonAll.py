@@ -43,7 +43,10 @@ class JsonAll:
         metrics = []
         for strategy in self.get_all_strategies():
             path_to_metric = f"{self.source}/{strategy}/{dataset}"
-            metrics.extend(self.get_files(path_to_metric))
+            try:
+                metrics.extend(self.get_files(path_to_metric))
+            except FileNotFoundError:
+                pass
         return list(set(metrics))
 
     # Method that return all possible metrics there are
@@ -52,7 +55,10 @@ class JsonAll:
         for strategy in self.get_all_strategies():
             for dataset in self.get_all_datasets():
                 path_to_metric = f"{self.source}/{strategy}/{dataset}"
-                metrics.extend(self.get_files(path_to_metric))
+                try:
+                    metrics.extend(self.get_files(path_to_metric))
+                except FileNotFoundError:
+                    pass
         return list(set(metrics))
 
     # Read hyperparameters from done workload
@@ -80,8 +86,12 @@ class JsonAll:
 
                 as_numpy = df.to_numpy()
                 if len(as_numpy) > 0:
-                    strategy_average = sum([score(series) for series in as_numpy]) / len(as_numpy)
-                    scores.append((strategy, strategy_average))
+                    print(f"Datatype of {strategy}, {dataset}, {metric}: {as_numpy.dtype}")
+                    try:
+                        strategy_average = sum([score(series) for series in as_numpy]) / len(as_numpy)
+                        scores.append((strategy, strategy_average))
+                    except TypeError:
+                        print(as_numpy)
                 else:
                     scores.append((strategy, 0))
 
