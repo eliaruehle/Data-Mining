@@ -161,12 +161,14 @@ def train(
 
 
 if __name__ == "__main__":
-    matrix = torch.rand(2, 100, 50).to("mps")
+    matrix = torch.rand(8, 450, 48).to("mps")
     trainings_data = [torch.rand(40, 100, 50).to("mps") for _ in range(20)]
-    autoencoder = Autoencoder(100 * 50, 10)
-    print("Start Training")
+    autoencoder = Autoencoder(450 * 48, 8)
+    # print("Start Training")
     # train(autoencoder, trainings_data, learning_rate=0.001, num_epochs=50)
     reduced_vec = autoencoder(matrix)
+    print(reduced_vec.shape)
     reduced_vec = autoencoder.encoder(reduced_vec)
+    print(reduced_vec.shape)
     reduced_vec = reduced_vec.unsqueeze(2)
     print(reduced_vec.shape)

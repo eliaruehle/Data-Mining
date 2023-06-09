@@ -1,8 +1,13 @@
 import torch
 from torch import Tensor
 from typing import Tuple
+import numpy as np
+
+# from model import Autoencoder
+from pandarallel import pandarallel
 import time
-from autoencoder import Autoencoder
+
+# from autoencoder import Autoencoder
 
 
 class KMeansTorch:
@@ -157,12 +162,12 @@ class KMeansTorch:
         """
         return self.device
 
+    # if __name__ == "__main__":
+    # num_matrices = 40
+    # rows = 400
+    # columns = 50
 
-if __name__ == "__main__":
-    num_matrices = 40
-    rows = 400
-    columns = 50
-
+    """
     kmeans = KMeansTorch(10, 1e-6)
     autoencoder = Autoencoder(rows * columns, 8)
     start = time.time()
@@ -176,3 +181,4 @@ if __name__ == "__main__":
         print(f"Labels: {labels}")
         print(f"Labels: {labels2}")
     print(f"Time used: {time.time()-start} sec")
+    """

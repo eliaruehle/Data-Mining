@@ -32,8 +32,24 @@ class DataLoader:
         return results
 
     def read_file(self, path: str) -> Tuple[str, pd.DataFrame]:
-        return tuple([path.split("/")[0], pd.read_csv(path)])
+        """
+        Function to return a single file and the name of the corresponding strategy.
 
+        Paramters:
+        ----------
+        path : str
+            The path of the strategie.
+
+        Returns:
+        --------
+        name, csv_file : Tuple[str, pd.DataFrame]
+            The tuple consisting of a string and a data frame.
+        """
+        df = pd.read_csv(path)
+        df = df.iloc[:, :-1]
+        return tuple([path.split("/")[1], df])
+
+    @property
     def get_hyperparamter_csv(self) -> pd.DataFrame:
         return self.hyperparameter_csv
 
@@ -51,8 +67,13 @@ class DataLoader:
         return set(frame.parallel_apply(tuple, axis=1))
 
 
+"""
 if __name__ == "__main__":
     pandarallel.initialize(progress_bar=True)
     loader = DataLoader()
-    savings = loader.load_files_per_metric_and_dataset("accuracy.csv.xz", "Iris")
-    print(type(savings[0][1]))
+
+    for metric in loader.get_metrices():
+        for dataset in loader.get_datasets():
+            all_data = loader.load_files_per_metric_and_dataset(metric, dataset)
+
+"""

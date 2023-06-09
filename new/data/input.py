@@ -5,7 +5,6 @@ import numpy as np
 from multiprocessing import Pool
 import os
 import time
-from helper.logger import logger
 
 
 class Data:
@@ -102,7 +101,6 @@ class Data:
         initial_param = pd.read_csv("new/01_workload.csv")
         hyper_before = set(initial_param.parallel_apply(tuple, axis=1))
         hyper_after = set(self.hyperparamters.parallel_apply(tuple, axis=1))
-        logger.debug(hyper_after)
         difference = hyper_before.difference(hyper_after)
         print(difference)
 
@@ -114,4 +112,3 @@ if __name__ == "__main__":
     print(data.get_divergent_params())
     end = time.time() - start
     print(end)
-    logger.stop()
