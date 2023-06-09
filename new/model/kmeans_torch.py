@@ -3,7 +3,7 @@ from torch import Tensor
 from typing import Tuple
 import numpy as np
 
-# from model import Autoencoder
+# from autoencoder import Autoencoder, train
 from pandarallel import pandarallel
 import time
 
@@ -167,12 +167,14 @@ class KMeansTorch:
     # rows = 400
     # columns = 50
 
-    """
-    kmeans = KMeansTorch(10, 1e-6)
-    autoencoder = Autoencoder(rows * columns, 8)
+
+"""
+if __name__ == "__main__":
+    kmeans = KMeansTorch(3, 1e-4)
     start = time.time()
-    for i in range(1):
-        exp = torch.randn(num_matrices, rows, columns).to("mps")
+    autoencoder = Autoencoder(4, 2)
+    for i in range(20):
+        exp = torch.randn(40, 4, 1).to("mps")
         exp2 = exp.clone()
         exp = autoencoder(exp)
         exp = autoencoder.encoder(exp).unsqueeze(2)
@@ -181,4 +183,4 @@ class KMeansTorch:
         print(f"Labels: {labels}")
         print(f"Labels: {labels2}")
     print(f"Time used: {time.time()-start} sec")
-    """
+"""
