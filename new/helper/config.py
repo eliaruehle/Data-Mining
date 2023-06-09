@@ -10,6 +10,9 @@ def get_strategies():
         [strat for strat in os.listdir("kp_test") if strat[0].isupper()],
         key=str.lower,
     )
+    # remove the two strategies for which there are no metrics calculated
+    # strategies.remove("SKATIVEML_MCPAL")
+    # strategies.remove("SMALLTEXT_DISCRIMNATIVEAL")
     conf_dict["strategies"] = strategies
     return conf_dict
 
