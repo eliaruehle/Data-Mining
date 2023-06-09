@@ -148,6 +148,27 @@ class JsonAll:
         with open(file_name, 'w') as f:
             json.dump(result_dict, f)
 
+    def show_enemy(self):
+        for strategy in self.get_all_strategies():
+            for dataset in self.get_all_datasets():
+                for batch_size in [1, 5, 10]:
+                    for metric in self.get_all_metrics():
+                        try:
+                            df = self.load_single_csv(strategy=strategy, dataset=dataset, metric=metric)
+                            df = df.loc[df["EXP_BATCH_SIZE"] == batch_size]
+                            df = df.iloc[:, :(int(50 / batch_size) - 59)].dropna(axis=1)
+
+                            as_numpy = df.to_numpy()
+                            if len(as_numpy) > 0:
+                                if as_numpy.dtype != np.float:
+                                    print(f"FUCK OFF at: {strategy}, {dataset}, {batch_size}, {metric}\n")
+                                    print(f"ARRAY: \n")
+                                    print(as_numpy)
+                                    return
+
+                        except FileNotFoundError:
+                            pass
+
 
 # Entry point
 
@@ -163,4 +184,5 @@ json_all = JsonAll(loader_directory=source_directory, destination=destination_di
 
 if len(sys.argv) > 1:
     index = int(sys.argv[1])
-    json_all.write_dataset_batch_size_for(json_all.get_all_datasets()[index], score=json_all.score_integral)
+    # json_all.write_dataset_batch_size_for(json_all.get_all_datasets()[index], score=json_all.score_integral)
+    json_all.show_enemy()
