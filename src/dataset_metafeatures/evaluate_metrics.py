@@ -177,10 +177,17 @@ class Evaluate_Metrics:
             n_components (int, optional): The number of dimensions for the reduced data.
                 Defaults to 2 for compatibility with the 'barnes_hut' method.
 
+        Raises:
+            ValueError: If a method is not recognised.
+
         Returns:
             dict[str, np.array]: Dictionary of reduced metafeatures obtained through t-SNE,
                 where the keys are the names and the values are the reduced metafeature arrays.
         """
+        if method not in ["barnes_hut", "exact"]:
+            raise ValueError(
+                f"Invalid method: {method}. Valid options are {['barnes_hut', 'exact']}"
+            )
 
         X = np.vstack(list(normalised_metafeatures.values()))
 
