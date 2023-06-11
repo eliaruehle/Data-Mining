@@ -1,8 +1,6 @@
 from typing import List, Dict, Set, Tuple
 from datasets import Base_Loader
 import pandas as pd
-import numpy as np
-from project_helper.Logger import Logger
 
 
 class Loader(Base_Loader):
@@ -11,7 +9,7 @@ class Loader(Base_Loader):
     be used in the main function to unpack all data files at once.
     """
 
-    def __init__(self, base_dir: str) -> None:
+    def __init__(self, base_dir: str, wanted_metrics: List[str] = None) -> None:
         """
         Init function.
 
@@ -28,12 +26,17 @@ class Loader(Base_Loader):
         """
         # Logger.info("Start read in all data.")
         print("Start loading data")
-        super().__init__(base_dir)
-        self.load_all_csv()
+        super().__init__(base_dir, wanted_metrics)
+
+        if self.wanted_metrics is not None:
+            self.load_selected_metric_csv()
+        else:
+            self.load_all_csv()
+
         self.NUM_STRATS: int = len(self.strategies)
         self.NUM_DATASETS: int = len(self.datasets)
         # substract 1 because of unncecessary selected_indices.csv
-        self.NUM_METRICS: int = len(self.metrices) - 1
+        self.NUM_METRICS: int = len(self.metrics) - 1
         print("End loading data")
         # Logger.info("Finished read in all data.")
 
@@ -118,7 +121,7 @@ class Loader(Base_Loader):
             a list of all metric names
         """
         # removes selected indices to avoid multiple data samples per AL cycle
-        final_metrices: List[str] = self.metrices.copy()
+        final_metrices: List[str] = self.metrics.copy()
         final_metrices.remove("selected_indices")
         return final_metrices
 
@@ -137,7 +140,7 @@ class Loader(Base_Loader):
         hyperparam_set : Set[Tuple[int, int, int, int, int]]
             a set of tuples containing the hyperparameter values in tuple
         """
-        frame = self.hyperparamters.copy()
+        frame = self.hyperparameters.copy()
         # get the frame with the important columns
         frame = frame[
             [

@@ -13,4 +13,4 @@
 /cl_res/**
 log
 __pycache__/**
-/HPC_Processing/__pycache__/**
+**/__pycache__/
