@@ -4,32 +4,21 @@ import seaborn as sns
 import pandas as pd
 import csv
 from numpy import genfromtxt
+from similarity_matrix import SimilarityMatrix
 
 
 def create_heatmap(clustering_method: str, title: str):
-  data = pd.read_csv('./src/cl_res/'+ clustering_method +'.csv', index_col=0)
+  data_origin = pd.read_csv('./src/cl_res/'+ clustering_method +'.csv', index_col=0)
+  data = SimilarityMatrix.from_csv(filepath='./src/cl_res/'+ clustering_method +'.csv').normalize().as_2d_list()
 
-  fig, ax = plt.subplots(figsize=(8, 8))
-  heatmap = ax.imshow(data, cmap='YlGnBu')
+  fig, ax = plt.subplots(figsize=(12,10))
+  sns.heatmap(data, ax=ax, annot=True, yticklabels=data_origin.index, xticklabels=data_origin.columns, cbar_kws={'label': 'Similarity'}, cmap="YlGnBu")
+  plt.yticks(rotation=0)
+  plt.xticks(rotation=45, ha='right')
+  plt.title(title)
+  
 
-  # Add values on the heatmap
-  for i in range(len(data.index)):
-      for j in range(len(data.columns)):
-          ax.text(j, i, data.iloc[i, j], ha='center', va='center', color='white', fontsize=8)
-
-  # Set tick labels and rotate them by 45 degrees
-  ax.set_xticks(range(len(data.columns)))
-  ax.set_xticklabels(data.columns, rotation=45, ha='right', fontsize=8)
-  ax.set_yticks(range(len(data.index)))
-  ax.set_yticklabels(data.index, fontsize=8)
-  ax.set_title(title)
-
-  # Show color bar
-  cbar = ax.figure.colorbar(heatmap, ax=ax)
-
-  #save plot
-  plt.savefig('./src/clustering/plot/'+ clustering_method + '.png', dpi=300, bbox_inches='tight')
-
+  plt.savefig('./src/clustering/new_plots/'+ clustering_method + '.png', dpi=300, bbox_inches='tight')
 
 if __name__ == "__main__":
   #create_heatmap("kmeans_Iris_3_centers", "KMeans Iris 3 centrer")
@@ -42,6 +31,6 @@ if __name__ == "__main__":
   #create_heatmap("spec_Iris_4_cnt", "Spectral Iris 4 centrer")
   #create_heatmap("spec_5_cnt", "Spectral 5 centrer")
   #create_heatmap("spec_wine_origin_5_centers", "Spectral wine origin 5 centers")
-  create_heatmap("optics_wine_origin", "OPTICS wine origin")
-  create_heatmap("kmeans_wine_origin_5_centers", "KMeans wine origin 5 centrer")
+  #create_heatmap("optics_wine_origin", "OPTICS wine origin")
+  create_heatmap("kmeans_wine_origin_5_centers", "KMeans wine origin 5 centers")
    

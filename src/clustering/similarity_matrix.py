@@ -180,8 +180,9 @@ class SimilarityMatrix:
         # Calculate the sum of the upper triangle values
         upper_sum = np.sum(upper_triangle)
 
+        #self.values = self.values.astype(float)
         # Normalize the similarity matrix values by dividing by the sum
-        self.values /= upper_sum
+        self.values /= float(upper_sum)
 
         return self
 
