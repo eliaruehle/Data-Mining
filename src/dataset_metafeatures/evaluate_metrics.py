@@ -6,11 +6,12 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import umap.umap_ as umap
+from matplotlib.lines import Line2D
 from metrics import Metrics
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from sklearn.preprocessing import MinMaxScaler, RobustScaler
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler, RobustScaler
 
 
 class Evaluate_Metrics:
@@ -227,6 +228,94 @@ class Evaluate_Metrics:
 
         self.reduced_metafeatures_dict["umap"] = umap_dict
 
+    def visualize(self, n_components: int):
+        methods = ["tsne", "umap"]
+        le = LabelEncoder()
+
+        for i, method in enumerate(methods):
+            if method not in self.reduced_metafeatures_dict:
+                print(f"No reduced data for method {method}, skipping plot.")
+                continue
+
+            labels = list(self.reduced_metafeatures_dict[method].keys())
+            encoded_labels = le.fit_transform(
+                labels
+            )  # Convert labels to integers for coloring
+
+            if n_components == 2:
+                data = {
+                    "x": [
+                        vec[0]
+                        for vec in self.reduced_metafeatures_dict[method].values()
+                    ],
+                    "y": [
+                        vec[1]
+                        for vec in self.reduced_metafeatures_dict[method].values()
+                    ],
+                    "label": encoded_labels,
+                }
+                df = pd.DataFrame(data)
+                # Create a dictionary that maps encoded labels to original labels
+                label_dict = dict(zip(encoded_labels, labels))
+                # Create a new column in the dataframe that contains the original labels
+                df["label_name"] = df["label"].map(label_dict)
+
+                plt.figure(figsize=(10, 7))
+                # Use the new column for the 'hue' argument
+                sns.scatterplot(data=df, x="x", y="y", hue="label_name", palette="husl")
+                plt.title(f"{method} 2D scatter plot")
+                plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
+                plt.show()
+
+            elif n_components == 3:
+                data = {
+                    "x": [
+                        vec[0]
+                        for vec in self.reduced_metafeatures_dict[method].values()
+                    ],
+                    "y": [
+                        vec[1]
+                        for vec in self.reduced_metafeatures_dict[method].values()
+                    ],
+                    "z": [
+                        vec[2]
+                        for vec in self.reduced_metafeatures_dict[method].values()
+                    ],
+                    "label": encoded_labels,
+                }
+                df = pd.DataFrame(data)
+
+                fig = plt.figure(figsize=(10, 7))
+                ax = fig.add_subplot(111, projection="3d")
+                scatter = ax.scatter(
+                    df["x"], df["y"], df["z"], c=df["label"], cmap="viridis", alpha=1
+                )
+                plt.title(f"{method} 3D scatter plot")
+
+                # Create a custom legend
+                legend_labels = le.inverse_transform(list(set(encoded_labels)))
+                legend_elements = [
+                    Line2D(
+                        [0],
+                        [0],
+                        marker="o",
+                        color="w",
+                        label=label,
+                        markerfacecolor=plt.cm.viridis(i / len(legend_labels)),
+                        markersize=10,
+                    )
+                    for i, label in enumerate(legend_labels)
+                ]
+
+                ax.legend(
+                    handles=legend_elements,
+                    bbox_to_anchor=(1.05, 1),
+                    loc=2,
+                    borderaxespad=0.0,
+                )
+
+                plt.show()
+
     def cosine_sim_scipy(self, data_set_a, data_set_b):
         """Calculates the cosine similarity between the two given datasets.
 
@@ -343,6 +432,7 @@ class Evaluate_Metrics:
         self,
         normalisation: bool,
         dimension_reductions: List[List[Union[str, Dict[str, Union[int, str]]]]],
+        visualize: bool = False,
     ):
         """
         Generate evaluations based on various dimension reduction methods.
@@ -351,6 +441,7 @@ class Evaluate_Metrics:
             normalisation (bool): Whether to perform normalisation on the metrics before applying dimension reduction.
             dimension_reductions (List[List[Union[str, Dict[str, Union[int, str]]]]]): List of dimension reduction methods to be applied.
                 Each method is represented as a list, where the first element is the method name and the second element is a dictionary of parameters for the method.
+            visualize (bool, optional): Whether to visualize the reduced dimension data.
 
         Raises:
             TypeError: If `normalisation` is not a boolean.
@@ -360,6 +451,11 @@ class Evaluate_Metrics:
         if not isinstance(normalisation, bool):
             raise TypeError(
                 f"`normalision` must be of type `bool`, not {type(normalisation)}"
+            )
+
+        if not isinstance(visualize, bool):
+            raise TypeError(
+                f"`visualize` must be of type `bool`, not {type(visualize)}"
             )
 
         self.calculate_all_metrics()
@@ -391,6 +487,17 @@ class Evaluate_Metrics:
                 dimension_reduction_methods[method](
                     normalised_metafeatures, **parameters
                 )
+
+        if visualize:
+            n_components = min(
+                [tup[1].get("n_components", 2) for tup in dimension_reductions]
+            )
+            if n_components > 3:
+                print(
+                    f"Visualization not supported for n_components > 3. Skipping visualization."
+                )
+            else:
+                self.visualize(n_components)
 
 
 def plot_cosine_distribution_graph(
@@ -501,7 +608,8 @@ if __name__ == "__main__":
         normalisation=True,
         dimension_reductions=[
             ["pca", {"n_components": 8}],
-            ["tsne", {"n_components": 8, "method": "exact"}],
-            ["umap", {"n_components": 8}],
+            ["tsne", {"n_components": 2}],
+            ["umap", {"n_components": 2}],
         ],
+        visualize=True,
     )
