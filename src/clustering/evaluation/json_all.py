@@ -91,6 +91,7 @@ class JsonAll:
                         scores.append((strategy, strategy_average))
                     except TypeError:
                         print(f"Datatype of {strategy}, {dataset}, {metric}: {as_numpy.dtype}")
+                        scores.append((strategy, 0))
                 else:
                     scores.append((strategy, 0))
 
