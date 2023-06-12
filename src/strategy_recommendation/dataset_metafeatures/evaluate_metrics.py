@@ -110,7 +110,7 @@ class Evaluate_Metrics:
 
         x = x.reshape(1, -1)
         y = y.reshape(1, -1)
-        # print(f"{data_set_a} has this this normalized Vector: {x}")
+        # print(f"{data_set_a} has this normalized Vector: {x}")
         # print(f"{data_set_b}: {y}")
 
         return 1.0 - cdist(x, y, "cosine")
@@ -280,7 +280,6 @@ def filter_for_matching_pairs(
 def main():
     evaluate_metrics = Evaluate_Metrics("/kp_test/datasets")
     evaluate_metrics.calculate_all_metrics()
-    print(evaluate_metrics.calculate_all_metrics())
 
     df_cosine_similarities = evaluate_metrics.calculate_all_cosine_similarities()
 
