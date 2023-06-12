@@ -86,12 +86,11 @@ class JsonAll:
 
                 as_numpy = df.to_numpy()
                 if len(as_numpy) > 0:
-                    print(f"Datatype of {strategy}, {dataset}, {metric}: {as_numpy.dtype}")
                     try:
                         strategy_average = sum([score(series) for series in as_numpy]) / len(as_numpy)
                         scores.append((strategy, strategy_average))
                     except TypeError:
-                        print(as_numpy)
+                        print(f"Datatype of {strategy}, {dataset}, {metric}: {as_numpy.dtype}")
                 else:
                     scores.append((strategy, 0))
 
@@ -182,5 +181,4 @@ json_all = JsonAll(loader_directory=source_directory, destination=destination_di
 
 if len(sys.argv) > 1:
     index = int(sys.argv[1])
-    # json_all.write_dataset_batch_size_for(json_all.get_all_datasets()[index], score=json_all.score_integral)
-    json_all.show_enemy()
+    json_all.write_dataset_batch_size_for(json_all.get_all_datasets()[index], score=json_all.score_integral)
