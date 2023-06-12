@@ -7,8 +7,8 @@
 /src/project_helper/__pycache__/**
 /src/side_handler/__pycache__/**
 /src/experiment_runner/__pycache__/**
-/src/dataset_metafeatures/results/**
 /src/dataset_metafeatures/__pycache__/**
+/src/clustering/evalution/__pycache__/**
 /logs/**
 /cl_res/**
 log

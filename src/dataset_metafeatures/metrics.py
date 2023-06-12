@@ -1,17 +1,12 @@
-import itertools
 import os
-import re
 from abc import ABC
 from concurrent.futures import ThreadPoolExecutor
 from math import log2, log10
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-from scipy.spatial.distance import cdist
-from scipy.stats import entropy, kurtosis, skew
-from sklearn.preprocessing import MinMaxScaler, RobustScaler
+from scipy.stats import entropy, gmean, hmean, kurtosis, skew
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class Metrics(ABC):
@@ -153,6 +148,52 @@ class Metrics(ABC):
         overall_mean = data_set.mean().mean()
 
         self.add_to_meatafeatures_dict(data_set, overall_mean)
+
+    def total_geometric_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Compute and store the geometric mean of all values in the data_set.
+
+        The data_set is flattened to a single series, and the geometric mean is computed.
+        The geometric mean is then added to a metadata features dictionary.
+
+        Parameters
+        ----------
+        data_set : pd.DataFrame
+            The input data set (a pandas DataFrame) for which the total geometric mean
+            will be computed. It is assumed that the DataFrame only contains numerical
+            data and no missing or null values.
+
+        Returns
+        -------
+        None
+        """
+        flattened_df = data_set.values.flatten()
+        total_geometric_mean = gmean(flattened_df)
+
+        self.add_to_meatafeatures_dict(data_set, total_geometric_mean)
+
+    def total_harmonic_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Compute and store the harmonic mean of all values in the data_set.
+
+        The data_set is flattened to a single series, and the harmonic mean is computed.
+        The harmonic mean is then added to a metadata features dictionary.
+
+        Parameters
+        ----------
+        data_set : pd.DataFrame
+            The input data set (a pandas DataFrame) for which the total harmonic mean
+            will be computed. It is assumed that the DataFrame only contains numerical
+            data and no missing or null values.
+
+        Returns
+        -------
+        None
+        """
+        flattened_df = data_set.values.flatten()
+        total_harmonic_mean = hmean(flattened_df)
+
+        self.add_to_meatafeatures_dict(data_set, total_harmonic_mean)
 
     def overall_median(self, data_set: pd.DataFrame) -> None:
         overall_median = data_set.median().median()
@@ -385,6 +426,77 @@ class Metrics(ABC):
         self.add_to_meatafeatures_dict(data_set, number_of_positive_covariance)
         self.add_to_meatafeatures_dict(data_set, number_of_exact_zero_covariance)
         self.add_to_meatafeatures_dict(data_set, number_of_negative_covariance)
+
+    def percentile(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate percentiles for the given DataFrame and add the mean percentiles to the metadata features dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame.
+
+        Returns:
+            None
+        """
+
+        percentiles = data_set.quantile([0.25, 0.5, 0.75])
+        mean_percentiles = percentiles.mean(axis=1)
+
+        mean_percentiles_nparray = mean_percentiles.to_numpy()
+        for percentile in mean_percentiles_nparray:
+            self.add_to_meatafeatures_dict(data_set, percentile)
+
+    def coloumn_cosine_similarity_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the cosine similarity matrix for the columns of the given DataFrame,
+        compute the mean of the matrix, and add it to the metadata features dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame.
+
+        Returns:
+            None
+        """
+
+        cos_sim = cosine_similarity(data_set.T)
+
+        cos_sim_df_mean = pd.DataFrame(
+            cos_sim, index=data_set.columns, columns=data_set.columns
+        ).mean()
+
+        cos_sim_overall_mean = cos_sim_df_mean.mean()
+        self.add_to_meatafeatures_dict(data_set, cos_sim_overall_mean)
+
+    def range_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean range of the columns in the given DataFrame and add it to the metadata features dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame.
+
+        Returns:
+            None
+        """
+
+        range_mean = (data_set.max() - data_set.min()).mean()
+
+        self.add_to_meatafeatures_dict(data_set, range_mean)
+
+    def coefficient_variation_mean(self, data_set: pd.DataFrame) -> None:
+        """
+        Calculate the mean coefficient of variation for the columns in the given DataFrame
+        and add it to the metadata features dictionary.
+
+        Args:
+            data_set (pd.DataFrame): The input DataFrame.
+
+        Returns:
+            None
+        """
+
+        coefficient_var_df = (data_set.std() / data_set.mean()) * 100
+
+        mean_coefficient_var = coefficient_var_df.mean()
+        self.add_to_meatafeatures_dict(data_set, mean_coefficient_var)
 
     def entropy_mean(self, data_set: pd.DataFrame) -> None:
         """
