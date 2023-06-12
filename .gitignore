@@ -10,8 +10,13 @@
 /src/experiment_runner/__pycache__/**
 /src/dataset_metafeatures/__pycache__/**
 /src/clustering/evalution/__pycache__/**
+/src/strategy_recommendation/dataset_metafeatures/results/**
+/src/strategy_recommendation/dataset_metafeatures/__pycache__/**
+/src/strategy_recommendation/vector_space/vector_space.csv
+/src/strategy_recommendation/vector_space/vector_space.pkl
 /logs/**
 /cl_res/**
+/src/strategy_recommendation/decision_tree/drawings
 log
 __pycache__/**
 **/__pycache__/
