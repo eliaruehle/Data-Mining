@@ -16,19 +16,19 @@ class JsonAll:
         self.destination = destination
 
         self.hyperparameters = self.get_hyperparameters()
+        self.hyperparameters["EXP_UNIQUE_ID"] = self.hyperparameters["EXP_UNIQUE_ID"].astype(int)
 
     @staticmethod
     def get_subdirectories(path: str) -> List[str]:
-        return [entry.name for entry in os.scandir(path) if entry.is_dir()]
+        return sorted([entry.name for entry in os.scandir(path) if entry.is_dir()])
 
     @staticmethod
     def get_files(path: str) -> List[str]:
-        return [entry.name[:-7] for entry in os.scandir(path) if entry.is_file()]
+        return sorted([entry.name[:-7] for entry in os.scandir(path) if entry.is_file()])
 
     # Method that returns all possible AL strategies
     def get_all_strategies(self):
         return self.get_subdirectories(self.source)
-        pass
 
     # Method that returns all datasets
     def get_all_datasets(self):
@@ -36,7 +36,7 @@ class JsonAll:
         for strategy in self.get_all_strategies():
             path_to_datasets = f"{self.source}/{strategy}"
             datasets.extend(self.get_subdirectories(path_to_datasets))
-        return list(set(datasets))
+        return sorted(list(set(datasets)))
 
     # Method that return all possible metrics for a dataset
     def get_all_metrics_for(self, dataset: str):
@@ -47,7 +47,7 @@ class JsonAll:
                 metrics.extend(self.get_files(path_to_metric))
             except FileNotFoundError:
                 pass
-        return list(set(metrics))
+        return sorted(list(set(metrics)))
 
     # Method that return all possible metrics there are
     def get_all_metrics(self):
@@ -59,7 +59,7 @@ class JsonAll:
                     metrics.extend(self.get_files(path_to_metric))
                 except FileNotFoundError:
                     pass
-        return list(set(metrics))
+        return sorted(list(set(metrics)))
 
     # Read hyperparameters from done workload
     def get_hyperparameters(self):
@@ -72,7 +72,19 @@ class JsonAll:
     # Load a single CSV file
     def load_single_csv(self, strategy: str, dataset: str, metric: str) -> pd.DataFrame:
         path_to_metric = f"{self.source}/{strategy}/{dataset}/{metric}.csv.xz"
-        return pd.merge(self.remove_nan_rows(pd.read_csv(path_to_metric)), self.hyperparameters, on="EXP_UNIQUE_ID")
+        try:
+            return pd.merge(self.remove_nan_rows(pd.read_csv(path_to_metric)), self.hyperparameters, on="EXP_UNIQUE_ID")
+        except ValueError:
+            try:
+                df = self.remove_nan_rows(pd.read_csv(path_to_metric))
+                df["EXP_UNIQUE_ID"] = df["EXP_UNIQUE_ID"].astype(int)
+                return pd.merge(df, self.hyperparameters, on="EXP_UNIQUE_ID")
+            except ValueError:
+                print(f"Could not merge {path_to_metric} with hyperparameters")
+                return pd.DataFrame()
+        except FileNotFoundError:
+            print(f"Could not find {path_to_metric}. Returning empty dataframe instead")
+            return pd.DataFrame()
 
     def calculate_score_for(self, dataset: str, batch_size: int, metric: str, score: Callable):
 
@@ -96,7 +108,10 @@ class JsonAll:
                     scores.append((strategy, 0))
 
             except FileNotFoundError:
+                print(f"File for {strategy}/{dataset}/{metric} not found. Should not get triggered")
                 scores.append((strategy, 0))
+            except KeyError:
+                print(f"KeyError. File for {strategy}/{dataset}/{metric} not found")
 
         return sorted(scores, key=lambda x: x[1], reverse=True)
 
@@ -148,38 +163,27 @@ class JsonAll:
         with open(file_name, 'w') as f:
             json.dump(result_dict, f)
 
-    def show_enemy(self):
-        for strategy in self.get_all_strategies():
-            for dataset in self.get_all_datasets():
-                for batch_size in [1, 5, 10]:
-                    for metric in self.get_all_metrics():
-                        try:
-                            df = self.load_single_csv(strategy=strategy, dataset=dataset, metric=metric)
-                            df = df.loc[df["EXP_BATCH_SIZE"] == batch_size]
-                            df = df.iloc[:, :(int(50 / batch_size) - 59)].dropna(axis=1)
-
-                            as_numpy = df.to_numpy()
-                            if len(as_numpy) > 0:
-                                if as_numpy.dtype != np.float:
-                                    print(f"FUCK OFF at: {strategy}, {dataset}, {batch_size}, {metric}\n")
-                                    print(f"ARRAY: \n")
-                                    print(as_numpy)
-                                    return
-
-                        except FileNotFoundError:
-                            pass
-
 
 # Entry point
+hpc: bool = False
 
-# Directory where all the data provided by Julius lies
-source_directory = "/home/ature/Programming/Python/DB-Mining-Data/Small_dataset"
+if hpc:
+    # Directory where all the data provided by Julius lies
+    source_directory = "/home/vime121c/Workspaces/scratch/vime121c-db-project/Extrapolation"
 
-# Directory where the JSON files are stored to
-destination_directory = "/home/ature/Programming/Python/DB-Mining-Data/JSON"
+    # Directory where the JSON files are stored to
+    destination_directory = "/home/vime121c/Workspaces/scratch/vime121c-db-project/JSON"
+else:
+    # Directory where all the data provided by Julius lies
+    source_directory = "/home/ature/Programming/Python/DB-Mining-Data/Small_dataset"
+
+    # Directory where the JSON files are stored to
+    destination_directory = "/home/ature/Programming/Python/DB-Mining-Data/JSON"
 
 json_all = JsonAll(loader_directory=source_directory, destination=destination_directory)
 
 if len(sys.argv) > 1:
     index = int(sys.argv[1])
+    print(f"Datasets: {json_all.get_all_datasets()}")
+    print(f"This dataset: {json_all.get_all_datasets()[index]}")
     json_all.write_dataset_batch_size_for(json_all.get_all_datasets()[index], score=json_all.score_integral)
