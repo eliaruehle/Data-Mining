@@ -67,7 +67,7 @@ class Evaluate_Metrics:
             # metric.skewness_median(data)
             self.metric.kurtosis_mean(data)
             # metric.kurtosis_median(data)
-            # metric.number_of_feature_correlations(data)
+            self.metric.number_of_feature_correlations(data)
             self.metric.percentile(data)
             self.metric.coloumn_cosine_similarity_mean(data)
             self.metric.range_mean(data)
