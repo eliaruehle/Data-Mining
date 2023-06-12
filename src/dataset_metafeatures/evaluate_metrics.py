@@ -323,34 +323,43 @@ class Evaluate_Metrics:
 
                 plt.show()
 
-    def cosine_sim_scipy(self, data_set_a, data_set_b):
-        """Calculates the cosine similarity between the two given datasets.
+    def cosine_sim_scipy(
+        self,
+        data_key_a: str,
+        data_key_b: str,
+        metafeatures_dict: Dict[str, List[float]],
+    ):
+        """Calculates the cosine similarity between two sets of metafeatures,
+        represented by the given keys.
 
         Args:
-            data_set_a: The first dataset.
-            data_set_b: The second dataset.
+            data_key_a (str): Key for the first set of metafeatures.
+            data_key_b (str): Key for the second set of metafeatures.
+            metafeatures_dict (Dict[str, List[float]]): A dictionary mapping
+                keys to corresponding metafeatures.
 
         Returns:
-            float: The cosine similarity between the two datasets.
+            float: The cosine similarity between the two sets of metafeatures.
         """
 
-        x = self.metric.metafeatures_dict[data_set_a]
-        y = self.metric.metafeatures_dict[data_set_b]
-
-        x = x.reshape(1, -1)
-        y = y.reshape(1, -1)
+        x = np.array(metafeatures_dict[data_key_a]).reshape(1, -1)
+        y = np.array(metafeatures_dict[data_key_b]).reshape(1, -1)
 
         return 1.0 - cdist(x, y, "cosine")
 
-    def calculate_all_cosine_similarities(self) -> pd.DataFrame:
-        """Calculates cosine similarities for all unique pairs of datasets in the given list.
+    def calculate_all_cosine_similarities(
+        self, metafeatures_dict: Dict[str, List[float]]
+    ) -> pd.DataFrame:
+        """Calculates cosine similarities for all unique pairs of datasets
+        in the `metafeatures_dict`.
 
         Args:
-            data_sets_list (list[pd.DataFrame]): List of datasets for which cosine similarities
-                are to be calculated.
+            metafeatures_dict (Dict[str, List[float]]): A dictionary mapping
+                dataset names to corresponding metafeatures.
 
         Returns:
-            pd.DataFrame: DataFrame containing pairs of dataset names and their cosine similarity.
+            pd.DataFrame: DataFrame containing pairs of dataset names and
+                their cosine similarity.
         """
 
         results = []
@@ -358,10 +367,9 @@ class Evaluate_Metrics:
         for data_set_a, data_set_b in itertools.combinations(
             self.metric.data_frames_list, 2
         ):
-            # Calculate cosine similarity only for unique pairs
-            cos_sim = self.cosine_sim_scipy(data_set_a.name, data_set_b.name)
-
-            # Explicit Tuple Notation [(data_set_a, data_set_b, cosine_similarity)]
+            cos_sim = self.cosine_sim_scipy(
+                data_set_a.name, data_set_b.name, metafeatures_dict
+            )
             results.append((data_set_a.name, data_set_b.name, cos_sim[0][0]))
 
         df = pd.DataFrame(
