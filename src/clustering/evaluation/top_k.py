@@ -339,7 +339,7 @@ class TopK:
 
 
 # Directory where all the data provided by Julius lies
-source_directory = "../../../kp_test"
+source_directory = "../../../kp_test/strategies"
 
 # Directory where the JSON files are stored to
 destination_directory = "/home/ature/Programming/Python/DB-Mining-Data/JSON"
