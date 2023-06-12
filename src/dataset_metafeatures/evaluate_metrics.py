@@ -588,11 +588,13 @@ def main():
     evaluate_metrics = Evaluate_Metrics("kp_test/datasets")
     evaluate_metrics.calculate_all_metrics()
 
-    df_cosine_similarities = evaluate_metrics.calculate_all_cosine_similarities()
+    df_cosine_similarities = evaluate_metrics.calculate_all_cosine_similarities(
+        evaluate_metrics.metric.metafeatures_dict
+    )
 
     # Load the Results from the Master Thesis
     other_results_df = pd.read_csv(
-        "./src/dataset_metafeatures/results/cos_sim_mastergroup.csv"
+        "/Users/user/GitHub/Data-Mining/src/dataset_metafeatures/results/cos_sim_mastergroup.csv"
     )
 
     other_results_filtered = filter_for_matching_pairs(
