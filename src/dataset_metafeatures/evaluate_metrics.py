@@ -1,17 +1,22 @@
 import itertools
+import warnings
 from typing import Dict, List, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import umap.umap_ as umap
 from matplotlib.lines import Line2D
 from metrics import Metrics
+from numba.core.errors import NumbaDeprecationWarning
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, RobustScaler
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=NumbaDeprecationWarning)
+    import umap.umap_ as umap
 
 
 class Evaluate_Metrics:
