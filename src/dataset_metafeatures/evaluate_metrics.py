@@ -235,7 +235,7 @@ class Evaluate_Metrics:
 
     def visualize(self, n_components: int):
         methods = ["tsne", "umap"]
-        le = LabelEncoder()
+        label_encoder = LabelEncoder()
 
         for i, method in enumerate(methods):
             if method not in self.reduced_metafeatures_dict:
@@ -243,9 +243,9 @@ class Evaluate_Metrics:
                 continue
 
             labels = list(self.reduced_metafeatures_dict[method].keys())
-            encoded_labels = le.fit_transform(
-                labels
-            )  # Convert labels to integers for coloring
+
+            # Convert labels to integers for coloring
+            encoded_labels = label_encoder.fit_transform(labels)
 
             if n_components == 2:
                 data = {
@@ -298,7 +298,9 @@ class Evaluate_Metrics:
                 plt.title(f"{method} 3D scatter plot")
 
                 # Create a custom legend
-                legend_labels = le.inverse_transform(list(set(encoded_labels)))
+                legend_labels = label_encoder.inverse_transform(
+                    list(set(encoded_labels))
+                )
                 legend_elements = [
                     Line2D(
                         [0],
