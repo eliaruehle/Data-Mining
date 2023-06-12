@@ -168,6 +168,13 @@ class KMeansTorch:
     # columns = 50
 
 
+if __name__ == "__main__":
+    kmeans = KMeansTorch(5, 1e-4)
+    for i in range(20):
+        exp = torch.randn(40, 4, 4).to("mps")
+        _, labels = kmeans.fit(exp)
+        print(f"Labels: {labels}")
+
 """
 if __name__ == "__main__":
     kmeans = KMeansTorch(3, 1e-4)
