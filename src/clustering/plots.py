@@ -18,7 +18,7 @@ def create_heatmap(clustering_method: str, title: str):
   plt.title(title)
   
 
-  plt.savefig('./src/clustering/new_plots/'+ clustering_method + '.png', dpi=300, bbox_inches='tight')
+  plt.savefig('./src/clustering/generated/new_plots/'+ clustering_method + '.png', dpi=300, bbox_inches='tight')
 
 if __name__ == "__main__":
   #create_heatmap("kmeans_Iris_3_centers", "KMeans Iris 3 centrer")
