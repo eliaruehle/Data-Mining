@@ -49,6 +49,7 @@ if __name__ == "__main__":
             end = time()
             print("Loading time: ", end - start)
             start = time()
+            print("Shape ", all_data[0][1].to_numpy().shape)
             files = torch.tensor(
                 [
                     pca2.fit_transform(pca2.fit_transform(pair[1].to_numpy()).T)
