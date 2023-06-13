@@ -365,12 +365,10 @@ class Evaluate_Metrics:
         results = []
 
         for data_set_a, data_set_b in itertools.combinations(
-            self.metric.data_frames_list, 2
+            self.metric.data_frame_names, 2
         ):
-            cos_sim = self.cosine_sim_scipy(
-                data_set_a.name, data_set_b.name, metafeatures_dict
-            )
-            results.append((data_set_a.name, data_set_b.name, cos_sim[0][0]))
+            cos_sim = self.cosine_sim_scipy(data_set_a, data_set_b, metafeatures_dict)
+            results.append((data_set_a, data_set_b, cos_sim[0][0]))
 
         df = pd.DataFrame(
             results, columns=["dataset_name_a", "dataset_name_b", "cosine_similarity"]
