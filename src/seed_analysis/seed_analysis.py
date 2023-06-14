@@ -19,7 +19,7 @@ class Seed_Analysis:
             "accuracy",
             "weighted_precision",
             "weighted_recall",
-            "weighted_f1_score",
+            "weighted_f1-score",
         ]
         # ! IMPORTANT: The "strategies" is the name of the folder where all Active Learning Strategies reside, must be adjusted if names dont match
         strategies_path = os.path.join(self.file_path, "strategies")
