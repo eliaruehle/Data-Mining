@@ -85,9 +85,9 @@ class Seed_Analysis:
 
 
 seed = Seed_Analysis(file_path="kp_test")
-seed.save_data_frames(
-    output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/csv_files"
-)
+# seed.save_data_frames(
+#     output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/csv_files"
+# )
 initial_and_highest = seed.get_top_k(3)
 seed.save_top_k_results(
     top_k_results=initial_and_highest,
