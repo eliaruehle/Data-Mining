@@ -8,14 +8,14 @@ from sklearn.mixture import GaussianMixture
 class GaussianMixtureClustering(BaseClustering):
 
     """
-    Class for setup a GaussianMixture clustering.
+    Class to set up a GaussianMixture clustering.
     """
 
     def __init__(self, cluster_name: str, labels: List[str]) -> None:
         """
-        Iniitalizes the class object.
+        Initializes the class object.
 
-        Paramters:
+        Parameters:
         ----------
         cluster_name : str
             the name for the cluster object
@@ -32,7 +32,7 @@ class GaussianMixtureClustering(BaseClustering):
         """
         Implementation of abstract method from BaseClustering class.
 
-        Paramters:
+        Parameters:
         ----------
         data_vecs : np.ndarray
             the data vectors for the clustering algorithm
@@ -42,9 +42,7 @@ class GaussianMixtureClustering(BaseClustering):
         None
         """
 
-        gm: GaussianMixture = GaussianMixture(n_components=2, random_state=0).fit(
-            data_vecs
-        )
+        gm: GaussianMixture = GaussianMixture(n_components=2, random_state=0).fit(data_vecs)
 
         # update the similarity matrix with retrieved labels
         self.similarity_matrix.update(self.labels, gm.predict(data_vecs))
@@ -56,7 +54,7 @@ class GaussianMixtureClustering(BaseClustering):
         Parameters:
         -----------
         cluster_size : int
-            the choosen cluster size for experiment
+            the chosen cluster size for experiment
 
         Returns:
         --------

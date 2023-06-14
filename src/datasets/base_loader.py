@@ -71,7 +71,7 @@ class Base_Loader(ABC):
             [dset for dset in os.listdir(base_dir + "/" + strategies[0] + "/")],
             key=str.lower,
         )
-        metrices = sorted(
+        metrics = sorted(
             [
                 metric[:-7]
                 for metric in os.listdir(
@@ -80,11 +80,11 @@ class Base_Loader(ABC):
             ],
             key=str.lower,
         )
-        return metrices
+        return metrics
 
     def load_single_csv(self, strategy: str, dataset: str, metric: str) -> pd.DataFrame:
         """
-        Returna a single csv file corresponding to the provided parameters.
+        Returns a single csv file corresponding to the provided parameters.
 
         Parameters:
         -----------
@@ -143,7 +143,7 @@ class Base_Loader(ABC):
 
     def load_all_csv(self) -> None:
         """
-        Fuction to read in all data files at once.
+        Function to read in all data files at once.
 
         Parameters:
         -----------

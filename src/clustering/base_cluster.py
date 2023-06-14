@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import List, Dict
-import numpy as np
-import pandas as np
+
 from abc import ABC, abstractmethod
-#from similarity_matrix import SimilarityMatrix
+from typing import List
+
+import numpy as np
+
 from clustering.similarity_matrix import SimilarityMatrix
 
 
@@ -38,7 +39,7 @@ class BaseClustering(ABC):
         self.similarity_matrix = SimilarityMatrix(labels, cluster_name)
 
     @abstractmethod
-    def cluster(self) -> None:
+    def cluster(self, data_vecs: List[np.ndarray]) -> None:
         """
         An abstract method every cluster-method should implement.
 
@@ -56,7 +57,7 @@ class BaseClustering(ABC):
         """
         Function to get the name of the cluster-method.
 
-        Paramters:
+        Parameters:
         ----------
         None
 
@@ -67,7 +68,7 @@ class BaseClustering(ABC):
         """
         return self.name
 
-    def get_similiarity_matrix(self) -> SimilarityMatrix | List[SimilarityMatrix]:
+    def get_similarity_matrix(self) -> SimilarityMatrix | List[SimilarityMatrix]:
         """
         Function to get the underlying similarity matrix of the cluster method.
 
@@ -77,8 +78,8 @@ class BaseClustering(ABC):
 
         Returns:
         --------
-        similiarity_matrix : SimilarityMatrix
-            the underlying similiarity matrix
+        similarity_matrix : SimilarityMatrix
+            the underlying similarity matrix
         """
         return self.similarity_matrix
 

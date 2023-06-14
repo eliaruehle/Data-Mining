@@ -11,14 +11,14 @@ from clustering.base_cluster import BaseClustering
 class OPTICSClustering(BaseClustering):
 
     """
-    Class for setup a OPTICS clustering.
+    Class to set up a OPTICS clustering.
     """
 
     def __init__(self, cluster_name: str, labels: List[str]) -> None:
         """
-        Iniitalizes the class object.
+        Initializes the class object.
 
-        Paramters:
+        Parameters:
         ----------
         cluster_name : str
             the name for the cluster object
@@ -35,7 +35,7 @@ class OPTICSClustering(BaseClustering):
         """
         Implementation of abstract method from BaseClustering class.
 
-        Paramters:
+        Parameters:
         ----------
         data_vecs : np.ndarray
             the data vectors for the clustering algorithm
@@ -47,9 +47,7 @@ class OPTICSClustering(BaseClustering):
         pca: PCA = PCA(n_components=2)
         reduced_data: np.ndaarray = pca.fit_transform(data_vecs)
         # create sklearn OPTICS object
-        optics: OPTICS = OPTICS(
-            min_samples=2, cluster_method="xi", xi=0.6, metric="euclidean"
-        ).fit(reduced_data)
+        optics: OPTICS = OPTICS(min_samples=2, cluster_method="xi", xi=0.6, metric="euclidean").fit(reduced_data)
         # update the similarity matrix with retrieved labels
         # Logger.debug("OPTICS labels:", optics.labels_)
         self.similarity_matrix.update(self.labels, optics.labels_)
@@ -61,7 +59,7 @@ class OPTICSClustering(BaseClustering):
         Parameters:
         -----------
         cluster_size : int
-            the choosen cluster size for experiment
+            the chosen cluster size for experiment
 
         Returns:
         --------

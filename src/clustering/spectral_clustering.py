@@ -7,7 +7,7 @@ from clustering.similarity_matrix import SimilarityMatrix
 
 class SpectralClustering(BaseClustering):
     """
-    Class for setup a Spectral clustering.
+    Class to set up a Spectral clustering.
     """
 
     num_clusters: List[int]
@@ -16,9 +16,9 @@ class SpectralClustering(BaseClustering):
         self, cluster_name: str, strategies: List[str], num_clusters: List[int]
     ) -> None:
         """
-        Iniitalizes the class object.
+        Initializes the class object.
 
-        Paramters:
+        Parameters:
         ----------
         cluster_name : str
             the name for the cluster object
@@ -39,7 +39,7 @@ class SpectralClustering(BaseClustering):
         """
         Implementation of abstract method from BaseClustering class.
 
-        Paramters:
+        Parameters:
         ----------
         data_vecs : np.ndarray
             the data vectors for the clustering algorithm
@@ -52,9 +52,7 @@ class SpectralClustering(BaseClustering):
         """
         for index, num in enumerate(self.num_clusters):
             # create sklearn KMeans object
-            spec_cluster: SpecCluster = SpecCluster(n_clusters=num, n_init=10).fit(
-                data_vecs
-            )
+            spec_cluster: SpecCluster = SpecCluster(n_clusters=num, n_init=10).fit(data_vecs)
             # update the similarity matrix with retrieved labels
             self.similarity_matrix[index].update(self.labels, spec_cluster.labels_)
 
@@ -65,7 +63,7 @@ class SpectralClustering(BaseClustering):
         Parameters:
         -----------
         cluster_size : int
-            the choosen cluster size for experiment
+            the chosen cluster size for experiment
 
         Returns:
         --------
