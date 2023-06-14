@@ -42,7 +42,9 @@ class Seed_Analysis:
                 }
                 data_frames[metric] = []
                 for future in concurrent.futures.as_completed(future_to_df):
-                    data_frames[metric].append(future.result())
+                    df = future.result()
+                    df = df.drop(columns="EXP_UNIQUE_ID", errors="ignore")
+                    data_frames[metric].append(df)
         return data_frames
 
     def pretty_print_csv_files(self):
