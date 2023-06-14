@@ -53,7 +53,15 @@ class Seed_Analysis:
     def pretty_print_data_frames(self):
         pprint.pprint(self.data_frames)
 
+    def save_data_frames(self, output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+        for metric, dfs in self.data_frames.items():
+            for i, df in enumerate(dfs):
+                output_path = os.path.join(output_dir, f"{metric}_{i}.csv")
+                df.to_csv(output_path, index=False)
+
 
 seed = Seed_Analysis("kp_test")
 # seed.pretty_print_csv_files()
-seed.pretty_print_data_frames()
+# seed.pretty_print_data_frames()
+seed.save_data_frames("/Users/user/GitHub/Data-Mining/test_results")
