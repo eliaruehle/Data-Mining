@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 import numpy as np
 from torch import Tensor
@@ -12,18 +11,7 @@ class Autoencoder(nn.Module):
     The autoencoder class for dimension reduction.
     """
 
-    # sets the device for running accelerated on graphic cards
-    device: str = (
-        torch.device("cuda")
-        if torch.cuda.is_available()
-        else (
-            torch.device("mps")
-            if torch.backends.mps.is_available()
-            else torch.device("cpu")
-        )
-    )
-
-    def __init__(self, input_size: int, output_size: int) -> None:
+    def __init__(self, input_size: int, output_size: int, device:str) -> None:
         """
         The init function of the autoencoder.
 
@@ -35,6 +23,7 @@ class Autoencoder(nn.Module):
             the size of the output
         """
         super(Autoencoder, self).__init__()
+        self.device = device
         self.encoder = nn.Sequential(
             nn.Linear(input_size, 16384),
             nn.ReLU(),
@@ -158,19 +147,3 @@ def train(
         print(f"Everage loss in epoch {epoch}: {sum_loss/len(train_samples)}")
     # make a scheduler step
     scheduler.step()
-
-
-"""
-if __name__ == "__main__":
-    matrix = torch.rand(8, 450, 48).to("mps")
-    trainings_data = [torch.rand(40, 100, 50).to("mps") for _ in range(20)]
-    autoencoder = Autoencoder(100 * 50, 4)
-    # print("Start Training")
-    train(autoencoder, trainings_data, learning_rate=0.001, num_epochs=50)
-    reduced_vec = autoencoder(matrix)
-    print(reduced_vec.shape)
-    reduced_vec = autoencoder.encoder(reduced_vec)
-    print(reduced_vec.shape)
-    reduced_vec = reduced_vec.unsqueeze(2)
-    print(reduced_vec.shape)
-"""

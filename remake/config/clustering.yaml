@@ -1,0 +1,3 @@
+num_clusters: 2
+error: 1e-6
+save_dir: "remake/results/"

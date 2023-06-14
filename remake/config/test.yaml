@@ -1,0 +1,59 @@
+strategies:
+- ALIPY_RANDOM
+- ALIPY_UNCERTAINTY_ENTROPY
+- ALIPY_UNCERTAINTY_LC
+- ALIPY_UNCERTAINTY_MM
+
+datasets:
+- appendicitis
+- banana
+- breast_cancer_wisconsin_original
+- d31
+- diabetes
+- dwtc
+- ex8a
+- ex8b
+- gaussian_balanced
+- gaussian_unbalanced
+- glass
+- haberman
+- ionosphere
+- Iris
+- mammographic
+- musk1
+- musk2
+- parkinsons
+- phishing
+- phoneme
+- r15
+- ringnorm
+- seeds
+- sonar
+- spambase
+- splice_junction
+- statlog_australian
+- statlog_germany
+- statlog_heart
+- statlog_vehicle
+- texture
+- thyroid
+- tic_tac_toe
+- twonorm
+- wdbc
+- wine_origin
+- xor_2x2
+- xor_2x2_rotated
+- xor_4x4
+
+metrices:
+- biggest_drop_per_macro_recall_time_lag.csv.xz
+- avg_dist_labeled.csv.xz
+- biggest_drop_per_weighted_f1-score_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_accuracy_time_lag.csv.xz
+- weighted_recall_time_lag.csv.xz
+- accuracy_time_lag.csv.xz
+- learner_training_time.csv.xz
+- weighted_precision_time_lag.csv.xz
+
+hyperparamters: new/05_done_workload.csv
+data_dir: "kp_test_int/strategies/"

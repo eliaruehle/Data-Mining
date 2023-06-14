@@ -2838,7 +2838,6 @@ pure-eval = "*"
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
-<<<<<<< HEAD
 name = "termcolor"
 version = "2.3.0"
 description = "ANSI color formatting for output in terminal"
@@ -2852,7 +2851,8 @@ files = [
 
 [package.extras]
 tests = ["pytest", "pytest-cov"]
-=======
+
+[[package]]
 name = "tenacity"
 version = "8.2.2"
 description = "Retry code until it succeeds"
@@ -2866,7 +2866,6 @@ files = [
 
 [package.extras]
 doc = ["reno", "sphinx", "tornado (>=4.5)"]
->>>>>>> main
 
 [[package]]
 name = "terminado"
@@ -3163,8 +3162,5 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-<<<<<<< HEAD
 content-hash = "cc551e601f93b34d7ee2ba92fb516ec7e62456d12577ceb44ba2333fdee997c0"
-=======
-content-hash = "63d49b6d918771286d2b8fb3ac4a67b76d26a668e3b0963cd14769a79fd035cc"
->>>>>>> main
+

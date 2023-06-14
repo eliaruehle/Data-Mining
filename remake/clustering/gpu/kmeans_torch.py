@@ -1,13 +1,7 @@
 import torch
 from torch import Tensor
 from typing import Tuple
-import numpy as np
-
-# from autoencoder import Autoencoder, train
-from pandarallel import pandarallel
 import time
-
-# from autoencoder import Autoencoder
 
 
 class KMeansTorch:
@@ -15,18 +9,7 @@ class KMeansTorch:
     This class contains the functionality for KMeans on large matrices running completly on gpu-accelerated.
     """
 
-    # sets the device for running accelerated on graphic cards
-    device: str = (
-        torch.device("cuda")
-        if torch.cuda.is_available()
-        else (
-            torch.device("mps")
-            if torch.backends.mps.is_available()
-            else torch.device("cpu")
-        )
-    )
-
-    def __init__(self, num_cluster: int, error: float) -> None:
+    def __init__(self, num_cluster: int, error: float, device:str) -> None:
         """
         Init function.
 
@@ -42,6 +25,7 @@ class KMeansTorch:
         None
         """
         self.num_clusters = num_cluster
+        self.device = device
         self.error = torch.tensor(error).to(self.device)
 
     def fit(self, data: Tensor) -> Tuple[Tensor, Tensor]:
@@ -162,32 +146,18 @@ class KMeansTorch:
         """
         return self.device
 
-    # if __name__ == "__main__":
-    # num_matrices = 40
-    # rows = 400
-    # columns = 50
+    @property
+    def get_error(self) -> torch.Tensor:
+        """
+        Function that returns the error.
 
+        Parameters:
+        -----------
+        None
 
-if __name__ == "__main__":
-    kmeans = KMeansTorch(5, 1e-4)
-    for i in range(20):
-        exp = torch.randn(40, 4, 4).to("mps")
-        _, labels = kmeans.fit(exp)
-        print(f"Labels: {labels}")
-
-"""
-if __name__ == "__main__":
-    kmeans = KMeansTorch(3, 1e-4)
-    start = time.time()
-    autoencoder = Autoencoder(4, 2)
-    for i in range(20):
-        exp = torch.randn(40, 4, 1).to("mps")
-        exp2 = exp.clone()
-        exp = autoencoder(exp)
-        exp = autoencoder.encoder(exp).unsqueeze(2)
-        _, labels = kmeans.fit(exp)
-        _, labels2 = kmeans.fit(exp2)
-        print(f"Labels: {labels}")
-        print(f"Labels: {labels2}")
-    print(f"Time used: {time.time()-start} sec")
-"""
+        Returns:
+        --------
+        error : torch.Tensor
+            The error as torch.Tensor.
+        """
+        return self.error
