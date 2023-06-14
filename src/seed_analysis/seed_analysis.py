@@ -7,7 +7,7 @@ import pandas as pd
 
 
 class Seed_Analysis:
-    def __init__(self, file_path: str) -> None:
+    def __init__(self, file_path: str):
         self.file_path = file_path
         self.csv_files: dict[str, list[str]] = self.find_csv_files()
         self.data_frames: dict[str, list[pd.DataFrame]] = self.load_data_frames()
