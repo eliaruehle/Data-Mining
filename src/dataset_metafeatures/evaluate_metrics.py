@@ -12,7 +12,8 @@ from numba.core.errors import NumbaDeprecationWarning
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler, RobustScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=NumbaDeprecationWarning)
@@ -39,8 +40,6 @@ class Evaluate_Metrics:
         """
         self.metric = Metrics(file_path)
         self.reduced_metafeatures_dict: dict[str, np.array] = {}
-        self.robust_scaler = RobustScaler()
-        self.min_max_scaler = MinMaxScaler()
 
     def calculate_all_metrics(self) -> None:
         """Calculates all metrics for all datasets in data_frames_list of the Metrics object."""
@@ -155,10 +154,19 @@ class Evaluate_Metrics:
             dict[str, np.array]: Dictionary of reduced metafeatures obtained through PCA,
                 where the keys are the names and the values are the reduced metafeature arrays.
         """
+        scaler = StandardScaler()
+
         X = np.vstack(list(normalised_metafeatures.values()))
 
         pca = PCA(n_components=n_components)
-        X_pca = pca.fit_transform(X)
+
+        pipeline = make_pipeline(scaler, pca)
+        X_pca = pipeline.fit_transform(X)
+
+        # This is for Debugging purposes
+        # print(pca.explained_variance_ratio_)
+        # print(pca.singular_values_)
+        # print(pca.explained_variance_)
 
         pca_dict = {
             name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_pca)
@@ -443,7 +451,6 @@ class Evaluate_Metrics:
 
     def generate_evaluations(
         self,
-        normalisation: bool,
         dimension_reductions: List[List[Union[str, Dict[str, Union[int, str]]]]],
         visualize: bool = False,
     ):
@@ -461,10 +468,6 @@ class Evaluate_Metrics:
             ValueError: If a dimension reduction method is not recognised.
 
         """
-        if not isinstance(normalisation, bool):
-            raise TypeError(
-                f"`normalision` must be of type `bool`, not {type(normalisation)}"
-            )
 
         if not isinstance(visualize, bool):
             raise TypeError(
@@ -473,13 +476,7 @@ class Evaluate_Metrics:
 
         self.calculate_all_metrics()
 
-        if normalisation:
-            normalised_metafeatures = self.calculate_normalisation_for_all_metafeatures(
-                metafeatures=self.metric.metafeatures_dict,
-                normalisation_method=self.normalise_metrics_weights_robust_scaler,
-            )
-
-        if normalisation and dimension_reductions:
+        if dimension_reductions:
             # Mapping dimension reduction methods to their corresponding functions
             dimension_reduction_methods = {
                 "pca": self.principal_component_analysis,
@@ -498,7 +495,7 @@ class Evaluate_Metrics:
 
                 # Call the corresponding function
                 dimension_reduction_methods[method](
-                    normalised_metafeatures, **parameters
+                    self.metric.metafeatures_dict, **parameters
                 )
 
         if visualize:
@@ -620,11 +617,9 @@ if __name__ == "__main__":
     eval_metrics = Evaluate_Metrics(file_path="kp_test/datasets")
 
     eval_metrics.generate_evaluations(
-        normalisation=True,
         dimension_reductions=[
-            ["pca", {"n_components": 8}],
-            ["tsne", {"n_components": 2}],
-            ["umap", {"n_components": 2}],
+            ["pca", {"n_components": None}],
         ],
-        visualize=True,
     )
+
+    # print(eval_metrics.reduced_metafeatures_dict["pca"])
