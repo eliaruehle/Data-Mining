@@ -2,6 +2,7 @@ import fnmatch
 import os
 import pprint
 
+import numpy as np
 import pandas as pd
 
 
@@ -42,16 +43,35 @@ class Seed_Analysis:
                 data_frames[metric].append((file, df))
         return data_frames
 
-    def get_top_k(self, k):
-        top_k = {}
+    def get_monotonically_increasing_or_same_rows(self):
+        mono_increasing_rows = {}
         for metric, dfs in self.data_frames.items():
-            top_k[metric] = []
+            mono_increasing_rows[metric] = []
             for file, df in dfs:  # unpack the tuple
-                sorted_df = df.sort_values(by=df.columns[-1], ascending=False)
-                top_rows = sorted_df.iloc[:k, [0, -1]]
-                # store a tuple with the filename and the top rows
-                top_k[metric].append((file, top_rows))
-        return top_k
+                mono_rows = []
+                for _, row in df.iterrows():
+                    if list(row) == sorted(row) and not all(
+                        val == 1.0 for val in row
+                    ):  # check if row values are monotonically increasing or same and not all are 1.0
+                        mono_rows.append(row)
+                mono_df = pd.DataFrame(mono_rows, columns=df.columns).reset_index(
+                    drop=True
+                )  # reset index of the new dataframe
+                # store a tuple with the filename and the DataFrame
+                mono_increasing_rows[metric].append((file, mono_df))
+        return mono_increasing_rows
+
+    def save_monotonically_increasing_rows(self, mono_increasing_rows, output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+        for metric, results in mono_increasing_rows.items():
+            for i, (file, df) in enumerate(results):
+                # Parse the necessary parts from the file path
+                parts = file.split(os.sep)
+                # Remove the original file extension
+                parts[-1] = os.path.splitext(parts[-1])[0]
+                output_filename = "_".join(parts[-3:]) + f"_mono_increasing.csv"
+                output_path = os.path.join(output_dir, output_filename)
+                df.to_csv(output_path, index=True)
 
     def save_data_frames(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -84,12 +104,10 @@ class Seed_Analysis:
         pprint.pprint(self.data_frames)
 
 
-seed = Seed_Analysis(file_path="kp_test")
-# seed.save_data_frames(
-#     output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/csv_files"
-# )
-initial_and_highest = seed.get_top_k(3)
-seed.save_top_k_results(
-    top_k_results=initial_and_highest,
-    output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
-)
+if __name__ == "__main__":
+    seed = Seed_Analysis(file_path="kp_test")
+    mono_increasing = seed.get_monotonically_increasing_or_same_rows()
+    seed.save_monotonically_increasing_rows(
+        mono_increasing_rows=mono_increasing,
+        output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/mono_increasing",
+    )
