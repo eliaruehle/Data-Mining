@@ -59,17 +59,22 @@ class Seed_Analysis:
                 mono_increasing_rows[metric].append((file, mono_df))
         return mono_increasing_rows
 
-    def save_monotonically_increasing_rows(self, mono_increasing_rows, output_dir):
+    def save_monotonically_increasing_rows(
+        self, mono_increasing_rows, output_dir, min_entries=10
+    ):
         os.makedirs(output_dir, exist_ok=True)
         for metric, results in mono_increasing_rows.items():
             for i, (file, df) in enumerate(results):
-                # Parse the necessary parts from the file path
-                parts = file.split(os.sep)
-                # Remove the original file extension
-                parts[-1] = os.path.splitext(parts[-1])[0]
-                output_filename = "_".join(parts[-3:]) + f"_mono_increasing.csv"
-                output_path = os.path.join(output_dir, output_filename)
-                df.to_csv(output_path, index=True)
+                if (
+                    len(df) >= min_entries
+                ):  # check if DataFrame has at least min_entries rows
+                    # Parse the necessary parts from the file path
+                    parts = file.split(os.sep)
+                    # Remove the original file extension
+                    parts[-1] = os.path.splitext(parts[-1])[0]
+                    output_filename = "_".join(parts[-3:]) + f"_mono_increasing.csv"
+                    output_path = os.path.join(output_dir, output_filename)
+                    df.to_csv(output_path, index=True)
 
     def save_data_frames(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -95,5 +100,5 @@ if __name__ == "__main__":
     mono_increasing = seed.get_monotonically_increasing_or_same_rows()
     seed.save_monotonically_increasing_rows(
         mono_increasing_rows=mono_increasing,
-        output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/mono_increasing",
+        output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/mono_increasing_10",
     )
