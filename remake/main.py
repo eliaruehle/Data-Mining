@@ -8,6 +8,7 @@ from clustering.runner import ClusterRunner, MODE, STACKED
 def main():
     config = OmegaConf.load("new/config/test.yaml")
     data = DataLoader()
+    print("all fine")
     runner = ClusterRunner(MODE.GPU, config, STACKED.SINGLE, data)
     runner.run()
 

@@ -1,14 +1,10 @@
-import os
-import sys
-print("In module products sys.path[0], __package__ ==", sys.path[0], __package__)
 import torch
 from enum import Enum
 from typing import List, Dict, Tuple, Union
 from omegaconf import OmegaConf, DictConfig
-from multiprocessing import Pool
 from gpu.kmeans_torch import KMeansTorch
 from gpu.tensor_matrix import TensorMatrix
-from data.loader import DataLoader
+from remake.data.loader import DataLoader
 
 class MODE(Enum):
     """
@@ -44,7 +40,7 @@ class ClusterRunner:
         # specifies wheter we will use 
         self.dim_reduce = dim_reduce
     
-    def _check_available_device():
+    def _check_available_device(self):
         """
         Function to check if a GPU is available and if yes, which one.
         """
