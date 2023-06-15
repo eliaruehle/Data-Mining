@@ -13,7 +13,7 @@ import multiprocessing as mp
 
 
 to_discard: List[str] = list()
-all_hyper: pd.DataFrame = pd.read_csv("/home/vime121c/Workspaces/scratch/vime121c-db-project/Extrapolation/05_done_workload.csv")
+all_hyper: pd.DataFrame = pd.read_csv("/scratch/ws/0/vime121c-db-project/Extrapolation/05_done_workload.csv")
 
 
 def scrape_all_files(root: str) -> List[str]:
@@ -46,7 +46,7 @@ def get_hyperparameters_from_single_file(path: str) -> Set[Tuple[int, int, int, 
 
 def main(index: int):
     print("in main")
-    root: str = "/home/vime121c/Workspaces/scratch/vime121c-db-project/Extrapolation"
+    root: str = "/scratch/ws/0/vime121c-db-project/Extrapolation"
     #root: str = "../../kp_test_int/strategies"
     strategy = sorted([entry.name for entry in os.scandir(root) if entry.is_dir()])[index]
     files = scrape_all_files(os.path.join(root, strategy))
