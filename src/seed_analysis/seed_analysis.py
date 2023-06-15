@@ -83,18 +83,6 @@ class Seed_Analysis:
                 output_path = os.path.join(output_dir, output_filename)
                 df.to_csv(output_path, index=True)
 
-    def save_top_k_results(self, top_k_results, output_dir):
-        os.makedirs(output_dir, exist_ok=True)
-        for metric, results in top_k_results.items():
-            for i, (file, df) in enumerate(results):
-                # Parse the necessary parts from the file path
-                parts = file.split(os.sep)
-                # Remove the original file extension
-                parts[-1] = os.path.splitext(parts[-1])[0]
-                output_filename = "_".join(parts[-3:]) + f"_top_{len(df)}.csv"
-                output_path = os.path.join(output_dir, output_filename)
-                df.to_csv(output_path, index=True)
-
     def pretty_print_csv_files(self):
         pprint.pprint(self.csv_files)
 
