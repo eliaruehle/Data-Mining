@@ -42,38 +42,41 @@ class Seed_Analysis:
                 data_frames[metric].append((file, df))
         return data_frames
 
-    def get_best_rows(self):
-        mono_increasing_rows = {}
+    def get_rows_reaching_threshold(self, threshold=0.95):
+        rows_reaching_threshold = {}
         for metric, dfs in self.data_frames.items():
-            mono_increasing_rows[metric] = []
+            rows_reaching_threshold[metric] = []
             for file, df in dfs:  # unpack the tuple
                 # get the maximum value of the last column
                 max_val = df[df.columns[-1]].max()
-                # keep rows that reach this max value
-                mono_df = df[df[df.columns[-1]] == max_val]
-                # store a tuple with the filename and the DataFrame
-                mono_increasing_rows[metric].append((file, mono_df))
-        return mono_increasing_rows
 
-    def save_best_rows(self, best_rows, output_dir, min_entries=10):
+                threshold_val = max_val * threshold
+                threshold_df = df[df[df.columns[-1]] >= threshold_val]
+                # store a tuple with the filename and the DataFrame
+                rows_reaching_threshold[metric].append((file, threshold_df))
+        return rows_reaching_threshold
+
+    def save_rows_reaching_threshold(
+        self, rows_reaching_threshold, output_dir, min_entries=10
+    ):
         os.makedirs(output_dir, exist_ok=True)
-        for metric, results in best_rows.items():
+        for metric, results in rows_reaching_threshold.items():
             for i, (file, df) in enumerate(results):
-                if (
-                    len(df) >= min_entries
-                ):  # check if DataFrame has at least min_entries rows
+                # check if DataFrame has at least min_entries rows
+                if len(df) >= min_entries:
                     # Parse the necessary parts from the file path
                     parts = file.split(os.sep)
                     # Remove the original file extension
                     parts[-1] = os.path.splitext(parts[-1])[0]
-                    output_filename = "_".join(parts[-3:]) + f"_mono_increasing.csv"
+                    output_filename = "_".join(parts[-3:]) + f"_reaching_threshold.csv"
                     output_path = os.path.join(output_dir, output_filename)
                     df.to_csv(output_path, index=True)
 
     def save_data_frames(self, output_dir):
         os.makedirs(output_dir, exist_ok=True)
         for metric, dfs in self.data_frames.items():
-            for i, (file, df) in enumerate(dfs):  # unpack the tuple
+            # unpack the tuple
+            for i, (file, df) in enumerate(dfs):
                 # Parse the necessary parts from the file path
                 parts = file.split(os.sep)
                 # Remove the original file extension
@@ -91,8 +94,11 @@ class Seed_Analysis:
 
 if __name__ == "__main__":
     seed = Seed_Analysis(file_path="kp_test")
-    best_rows = seed.get_best_rows()
-    seed.save_best_rows(
-        best_rows=best_rows,
+    seed.save_data_frames(
+        output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/csv_files"
+    )
+    best_rows = seed.get_rows_reaching_threshold()
+    seed.save_rows_reaching_threshold(
+        rows_reaching_threshold=best_rows,
         output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/mono_increasing",
     )
