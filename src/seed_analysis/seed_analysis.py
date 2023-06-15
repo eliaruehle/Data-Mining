@@ -1,12 +1,10 @@
 import fnmatch
 import os
-import pprint
 from collections import Counter
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from scipy.stats import pearsonr
 
 
 class Seed_Analysis:
@@ -60,18 +58,14 @@ class Seed_Analysis:
                 df.to_csv(output_path, index=True)
 
     def count_unique_columns(self):
-        column_counts = {"first_column": {}, "last_column": {}, "pairs": {}}
+        column_counts = {"first_column": {}, "last_column": {}}
         for metric, dfs in self.data_frames.items():
             column_counts["first_column"][metric] = []
             column_counts["last_column"][metric] = []
-            column_counts["pairs"][metric] = []
             for file, df in dfs:  # unpack the tuple
                 # get the first and last columns
                 first_col = df.iloc[:, 0]
                 last_col = df.iloc[:, -1]
-
-                # create a list of pairs between first and last column
-                pairs = list(zip(first_col, last_col))
 
                 # count frequency
                 first_col_freq = Counter(first_col)
@@ -89,7 +83,6 @@ class Seed_Analysis:
                 # store a tuple with the filename and the DataFrame
                 column_counts["first_column"][metric].append((file, first_col_df))
                 column_counts["last_column"][metric].append((file, last_col_df))
-                column_counts["pairs"][metric].append((file, pairs))
         return column_counts
 
     def save_column_counts_to_csv(self, output_dir, column_counts):
@@ -111,82 +104,14 @@ class Seed_Analysis:
                     else:
                         data.to_csv(output_path, index=False)
 
-    def count_unique_value_pairs(self):
-        value_pairs_counts = {}
-        for metric, dfs in self.data_frames.items():
-            value_pairs_counts[metric] = []
-            for file, df in dfs:  # unpack the tuple
-                # get the first and last columns
-                first_col = df.iloc[:, 0].astype(str)
-                last_col = df.iloc[:, -1].astype(str)
-
-                # combine first_col and last_col into pairs
-                pairs = first_col + "," + last_col
-
-                # count frequency
-                pair_freq = Counter(pairs)
-
-                # convert the Counter dict to a DataFrame
-                pair_df = pd.DataFrame.from_records(
-                    list(pair_freq.items()), columns=["value", "count"]
-                )
-
-                # store a tuple with the filename and the DataFrame
-                value_pairs_counts[metric].append((file, pair_df))
-
-        return value_pairs_counts
-
-    def get_rows_reaching_threshold(self, threshold=0):
-        rows_reaching_threshold = {}
-        for metric, dfs in self.data_frames.items():
-            rows_reaching_threshold[metric] = []
-            for file, df in dfs:  # unpack the tuple
-                # get the maximum value of the last column
-                max_val = df[df.columns[-1]].max()
-
-                threshold_val = max_val * threshold
-                threshold_df = df[df[df.columns[-1]] >= threshold_val]
-                # store a tuple with the filename and the DataFrame
-                rows_reaching_threshold[metric].append((file, threshold_df))
-        return rows_reaching_threshold
-
-    def analyze_correlation(self, rows_reaching_threshold):
-        correlations = {}
-        for metric, results in rows_reaching_threshold.items():
-            correlations[metric] = []
-            for file, df in results:  # unpack the tuple
-                # calculate Pearson correlation coefficient between the first and the last column
-                corr, _ = pearsonr(df[df.columns[0]], df[df.columns[-1]])
-                correlations[metric].append((file, corr))
-        return correlations
-
-    def save_correlations(self, correlations, output_dir):
-        os.makedirs(output_dir, exist_ok=True)
-        for metric, results in correlations.items():
-            # Prepare the data for DataFrame
-            data = {"file": [], "correlation": []}
-            for file, corr in results:
-                data["file"].append(file)
-                data["correlation"].append(corr)
-            df = pd.DataFrame(data)
-            # Parse the necessary parts from the metric
-            parts = metric.split(os.sep)
-            output_filename = "_".join(parts[-3:]) + f"_correlations.csv"
-            output_path = os.path.join(output_dir, output_filename)
-            df.to_csv(output_path, index=False)
-
-    def pretty_print_csv_files(self):
-        pprint.pprint(self.csv_files)
-
-    def pretty_print_data_frames(self):
-        pprint.pprint(self.data_frames)
-
     def plot_histograms(self, column_counts, column_name):
         for metric, dfs in column_counts[column_name].items():
             plt.figure(figsize=(20, 6))
+
             for file, df in dfs:  # unpack the tuple
                 # Extract the name of the parent directory of the current file
                 legend_name = os.path.basename(os.path.dirname(os.path.dirname(file)))
+
                 sns.histplot(
                     data=df,
                     x="value",
@@ -195,6 +120,7 @@ class Seed_Analysis:
                     kde=False,
                     label=legend_name,
                 )
+
             if column_name == "first_column":
                 title = "Starting values"
             elif column_name == "last_column":
@@ -207,35 +133,9 @@ class Seed_Analysis:
             plt.tight_layout()
             plt.show()
 
-    def plot_pair_histograms(self):
-        value_pairs_counts = self.count_unique_value_pairs()
-        for metric, dfs in value_pairs_counts.items():
-            plt.figure(figsize=(20, 6))
-            for file, df in dfs:  # unpack the tuple
-                # Extract the name of the parent directory of the current file
-                legend_name = os.path.basename(os.path.dirname(os.path.dirname(file)))
-                sns.histplot(
-                    data=df,
-                    x="value",
-                    weights="count",
-                    bins=30,
-                    kde=False,
-                    label=legend_name,
-                )
-
-            title = "Pair values"
-
-            plt.title(f"Histogram for metric: {metric} - {title}")
-            plt.xlabel("Value pair")
-            plt.ylabel("Frequency")
-            plt.legend(title="Directory", bbox_to_anchor=(1.05, 1), loc="upper left")
-            plt.tight_layout()
-            plt.show()
-
 
 if __name__ == "__main__":
     seed = Seed_Analysis(file_path="kp_test")
     pair_count = seed.count_unique_columns()
-    value_pairs_counts = seed.count_unique_value_pairs()
-    # seed.plot_histograms(pair_count, "first_column")
-    # seed.plot_pair_histograms()
+    # value_pairs_counts = seed.count_unique_value_pairs()
+    seed.plot_histograms(pair_count, "first_column")
