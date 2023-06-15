@@ -13,7 +13,7 @@ import multiprocessing as mp
 
 
 to_discard: List[str] = list()
-all_hyper: pd.DataFrame = pd.read_csv("../05_done_workload.csv")
+all_hyper: pd.DataFrame = pd.read_csv("/home/vime121c/Workspaces/scratch/vime121c-db-project/Extrapolation/05_done_workload.csv")
 
 
 def scrape_all_files(root: str) -> List[str]:
@@ -59,14 +59,14 @@ def main(index: int):
     print(f"Finished in {time.time()-start} sec.")
     results_final = set.intersection(*results_filtered)
 
-    with open(f"../results/hyperparameter_final_{index}.csv", "w", newline="") as csv_file:
+    with open(f"/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/results/hyperparameter_final_{index}.csv", "w", newline="") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(["EXP_START_POINT", "EXP_BATCH_SIZE", "EXP_LEARNER_MODEL", "EXP_TRAIN_TEST_BUCKET_SIZE"])
         for tuple_item in results_final:
             writer.writerow(tuple_item)
 
     try:
-        with open("../results/to_discard.csv", "w", newline="") as discard:
+        with open("/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/results/to_discard.csv", "w", newline="") as discard:
             writer = csv.writer(discard)
             writer.writerow(["PATH"])
             for discard_path in to_discard:
