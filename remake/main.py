@@ -1,14 +1,11 @@
-import os 
-import sys
 from omegaconf import OmegaConf, DictConfig
-from data.loader import DataLoader
-from clustering.runner import ClusterRunner, MODE, STACKED
+from remake.data.loader import DataLoader
+from remake.clustering.runner import ClusterRunner, MODE, STACKED
 
 
 def main():
-    config = OmegaConf.load("new/config/test.yaml")
+    config = OmegaConf.load("config/clustering.yaml")
     data = DataLoader()
-    print("all fine")
     runner = ClusterRunner(MODE.GPU, config, STACKED.SINGLE, data)
     runner.run()
 

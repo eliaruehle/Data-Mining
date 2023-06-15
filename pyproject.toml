@@ -23,6 +23,7 @@ plotly = "^5.15.0"
 graphviz = "^0.20.1"
 omegaconf = "^2.3.0"
 torch = "^2.0.1"
+pandarallel = "^1.6.5"
 
 
 [tool.poetry.group.dev.dependencies]

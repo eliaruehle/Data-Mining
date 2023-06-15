@@ -19,7 +19,7 @@ class PANDAS_STACK_ORIENTATION(Enum):
 
 class DataLoader:
 
-    def __init__(self, config_path="new/config/data.yaml") -> None:
+    def __init__(self, config_path="config/test.yaml") -> None:
         """
         The init function of the data loader.
 
@@ -41,7 +41,7 @@ class DataLoader:
                 raise FileNotFoundError("The hyperparameter file does not exist.")
         else:
             raise FileNotFoundError("The config file does not exist.")
-        self.DATA_DIR:str = self.config["data_dir"]
+        self.DATA_DIR: str = self.config["data_dir"]
 
   
     def get_strategies(self) -> List[str]:
@@ -76,7 +76,7 @@ class DataLoader:
 
     def get_datasets(self) -> List[str]:
         """
-        Function to get all datasets descriped in the config file.
+        Function to get all datasets described in the config file.
 
         Parameters:
         -----------
@@ -109,6 +109,7 @@ class DataLoader:
             self.DATA_DIR + strat + "/" + dataset + "/" + metric
             for strat in self.config["strategies"]
         ]
+        print("All files", all_files)
         with Pool() as pool:
             results = pool.map(self.read_file, all_files)
         results = sorted(list(results), key=lambda x: x[0])
@@ -161,8 +162,8 @@ class DataLoader:
                 "EXP_LEARNER_MODEL",
                 "EXP_TRAIN_TEST_BUCKET_SIZE",
             ], ascending=[True, True, True, True])
-        df = df.iloc[:, :50]
-        return tuple([path.split("/")[2], df])
+        df = df.iloc[:, :-9]
+        return tuple([path.split("/")[3], df])
 
     
     def get_hyperparamter_csv(self) -> pd.DataFrame:
@@ -225,14 +226,27 @@ class DataLoader:
         """
         data:List[Tuple[str, pd.DataFrame]] = self.load_files_per_metric_and_dataset(metric, dataset)
         names:List[str] = [x[0] for x in data]
+        print("names", names)
         data:List[np.ndarray] = [x[1].to_numpy() for x in data]
+        shapes_list = [x.shape for x in data]
+        print("SHAPES:", shapes_list)
         try:
             # check if all entries in the data list have the same shape
             assert all([x.shape == data[0].shape for x in data])
         except AssertionError:
-            print("The dataframes do not have the same shape. No clustering!")
+            print("The dataframes do not have the same shape. Start reshaping!")
+            data_reshaped = self.reshape_data(data)
+        return (names, torch.tensor(np.array(data_reshaped), dtype=torch.float32)) if data_reshaped is not None else None
+
+    @staticmethod
+    def reshape_data(data: List[np.ndarray]) -> List[np.ndarray] | None:
+        shapes: List[Tuple[int, int]] = [x.shape for x in data]
+        if all([x[1] == shapes[0][1]] for x in shapes):
+            min_rows = min([x[0] for x in shapes])
+        else:
             return None
-        return names, torch.tensor(data, dtype=torch.float32)
+        data = [matrix[:min_rows, :] for matrix in data]
+        return data
 
     @staticmethod
     def stack_pandas_frames(

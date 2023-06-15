@@ -1,9 +1,8 @@
 import torch
 from enum import Enum
-from typing import List, Dict, Tuple, Union
 from omegaconf import OmegaConf, DictConfig
-from gpu.kmeans_torch import KMeansTorch
-from gpu.tensor_matrix import TensorMatrix
+from remake.clustering.gpu.kmeans_torch import KMeansTorch
+from remake.clustering.gpu.tensor_matrix import TensorMatrix
 from remake.data.loader import DataLoader
 
 class MODE(Enum):
@@ -37,7 +36,7 @@ class ClusterRunner:
         self.stacked = stacked
         # the data object
         self.data = data
-        # specifies wheter we will use 
+        # specifies whether we will use a dimension reduction
         self.dim_reduce = dim_reduce
     
     def _check_available_device(self):
@@ -75,10 +74,12 @@ class ClusterRunner:
 
             for metric in self.data.get_metrices():
                 for dataset in self.data.get_datasets():
-                    cluster_data = self.data.retrieve_tensor(metric, dataset)[1]
+                    cluster_data = self.data.retrieve_tensor(metric, dataset)
                     if cluster_data is None:
-                        print(f"Shape Error, skip clustering for Dataset: {dataset}")
+                        print(f"Shape Error, skip clustering for metric {metric} on dataset: {dataset}")
                         continue
+                    else:
+                        cluster_data = cluster_data[1]
                     if self.dim_reduce:
                         try:
                             cluster_data = self.reduce_gpu_data(cluster_data)
@@ -86,11 +87,14 @@ class ClusterRunner:
                             print(f"Shape Error, skip clustering for Dataset: {dataset}")
                             continue
                     _, labels = kmeans.fit(cluster_data)
+                    print("labels", labels)
                     matrix.update(labels)
             matrix.write_back()
                          
         
         elif self.stacked == STACKED.DATASET:
+            pass
+        else:
             pass
     
     def reduce_gpu_data(self, data:torch.Tensor) -> torch.Tensor:

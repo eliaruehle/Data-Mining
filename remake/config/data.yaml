@@ -241,5 +241,5 @@ datasets:
 - xor_2x2
 - xor_2x2_rotated
 - xor_4x4
-hyperparamters: new/05_done_workload.csv
-data_dir: "kp_test_int/strategies/"
+hyperparamters: data_mining/new/05_done_workload.csv
+data_dir: kp_test_int/strategies/
