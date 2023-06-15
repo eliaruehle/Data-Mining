@@ -2,7 +2,6 @@ import fnmatch
 import os
 import pprint
 
-import numpy as np
 import pandas as pd
 
 
@@ -50,9 +49,8 @@ class Seed_Analysis:
             for file, df in dfs:  # unpack the tuple
                 mono_rows = []
                 for _, row in df.iterrows():
-                    if list(row) == sorted(row) and not all(
-                        val == 1.0 for val in row
-                    ):  # check if row values are monotonically increasing or same and not all are 1.0
+                    # check if row values are monotonically increasing or same and not all are 1.0
+                    if list(row) == sorted(row) and not all(val == 1.0 for val in row):
                         mono_rows.append(row)
                 mono_df = pd.DataFrame(mono_rows, columns=df.columns).reset_index(
                     drop=True
