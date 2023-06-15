@@ -42,28 +42,22 @@ class Seed_Analysis:
                 data_frames[metric].append((file, df))
         return data_frames
 
-    def get_monotonically_increasing_or_same_rows(self):
+    def get_best_rows(self):
         mono_increasing_rows = {}
         for metric, dfs in self.data_frames.items():
             mono_increasing_rows[metric] = []
             for file, df in dfs:  # unpack the tuple
-                mono_rows = []
-                for _, row in df.iterrows():
-                    # check if row values are monotonically increasing or same and not all are 1.0
-                    if list(row) == sorted(row) and not all(val == 1.0 for val in row):
-                        mono_rows.append(row)
-                mono_df = pd.DataFrame(mono_rows, columns=df.columns).reset_index(
-                    drop=True
-                )  # reset index of the new dataframe
+                # get the maximum value of the last column
+                max_val = df[df.columns[-1]].max()
+                # keep rows that reach this max value
+                mono_df = df[df[df.columns[-1]] == max_val]
                 # store a tuple with the filename and the DataFrame
                 mono_increasing_rows[metric].append((file, mono_df))
         return mono_increasing_rows
 
-    def save_monotonically_increasing_rows(
-        self, mono_increasing_rows, output_dir, min_entries=10
-    ):
+    def save_best_rows(self, best_rows, output_dir, min_entries=10):
         os.makedirs(output_dir, exist_ok=True)
-        for metric, results in mono_increasing_rows.items():
+        for metric, results in best_rows.items():
             for i, (file, df) in enumerate(results):
                 if (
                     len(df) >= min_entries
@@ -97,8 +91,8 @@ class Seed_Analysis:
 
 if __name__ == "__main__":
     seed = Seed_Analysis(file_path="kp_test")
-    mono_increasing = seed.get_monotonically_increasing_or_same_rows()
-    seed.save_monotonically_increasing_rows(
-        mono_increasing_rows=mono_increasing,
-        output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/mono_increasing_10",
+    best_rows = seed.get_best_rows()
+    seed.save_best_rows(
+        best_rows=best_rows,
+        output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/mono_increasing",
     )
