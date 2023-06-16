@@ -96,21 +96,27 @@ class Seed_Analysis:
                 df.to_csv(output_path, index=False)
 
     def plot_histograms(self, column_counts, column_name):
-        for metric, dfs in column_counts[column_name].items():
+        for metric, df in column_counts[column_name].items():
             plt.figure(figsize=(20, 6))
 
-            for file, df in dfs:  # unpack the tuple
-                # Extract the name of the parent directory of the current file
-                legend_name = os.path.basename(os.path.dirname(os.path.dirname(file)))
+            # Extract the name of the parent directory of the current file
+            legend_name = metric
 
-                sns.histplot(
-                    data=df,
-                    x="value",
-                    weights="count",
-                    bins=30,
-                    kde=False,
-                    label=legend_name,
-                )
+            plot = sns.histplot(
+                data=df,
+                x="value",
+                weights="count",
+                bins=30,
+                kde=False,
+                label=legend_name,
+            )
+
+            total = float(df["count"].sum())
+            for p in plot.patches:
+                percentage = "{:.1f}%".format(100 * p.get_height() / total)
+                x = p.get_x() + p.get_width() / 2
+                y = p.get_y() + p.get_height()
+                plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
 
             if column_name == "first_column":
                 title = "Starting values"
