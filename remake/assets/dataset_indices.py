@@ -1,8 +1,36 @@
 import os
 import pandas as pd
 from typing import List
+from omegaconf import OmegaConf, dictconfig
+import csv
+from collections import defaultdict
+from pprint import pprint
 
 def main() -> None:
+    # get_dataset_index()
+    get_dataset_to_hyper_dict()
+    pass
+
+def get_dataset_to_hyper_dict():
+    config_path: str = "datasets_ind.yaml"
+    hyper_root: str = "../results/all_hyperparameters.csv"
+    with open(hyper_root, "r") as csv_file:
+        reader = csv.reader(csv_file)
+        hypers = list(reader)
+        hypers = [list(map(lambda x: int(x), entry)) for entry in hypers[1:]]
+    config_dict = dict(OmegaConf.load(config_path))
+    mapping_dict = defaultdict(list)
+    for entry in hypers:
+        mapping_dict[config_dict[entry[0]]].append(entry[1:])
+    final = dict(mapping_dict)
+    print("DATASETS:")
+    for entry in final.keys():
+        print(f"- {entry}")
+    new_config = OmegaConf.create(final)
+    OmegaConf.save(new_config, "dataset_hyper.yaml")
+
+
+def get_dataset_index():
     root: str = "../../kp_test_int/strategies/ALIPY_UNCERTAINTY_LC"
     workload: pd.DataFrame = pd.read_csv("../05_done_workload.csv")
     datasets: List[str] = list(os.listdir(root))
@@ -19,3 +47,6 @@ def main() -> None:
         # a pretty print
         print(f"{entry[0]} : {entry[1]}")
 
+
+if __name__ == "__main__":
+    main()
