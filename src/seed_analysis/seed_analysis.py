@@ -87,6 +87,30 @@ class Seed_Analysis:
 
         return column_counts
 
+    def count_unique_columns_pairs(self):
+        column_counts = {"pairs": {}}
+        for metric, dfs in self.data_frames.items():
+            pairs_freq = Counter()
+
+            # unpack the tuple
+            for file, df in dfs:
+                # get the first and last columns
+                first_col = df.iloc[:, 0]
+                last_col = df.iloc[:, -1]
+
+                # count frequency of pairs
+                pairs_freq += Counter(list(zip(first_col, last_col)))
+
+            # convert the Counter dict to a DataFrame
+            pairs_df = pd.DataFrame.from_records(
+                list(pairs_freq.items()), columns=["value", "count"]
+            )
+
+            # store a DataFrame
+            column_counts["pairs"][metric] = pairs_df
+
+        return column_counts
+
     def save_column_counts_to_csv(self, output_dir, column_counts):
         os.makedirs(output_dir, exist_ok=True)
         for column, metrics in column_counts.items():
@@ -94,6 +118,30 @@ class Seed_Analysis:
                 output_filename = f"{metric}_{column}_counts.csv"
                 output_path = os.path.join(output_dir, output_filename)
                 df.to_csv(output_path, index=False)
+
+    def load_saved_csvs(self, input_dir):
+        data_frames = {"first_column": {}, "last_column": {}}
+
+        # Create a list of csv files in the output directory
+        csv_files = [f for f in os.listdir(input_dir) if f.endswith(".csv")]
+
+        for file in csv_files:
+            # Define the complete file path
+            file_path = os.path.join(input_dir, file)
+
+            # Load the file into a DataFrame
+            df = pd.read_csv(file_path)
+
+            # Extract the metric name from the file name
+            metric, _, _ = file.rpartition("_")
+
+            # Store the DataFrame in the corresponding dictionary
+            if "first_column" in file:
+                data_frames["first_column"][metric] = df
+            elif "last_column" in file:
+                data_frames["last_column"][metric] = df
+
+        return data_frames
 
     def plot_histograms(self, column_counts, column_name):
         for metric, df in column_counts[column_name].items():
