@@ -85,29 +85,15 @@ class Seed_Analysis:
             column_counts["first_column"][metric] = first_col_df
             column_counts["last_column"][metric] = last_col_df
 
-                # store a tuple with the filename and the DataFrame
-                column_counts["first_column"][metric].append((file, first_col_df))
-                column_counts["last_column"][metric].append((file, last_col_df))
         return column_counts
 
     def save_column_counts_to_csv(self, output_dir, column_counts):
         os.makedirs(output_dir, exist_ok=True)
         for column, metrics in column_counts.items():
-            for metric, dfs in metrics.items():
-                for i, (file, data) in enumerate(dfs):
-                    # Parse the necessary parts from the file path
-                    parts = file.split(os.sep)
-                    # Remove the original file extension
-                    parts[-1] = os.path.splitext(parts[-1])[0]
-                    output_filename = "_".join(parts[-3:]) + f"_{column}_counts.csv"
-                    output_path = os.path.join(output_dir, output_filename)
-                    if column == "pairs":
-                        # Convert the list of pairs to a DataFrame and save as CSV
-                        pd.DataFrame(
-                            data, columns=["first_col_value", "last_col_value"]
-                        ).to_csv(output_path, index=False)
-                    else:
-                        data.to_csv(output_path, index=False)
+            for metric, df in metrics.items():
+                output_filename = f"{metric}_{column}_counts.csv"
+                output_path = os.path.join(output_dir, output_filename)
+                df.to_csv(output_path, index=False)
 
     def plot_histograms(self, column_counts, column_name):
         for metric, dfs in column_counts[column_name].items():
