@@ -60,25 +60,30 @@ class Seed_Analysis:
     def count_unique_columns(self):
         column_counts = {"first_column": {}, "last_column": {}}
         for metric, dfs in self.data_frames.items():
-            column_counts["first_column"][metric] = []
-            column_counts["last_column"][metric] = []
+            first_col_freq = Counter()
+            last_col_freq = Counter()
+
             for file, df in dfs:  # unpack the tuple
                 # get the first and last columns
                 first_col = df.iloc[:, 0]
                 last_col = df.iloc[:, -1]
 
                 # count frequency
-                first_col_freq = Counter(first_col)
-                last_col_freq = Counter(last_col)
+                first_col_freq += Counter(first_col)
+                last_col_freq += Counter(last_col)
 
-                # convert the Counter dict to a DataFrame
-                first_col_df = pd.DataFrame.from_records(
-                    list(first_col_freq.items()), columns=["value", "count"]
-                )
+            # convert the Counter dict to a DataFrame
+            first_col_df = pd.DataFrame.from_records(
+                list(first_col_freq.items()), columns=["value", "count"]
+            )
 
-                last_col_df = pd.DataFrame.from_records(
-                    list(last_col_freq.items()), columns=["value", "count"]
-                )
+            last_col_df = pd.DataFrame.from_records(
+                list(last_col_freq.items()), columns=["value", "count"]
+            )
+
+            # store a tuple with the filename and the DataFrame
+            column_counts["first_column"][metric] = first_col_df
+            column_counts["last_column"][metric] = last_col_df
 
                 # store a tuple with the filename and the DataFrame
                 column_counts["first_column"][metric].append((file, first_col_df))
