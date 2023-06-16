@@ -134,5 +134,8 @@ class Seed_Analysis:
 if __name__ == "__main__":
     seed = Seed_Analysis(file_path="kp_test")
     pair_count = seed.count_unique_columns()
-    # value_pairs_counts = seed.count_unique_value_pairs()
+    seed.save_column_counts_to_csv(
+        output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/correlation_rows",
+        column_counts=pair_count,
+    )
     seed.plot_histograms(pair_count, "first_column")
