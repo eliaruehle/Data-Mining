@@ -399,7 +399,7 @@ class Seed_Analysis:
                 plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
 
             plt.title(f"Histogram for filtered pairs: {metric}")
-            plt.xlabel("First Value")
+            plt.xlabel("Starting Value")
             plt.ylabel("Frequency")
             plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
             plt.tight_layout()
