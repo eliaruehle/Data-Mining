@@ -100,15 +100,10 @@ class DataLoader:
         """
         return self.config["datasets"]
 
-    """
-    for metrik:
-        for datensatz:
-            load_param_auf_datensatz
-            load file and filter nach param
-    """
     def load_single_df(self, path:str):
         if not os.path.exists(path):
-            return None
+            print("Path for file load does not exist.")
+            return path.split("/")[-3], None
         return path.split("/")[-3], pd.merge(pd.read_csv(path), self.done_workload)
 
     def load_data_for_metric_dataset(self, metric:str, dataset:str):

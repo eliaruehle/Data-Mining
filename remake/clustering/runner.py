@@ -84,7 +84,7 @@ class ClusterRunner:
             print(f"Number of experiments sampled: {len(runned_hypers)}")
             labels, frames = self.data.load_data_for_metric_dataset(metric, dataset)
             if None in frames:
-                print(f"Metric {metric} is not calculated for dataset {dataset}, skip!")
+                print("Metric file not in Dataset!")
                 continue
             for hyper in runned_hypers:
                 to_process = list(zip(labels, frames, [hyper for _ in range(len(frames))]))
