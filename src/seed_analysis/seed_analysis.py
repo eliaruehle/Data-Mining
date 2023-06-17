@@ -3,6 +3,7 @@ import fnmatch
 import os
 from ast import literal_eval
 from collections import Counter
+from typing import Any, Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -10,12 +11,34 @@ import seaborn as sns
 
 
 class Seed_Analysis:
+    """
+    A class used to perform various analysis and visualizations on seed data.
+
+
+    Attributes
+    ----------
+    file_path : str
+        The path to the directory containing the .csv.xz files
+    csv_files : dict
+        A dictionary where the keys are the metrics and the values are a list of all the .csv.xz files for that metric
+    data_frames : dict
+        A dictionary where the keys are the metrics and the values are a list of tuples. Each tuple contains the file name and the corresponding dataframe
+
+    """
+
     def __init__(self, file_path: str):
         self.file_path = file_path
         self.csv_files = self.find_csv_files()
         self.data_frames = self.load_data_frames()
 
-    def find_csv_files(self):
+    def find_csv_files(self) -> Dict[str, List[str]]:
+        """
+        Finds CSV files with specific metrics in the file path directory.
+
+        Returns:
+            Dict[str, List[str]]: A dictionary where the keys are metrics and the values are lists of file paths.
+        """
+
         csv_files = {}
         metrics = [
             "accuracy",
@@ -33,7 +56,13 @@ class Seed_Analysis:
 
         return csv_files
 
-    def load_data_frames(self):
+    def load_data_frames(self) -> Dict[str, List[Tuple[str, pd.DataFrame]]]:
+        """
+        Load data frames concurrently for CSV files associated with each metric.
+
+        Returns:
+            Dict[str, List[Tuple[str, pd.DataFrame]]]: A dictionary where the keys are metrics and the values are lists of tuples containing file path and the loaded DataFrame.
+        """
         data_frames = {}
         with concurrent.futures.ThreadPoolExecutor() as executor:
             for metric, files in self.csv_files.items():
@@ -52,12 +81,31 @@ class Seed_Analysis:
                         data_frames[metric].append((file, df))
             return data_frames
 
-    def _load_dataframe_helper(self, file):
+    def _load_dataframe_helper(self, file: str) -> pd.DataFrame:
+        """
+        Helper function to load a data frame from a CSV file and drop a specific column.
+
+        Args:
+            file (str): Path to the CSV file.
+
+        Returns:
+            pd.DataFrame: The loaded DataFrame.
+        """
         df = pd.read_csv(file, compression="xz")
         df = df.drop(columns="EXP_UNIQUE_ID", errors="ignore")
         return df
 
-    def count_unique_start_and_end_frequency(self):
+    def count_unique_start_and_end_frequency(
+        self,
+    ) -> Dict[str, Dict[str, pd.DataFrame]]:
+        """
+        Count the frequency of unique values in the first and last columns of data frames for each metric.
+
+        Returns:
+            Dict[str, Dict[str, pd.DataFrame]]:
+                A dictionary of DataFrames for each metric and column (first_column or last_column),
+                representing the frequency of unique values.
+        """
         column_counts = {"first_column": {}, "last_column": {}}
         for metric, dfs in self.data_frames.items():
             first_col_freq = Counter()
@@ -88,7 +136,17 @@ class Seed_Analysis:
 
         return column_counts
 
-    def save_unique_start_and_end_frequency(self, output_dir, column_counts):
+    def save_unique_start_and_end_frequency(
+        self, output_dir: str, column_counts: Dict[str, Dict[str, pd.DataFrame]]
+    ):
+        """
+        Save the count of unique start and end frequency as CSV files.
+
+        Args:
+            output_dir (str): The directory where to save the CSV files.
+            column_counts (Dict[str, Dict[str, pd.DataFrame]]): The dictionary with the counts to save.
+        """
+
         os.makedirs(output_dir, exist_ok=True)
         for column, metrics in column_counts.items():
             for metric, df in metrics.items():
@@ -96,7 +154,17 @@ class Seed_Analysis:
                 output_path = os.path.join(output_dir, output_filename)
                 df.to_csv(output_path, index=False)
 
-    def load_saved_csvs(self, input_dir):
+    def load_saved_csvs(self, input_dir: str) -> Dict[str, Dict[str, pd.DataFrame]]:
+        """
+        Load the saved CSV files from a directory into a dictionary of data frames.
+
+        Args:
+            input_dir (str): The directory from which to load the CSV files.
+
+        Returns:
+            Dict[str, Dict[str, pd.DataFrame]]: A dictionary of DataFrames for each metric and column (first_column or last_column).
+        """
+
         data_frames = {"first_column": {}, "last_column": {}}
 
         # Create a list of csv files in the output directory
@@ -120,7 +188,14 @@ class Seed_Analysis:
 
         return data_frames
 
-    def count_unique_start_and_end_pair_frequency(self):
+    def count_unique_start_and_end_pair_frequency(self) -> Dict[str, pd.DataFrame]:
+        """
+        Count the frequency of unique pairs of values in the first and last columns of data frames for each metric.
+
+        Returns:
+            Dict[str, pd.DataFrame]: A dictionary of DataFrames for each metric, representing the frequency of unique pairs of values.
+        """
+
         column_counts = {"pairs": {}}
         for metric, dfs in self.data_frames.items():
             pairs_freq = Counter()
@@ -144,7 +219,18 @@ class Seed_Analysis:
 
         return column_counts
 
-    def load_unique_pair_frequency(self, input_dir):
+    def load_unique_pair_frequency(self, input_dir: str) -> Dict[str, pd.DataFrame]:
+        """
+        Load csv files of unique pair frequency data from a directory, convert them into DataFrames and store
+        them in a dictionary where key is metric name and value is corresponding DataFrame.
+
+        Args:
+            input_dir (str): Directory path where csv files are located.
+
+        Returns:
+            Dict[str, DataFrame]: A dictionary containing DataFrames.
+        """
+
         data_frames = {"pairs": {}}
 
         # Create a list of csv files in the output directory
@@ -166,7 +252,25 @@ class Seed_Analysis:
 
         return data_frames
 
-    def filter_pairs(self, column_counts, threshold_first, threshold_last, operator):
+    def filter_pairs(
+        self,
+        column_counts: Dict[str, pd.DataFrame],
+        threshold_first: float,
+        threshold_last: float,
+        operator: str,
+    ) -> Dict[str, pd.DataFrame]:
+        """
+        Filters the pairs based on the provided thresholds and operator.
+
+        Args:
+            column_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with pair counts.
+            threshold_first (float): Threshold for the first value in pair.
+            threshold_last (float): Threshold for the second value in pair.
+            operator (str): Comparison operator to use.
+
+        Returns:
+            Dict[str, DataFrame]: Dictionary containing filtered DataFrames.
+        """
         filtered_counts = {"pairs": {}}
         for metric, df in column_counts["pairs"].items():
             filtered_rows = []
@@ -200,14 +304,32 @@ class Seed_Analysis:
 
         return filtered_counts
 
-    def save_filtered_pairs_to_csv(self, output_dir, filtered_counts):
+    def save_filtered_pairs_to_csv(
+        self, output_dir: str, filtered_counts: Dict[str, pd.DataFrame]
+    ):
+        """
+        Save the filtered counts to csv files.
+
+        Args:
+            output_dir (str): Directory path where csv files will be saved.
+            filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
+        """
+
         os.makedirs(output_dir, exist_ok=True)
         for metric, df in filtered_counts["pairs"].items():
             output_filename = f"{metric}_filtered_pairs.csv"
             output_path = os.path.join(output_dir, output_filename)
             df.to_csv(output_path, index=False)
 
-    def plot_histograms(self, column_counts, column_name):
+    def plot_histograms(self, column_counts: Dict[str, pd.DataFrame], column_name: str):
+        """
+        Plot histograms of the column counts.
+
+        Args:
+            column_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with column counts.
+            column_name (str): Name of the column to be plotted.
+        """
+
         for metric, df in column_counts[column_name].items():
             plt.figure(figsize=(20, 6))
 
@@ -242,8 +364,15 @@ class Seed_Analysis:
             plt.tight_layout()
             plt.show()
 
-    def plot_histograms_filtered_pairs(self, column_counts):
-        for metric, df in column_counts["pairs"].items():
+    def plot_histograms_filtered_pairs(self, filtered_counts: Dict[str, pd.DataFrame]):
+        """
+        Plot histograms of the filtered counts.
+
+        Args:
+            filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
+        """
+
+        for metric, df in filtered_counts["pairs"].items():
             # Convert the string representation of tuple to actual tuple
             df["value"] = df["value"].apply(lambda x: literal_eval(x))
             # Split the tuples into two separate columns
@@ -344,7 +473,7 @@ def run(
             )
 
         if plot_filtered:
-            seed.plot_histograms_filtered_pairs(column_counts=filtered_pair_count)
+            seed.plot_histograms_filtered_pairs(filtered_counts=filtered_pair_count)
 
 
 if __name__ == "__main__":
