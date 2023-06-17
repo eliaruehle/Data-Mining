@@ -10,8 +10,8 @@ def process_file(path:str) -> Set:
         df = pd.read_csv(path)
         tuples = set(df.apply(tuple, axis=1))
         print("number entries: ", len(tuples), path)
-        #if len(tuples) < 25000:
-        #    return set()
+        if len(tuples) < 25_000:
+            return set()
         return tuples
     else:
         raise ValueError("Path not exists!")

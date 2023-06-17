@@ -9,6 +9,7 @@ from pprint import pprint
 def main() -> None:
     # get_dataset_index()
     get_dataset_to_hyper_dict()
+    #get_valuable_metrices()
     pass
 
 def get_dataset_to_hyper_dict():
@@ -46,6 +47,16 @@ def get_dataset_index():
     for entry in save:
         # a pretty print
         print(f"{entry[0]} : {entry[1]}")
+
+def get_valuable_metrices():
+    root: str = "../../kp_test_int/strategies/ALIPY_UNCERTAINTY_LC/appendicitis"
+    files: List[str] = [os.path.join(root, file) for file in os.listdir(root)]
+    for file in files:
+        df = pd.read_csv(file)
+        if df.shape[1] < 99:
+            continue
+        else:
+            print("- " + file.split("/")[-1])
 
 
 if __name__ == "__main__":

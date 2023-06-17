@@ -4,6 +4,13 @@ from omegaconf import OmegaConf, DictConfig
 from remake.clustering.gpu.kmeans_torch import KMeansTorch
 from remake.clustering.gpu.tensor_matrix import TensorMatrix
 from remake.data.loader import DataLoader
+from remake.clustering.cpu.kmeans_cpu import KmeansCPU
+import multiprocessing as mp
+import numpy as np
+from time import time
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+
 
 class MODE(Enum):
     """
@@ -11,6 +18,7 @@ class MODE(Enum):
     """
     CPU = 0
     GPU = 1
+
 
 class STACKED(Enum):
     """
@@ -22,23 +30,26 @@ class STACKED(Enum):
 
 class ClusterRunner:
 
-    def __init__(self, mode:MODE, config:DictConfig, stacked:STACKED, data:DataLoader, dim_reduce:bool=False) -> None:
-        
+    def __init__(self, mode: MODE, config: DictConfig, data: DataLoader, dim_reduce: bool = False,
+                 stacked: STACKED = STACKED.SINGLE) -> None:
+
         self.mode = mode
         if mode == MODE.CPU:
             # should not affect anything, just for safety
             self.device = torch.device("cpu")
-        else: 
+        else:
             self.device = self._check_available_device()
         # the config file for the clustering
         self.config = config
+        self.gpu_config = self.config["clustering"]["gpu"]
+        self.cpu_config = self.config["clustering"]["cpu"]
         # specifies which kind of data we use
         self.stacked = stacked
         # the data object
         self.data = data
         # specifies whether we will use a dimension reduction
         self.dim_reduce = dim_reduce
-    
+
     def _check_available_device(self):
         """
         Function to check if a GPU is available and if yes, which one.
@@ -50,26 +61,52 @@ class ClusterRunner:
         else:
             print("No GPU available, running on CPU.")
             return torch.device("cpu")
-    
-    def run(self):
+
+    def run(self, index:int):
         """
         Function to call if you want to run the clustering.
         """
         if self.mode == MODE.CPU:
-            self._run_cpu()
+            self._run_cpu(index)
         elif self.mode == MODE.GPU:
             self._run_gpu()
         else:
             raise ValueError("The mode is not specified correctly.")
-    
-    def _run_cpu(self):
-        pass
+
+    def _run_cpu(self, index:int):
+        warnings.filterwarnings("ignore", category=ConvergenceWarning)
+        cluster = KmeansCPU(self.cpu_config, self.data.get_strategies(), self.config["save_dir"])
+        counter = 1
+        metric = self.data.get_metrices()[index]
+        start_glob = time()
+        for dataset in self.data.get_datasets():
+            start_lok = time()
+            print(f"Start experiment on {dataset} and metric {metric}")
+            runned_hypers = self.data.get_hyperparameter_for_dataset(dataset)
+            print(f"Number of experiments sampled: {len(runned_hypers)}")
+            labels, frames = self.data.load_data_for_metric_dataset(metric, dataset)
+            for hyper in runned_hypers:
+                to_process = list(zip(labels, frames, [hyper for _ in range(len(frames))]))
+                with mp.Pool(mp.cpu_count()) as pool:
+                    results = pool.map(self.data.get_row, to_process)
+                pool.close()
+                results = sorted(results, key=lambda x: x[0])
+                rows = list(map(lambda x: x[1], results))
+                if all((row.shape == rows[0].shape) and (row.shape[0] != 0) for row in rows):
+                    to_cluster = np.array(rows)
+                    cluster.step(to_cluster, self.dim_reduce, counter % 50 == 0, metric)
+                    counter += 1
+            cluster.get_matrix.write_numeric_to_csv(metric)
+            print(f"Time used for {dataset}: {time()-start_lok} sec")
+        cluster.get_matrix.write_numeric_normalized_to_csv(metric)
+        print(f"Terminated normaly for every dataset and metric {metric} in {(time()-start_glob)/3600} hours")
+
 
     def _run_gpu(self):
         # create a kmeans object for pytorch_clustering
-        kmeans = KMeansTorch(self.config["num_clusters"], self.config["error"], device=self.device)
+        kmeans = KMeansTorch(self.gpu_config["num_clusters"], self.gpu_config["error"], device=self.device)
         matrix = TensorMatrix(self.config["save_dir"], len(self.data.get_strategies()), self.device)
-        
+
         if self.stacked == STACKED.SINGLE:
 
             for metric in self.data.get_metrices():
@@ -90,12 +127,3 @@ class ClusterRunner:
                     print("labels", labels)
                     matrix.update(labels)
             matrix.write_back()
-                         
-        
-        elif self.stacked == STACKED.DATASET:
-            pass
-        else:
-            pass
-    
-    def reduce_gpu_data(self, data:torch.Tensor) -> torch.Tensor:
-        return data

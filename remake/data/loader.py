@@ -3,9 +3,7 @@ import pandas as pd
 from typing import List, Dict, Tuple, Set, Optional
 import os
 from omegaconf import OmegaConf
-from multiprocessing import Pool
-from pandarallel import pandarallel
-import torch
+import multiprocessing as mp
 from enum import Enum
 
 class PANDAS_STACK_ORIENTATION(Enum):
@@ -19,7 +17,7 @@ class PANDAS_STACK_ORIENTATION(Enum):
 
 class DataLoader:
 
-    def __init__(self, config_path="config/test.yaml") -> None:
+    def __init__(self, config_path="/Users/eliaruhle/Documents/data_mining/remake/config/test.yaml") -> None:
         """
         The init function of the data loader.
 
@@ -32,21 +30,34 @@ class DataLoader:
         --------
         None
         """
-        pandarallel.initialize()
         if os.path.exists(config_path):
             self.config = OmegaConf.load(config_path)
-            if os.path.exists(self.config["hyperparameter"]):
-                self.hyperparameter_csv = pd.read_csv(self.config["hyperparameter"])
-            else:
-                raise FileNotFoundError("The hyperparameter file does not exist.")
         else:
+            print("1")
             raise FileNotFoundError("The config file does not exist.")
-        self.DATA_DIR: str = self.config["data_dir"]
+        if os.path.exists(self.config["workload"]):
+            self.done_workload = pd.read_csv(self.config["workload"])
+        else:
+            print("2")
+            raise FileNotFoundError("The done_workload file does not exist.")
+        if os.path.exists(self.config["hyperparameter"]):
+            self.hyperparameter = OmegaConf.load(self.config["hyperparameter"])
+        else:
+            print("3")
+            raise FileNotFoundError("The hyperparameter config file does not exist!")
+        self.data_dir = self.config["data_dir"]
+        self.columns = [
+            "EXP_RANDOM_SEED",
+            "EXP_START_POINT",
+            "EXP_NUM_QUERIES",
+            "EXP_BATCH_SIZE",
+            "EXP_LEARNER_MODEL",
+            "EXP_TRAIN_TEST_BUCKET_SIZE",
+        ]
 
-  
     def get_strategies(self) -> List[str]:
         """
-        Function to get all strategies descriped in the config file.
+        Function to get all strategies described in the config file.
 
         Parameters:
         -----------
@@ -57,11 +68,11 @@ class DataLoader:
         strategies : List[str]
             The list of all strategies.
         """
-        return self.config["strategies"]
+        return self.config["strateg"]
 
     def get_metrices(self) -> List[str]:
         """
-        Function to get all metrices descriped in the config file.
+        Function to get all metrices described in the config file.
 
         Parameters:
         -----------
@@ -89,177 +100,40 @@ class DataLoader:
         """
         return self.config["datasets"]
 
-    def load_files_per_metric_and_dataset(self, metric: str, dataset: str) -> List[Tuple[str, pd.DataFrame]]:
-        """
-        Function to read in dataframes in parallel, given a metric and a dataset.
+    """
+    for metrik:
+        for datensatz:
+            load_param_auf_datensatz
+            load file and filter nach param
+    """
+    def load_single_df(self, path:str):
+        return path.split("/")[-3], pd.merge(pd.read_csv(path), self.done_workload)
 
-        Parameters:
-        -----------
-        metric : str
-            The metric to load.
-        dataset : str
-            The dataset to load.
-        
-        Returns:
-        --------
-        results : List[Tuple[str, pd.DataFrame]]
-            The list of tuples consisting of the strategy name and the corresponding data frame.
-        """
-        all_files: List[str] = [
-            self.DATA_DIR + strat + "/" + dataset + "/" + metric
-            for strat in self.config["strategies"]
-        ]
-        print("All files", all_files)
-        with Pool() as pool:
-            results = pool.map(self.read_file, all_files)
-        results = sorted(list(results), key=lambda x: x[0])
-        return results
-    
-    # TODO: fix this function
-    def load_files_per_metric(self, metric) -> List[Tuple[str, pd.DataFrame]]:
-        """
-        Function to read in dataframes in parallel, given a metric. 
-        This function concatenates the dataframes of all datasets for the metric.
+    def load_data_for_metric_dataset(self, metric:str, dataset:str):
+        # read in all the paths for the datasets
+        paths = [os.path.join(os.path.join(self.data_dir, strategy), f"{dataset}/{metric}") for strategy in self.get_strategies()]
+        with mp.Pool(mp.cpu_count()) as pool:
+            results = pool.map(self.load_single_df, paths)
+        pool.close()
+        results = sorted(results, key=lambda x: x[0])
+        return list(map(lambda x: x[0], results)), list(map(lambda x: x[1], results))
 
-        Parameters:
-        -----------
-        metric : str
-            The metric to load.
-        
-        Returns:
-        --------
-        results : List[Tuple[str, pd.DataFrame]]
-            The list of tuples consisting of the strategy name and the corresponding data frame.
-        """
-        final_results = list()
-        for strat in self.get_strategies():
-            all_files: List[str] = [self.DATA_DIR + strat + "/" + dataset + "/" + metric for dataset in self.config["datasets"]]
-            with Pool() as pool:
-                results = pool.map(self.read_file, all_files)
-            results = sorted(list(results), key=lambda x:x[0])
-            results = self.stack_pandas_frames(results)
-            final_results.append((strat, results[0]))
-        return final_results
+    def get_hyperparameter_for_dataset(self, dataset:str):
+        return self.hyperparameter[dataset]
 
-    def read_file(self, path: str) -> Tuple[str, pd.DataFrame]:
-        """
-        Function to return a single file and the name of the corresponding strategy.
-
-        Paramters:
-        ----------
-        path : str
-            The path of the strategie.
-
-        Returns:
-        --------
-        name, csv_file : Tuple[str, pd.DataFrame]
-            The tuple consisting of a string and a data frame.
-        """
-        df = pd.merge(pd.read_csv(path), self.hyperparameter_csv, on="EXP_UNIQUE_ID")
-        df = df.sort_values(by=[
-                "EXP_START_POINT",
-                "EXP_BATCH_SIZE",
-                "EXP_LEARNER_MODEL",
-                "EXP_TRAIN_TEST_BUCKET_SIZE",
-            ], ascending=[True, True, True, True])
-        df = df.iloc[:, :-9]
-        return tuple([path.split("/")[3], df])
-
-    
-    def get_hyperparamter_csv(self) -> pd.DataFrame:
-        """
-        Function to return the hyperparameter csv.
-
-        Paramters:
-        ----------
-        None
-
-        Returns:
-        --------
-        hyperparameter_csv : pd.DataFrame
-            The hyperparameter csv.            
-        """
-        return self.hyperparameter_csv
-
-    def get_hyperparamter_tuples(self) -> Set[Tuple[int, int, int, int]]:
-        """
-        Function to return the hyperparameter tuples.
-
-        Paramters:
-        ----------
-        None
-
-        Returns:
-        --------
-        hyperparameter_tuples : Set[Tuple[int, int, int, int]]
-            The set of hyperparameter tuples.
-        """
-        frame: pd.DataFrame = self.get_hyperparamter_csv().copy()
-        # locate important columns in the frame
-        frame = frame[
-            [
-                "EXP_START_POINT",
-                "EXP_BATCH_SIZE",
-                "EXP_LEARNER_MODEL",
-                "EXP_TRAIN_TEST_BUCKET_SIZE",
-            ]
-        ]
-        return set(frame.parallel_apply(tuple, axis=1))
-    
-    def retrieve_tensor(self, metric:str, dataset:str) -> Tuple[List[str], torch.Tensor] | None:
-        """
-        Converts the list of dataframes into a tensor.
-
-        Parameters:
-        -----------
-        metric : str
-            The metric to load.
-        dataset : str
-            The dataset to load.
-
-        Returns:
-        --------
-        names : List[str]
-            The list of strategy names.
-        tensor : torch.Tensor
-            The tensor containing the data.
-        """
-        data:List[Tuple[str, pd.DataFrame]] = self.load_files_per_metric_and_dataset(metric, dataset)
-        names:List[str] = [x[0] for x in data]
-        print("names", names)
-        data:List[np.ndarray] = [x[1].to_numpy() for x in data]
-        shapes_list = [x.shape for x in data]
-        print("SHAPES:", shapes_list)
-        try:
-            # check if all entries in the data list have the same shape
-            assert all([x.shape == data[0].shape for x in data])
-        except AssertionError:
-            print("The dataframes do not have the same shape. Start reshaping!")
-            data_reshaped = self.reshape_data(data)
-        return (names, torch.tensor(np.array(data_reshaped), dtype=torch.float32)) if data_reshaped is not None else None
-
-    @staticmethod
-    def reshape_data(data: List[np.ndarray]) -> List[np.ndarray] | None:
-        shapes: List[Tuple[int, int]] = [x.shape for x in data]
-        if all([x[1] == shapes[0][1]] for x in shapes):
-            min_rows = min([x[0] for x in shapes])
+    def get_row(self, frame: Tuple[str, pd.DataFrame, List[int]]):
+        filtered_df = frame[1][(frame[1][self.columns] == frame[2]).all(axis=1)].to_numpy()
+        print("Shape filtered:", filtered_df.shape)
+        if filtered_df.shape[0] == 1:
+            filtered_df = filtered_df.squeeze(axis=0)[:-9]
         else:
-            return None
-        data = [matrix[:min_rows, :] for matrix in data]
-        return data
+            filtered_df = filtered_df[:-9]
+        return frame[0], filtered_df
 
-    @staticmethod
-    def stack_pandas_frames(
-        pandas_data_files: List[pd.DataFrame],
-        orientation: PANDAS_STACK_ORIENTATION = PANDAS_STACK_ORIENTATION.VERTICAL,
-    ) -> Optional[pd.DataFrame]:
-        """
-        Function to stack pandas dataframes.
+"""
+if __name__== "__main__":
+    data = DataLoader()
+    print(data.load_data_for_metric_dataset("learner_training_time_time_lag.csv.xz", "appendicitis"))
+"""
 
-        Parameters:
-        pandas_data_files (list): A list of pandas dataframes.
-        orientation (PANDAS_STACK_ORIENTATION): The orientation of the stacked dataframe. Defaults to PANDAS_STACK_ORIENTATION.VERTICAL.
 
-        """
-        df = pd.concat(pandas_data_files, axis=orientation.value)
-        return df
