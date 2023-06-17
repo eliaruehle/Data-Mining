@@ -17,7 +17,7 @@ class PANDAS_STACK_ORIENTATION(Enum):
 
 class DataLoader:
 
-    def __init__(self, config_path="/Users/eliaruhle/Documents/data_mining/remake/config/test.yaml") -> None:
+    def __init__(self, config_path="/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/config/data.yaml") -> None:
         """
         The init function of the data loader.
 
@@ -68,7 +68,7 @@ class DataLoader:
         strategies : List[str]
             The list of all strategies.
         """
-        return self.config["strateg"]
+        return self.config["strategies"]
 
     def get_metrices(self) -> List[str]:
         """

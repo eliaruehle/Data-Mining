@@ -99,7 +99,7 @@ class ClusterRunner:
             cluster.get_matrix.write_numeric_to_csv(metric)
             print(f"Time used for {dataset}: {time()-start_lok} sec")
         cluster.get_matrix.write_numeric_normalized_to_csv(metric)
-        print(f"Terminated normaly for every dataset and metric {metric} in {(time()-start_glob)/3600} hours")
+        print(f"Terminated normally for every dataset and metric {metric} in {(time()-start_glob)/3600} hours")
 
 
     def _run_gpu(self):

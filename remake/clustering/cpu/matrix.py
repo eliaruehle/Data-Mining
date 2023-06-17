@@ -11,7 +11,7 @@ class Matrix:
 
     def __init__(self, labels: List[str], result_path:str):
         if not os.path.exists(result_path):
-            raise FileNotFoundError("Config path does not exist!")
+            raise FileNotFoundError("Result path does not exist!")
         self.labels = labels
         self.values = pd.DataFrame(index=self.labels, columns=self.labels, data=0)
         self.result_path = result_path

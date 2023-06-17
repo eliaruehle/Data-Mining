@@ -170,15 +170,15 @@ metrices:
 - CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS.csv.xz
 - nr_decreasing_al_cycles_per_macro_recall.csv.xz
 - nr_decreasing_al_cycles_per_macro_f1-score_time_lag.csv.xz
-workload: "/Users/eliaruhle/Documents/data_mining/remake/05_done_workload.csv"
-data_dir: "/Users/eliaruhle/Documents/data_mining/kp_test_int"
-hyperparameter: "/Users/eliaruhle/Documents/data_mining/remake/assets/dataset_hyper.yaml"
-save_dir: "/Users/eliaruhle/Documents/data_mining/remake/results/cpu"
+workload: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/05_done_workload.csv"
+data_dir: "/scratch/ws/0/vime121c-db-project/Extrapolation"
+hyperparameter: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/assets/dataset_hyper.yaml"
+save_dir: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/results/cpu"
 clustering:
   cpu:
     num_components: 4
     svd_solver: full
-    num_clusters: 2
+    num_clusters: 10
   gpu:
     num_clusters: 2
     error: 1e-6
