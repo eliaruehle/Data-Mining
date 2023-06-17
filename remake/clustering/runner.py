@@ -92,6 +92,7 @@ class ClusterRunner:
                 rows = list(map(lambda x: x[1], results))
                 if all((row.shape == rows[0].shape) and (row.shape[0] != 0) for row in rows):
                     to_cluster = np.array(rows)
+                    print(f"Clustering for the {counter}-th time.")
                     cluster.step(to_cluster, self.dim_reduce, counter % 50 == 0, metric)
                     counter += 1
             cluster.get_matrix.write_numeric_to_csv(metric)

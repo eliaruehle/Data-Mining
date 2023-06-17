@@ -123,7 +123,6 @@ class DataLoader:
 
     def get_row(self, frame: Tuple[str, pd.DataFrame, List[int]]):
         filtered_df = frame[1][(frame[1][self.columns] == frame[2]).all(axis=1)].to_numpy()
-        print("Shape filtered:", filtered_df.shape)
         if filtered_df.shape[0] == 1:
             filtered_df = filtered_df.squeeze(axis=0)[:-9]
         else:
