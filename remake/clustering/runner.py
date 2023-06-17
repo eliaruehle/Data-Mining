@@ -29,7 +29,7 @@ class STACKED(Enum):
 
 class ClusterRunner:
 
-    def __init__(self, mode: MODE, config: DictConfig, data: DataLoader, dim_reduce: bool = False,
+    def __init__(self, mode: MODE, config: DictConfig, data: DataLoader, dim_reduce: bool = True,
                  stacked: STACKED = STACKED.SINGLE) -> None:
 
         self.mode = mode
@@ -83,6 +83,9 @@ class ClusterRunner:
             runned_hypers = self.data.get_hyperparameter_for_dataset(dataset)
             print(f"Number of experiments sampled: {len(runned_hypers)}")
             labels, frames = self.data.load_data_for_metric_dataset(metric, dataset)
+            if None in frames:
+                print(f"Metric {metric} is not calculated for dataset {dataset}, skip!")
+                continue
             for hyper in runned_hypers:
                 to_process = list(zip(labels, frames, [hyper for _ in range(len(frames))]))
                 with mp.Pool(mp.cpu_count()) as pool:
@@ -93,7 +96,7 @@ class ClusterRunner:
                 if all((row.shape == rows[0].shape) and (row.shape[0] != 0) for row in rows):
                     to_cluster = np.array(rows)
                     print(f"Clustering for the {counter}-th time.")
-                    cluster.step(to_cluster, self.dim_reduce, counter % 50 == 0, metric)
+                    cluster.step(to_cluster, self.dim_reduce, False, metric)
                     counter += 1
             cluster.get_matrix.write_numeric_to_csv(metric)
             print(f"Time used for {dataset}: {time()-start_lok} sec")

@@ -107,6 +107,8 @@ class DataLoader:
             load file and filter nach param
     """
     def load_single_df(self, path:str):
+        if not os.path.exists(path):
+            return None
         return path.split("/")[-3], pd.merge(pd.read_csv(path), self.done_workload)
 
     def load_data_for_metric_dataset(self, metric:str, dataset:str):

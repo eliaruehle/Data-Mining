@@ -13,7 +13,7 @@ class KmeansCPU:
         self.config = config
         self.labels = labels
         self.pca = PCA(n_components=self.config["num_components"], svd_solver=self.config["svd_solver"])
-        self.kmeans = KMeans(n_clusters=self.config["num_clusters"], init="k-means++", n_init="auto", tol=1e-5, max_iter=100)
+        self.kmeans = KMeans(n_clusters=self.config["num_clusters"], init="k-means++", n_init="auto", tol=1e-4, max_iter=50)
         self.matrix = Matrix(labels, result_path)
 
     def step(self, data: np.ndarray, pca: bool, wb:bool, metric:str):
