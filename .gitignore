@@ -1,6 +1,7 @@
 .venv
 *.DS_Store
 .idea
+.vscode
 /src/__pycache__/**
 /src/clustering/__pycache__/**
 /src/datasets/__pycache__/

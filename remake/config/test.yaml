@@ -1,0 +1,85 @@
+strategies:
+# - ALIPY_BMDR
+- ALIPY_CORESET_GREEDY
+- ALIPY_DENSITY_WEIGHTED
+# - ALIPY_EXPECTED_ERROR_REDUCTION
+- ALIPY_GRAPH_DENSITY
+# - ALIPY_QBC
+- ALIPY_RANDOM
+# - ALIPY_SPAL
+# - ALIPY_UNCERTAINTY_ENTROPY
+- ALIPY_UNCERTAINTY_LC
+- ALIPY_UNCERTAINTY_MM
+- LIBACT_DWUS
+# - LIBACT_EER
+- LIBACT_QUIRE
+- LIBACT_UNCERTAINTY_ENT
+- LIBACT_UNCERTAINTY_LC
+- LIBACT_UNCERTAINTY_SM
+- OPTIMAL_GREEDY_10
+- OPTIMAL_GREEDY_20
+- PLAYGROUND_BANDIT
+- PLAYGROUND_GRAPH_DENSITY
+# - PLAYGROUND_HIERARCHICAL_CLUSTER
+- PLAYGROUND_INFORMATIVE_DIVERSE
+- PLAYGROUND_KCENTER_GREEDY
+- PLAYGROUND_MARGIN
+- PLAYGROUND_MIXTURE
+- PLAYGROUND_UNIFORM
+- SKACTIVEML_COST_EMBEDDING
+- SKACTIVEML_DAL
+- SKACTIVEML_DWUS
+# - SKACTIVEML_EXPECTED_AVERAGE_PRECISION
+# - SKACTIVEML_MC_EER_LOG_LOSS
+# - SKACTIVEML_MC_EER_MISCLASS_LOSS
+- SKACTIVEML_QBC
+- SKACTIVEML_QBC_VOTE_ENTROPY
+- SKACTIVEML_QUIRE
+- SKACTIVEML_US_ENTROPY
+- SKACTIVEML_US_LC
+- SKACTIVEML_US_MARGIN
+# - SKACTIVEML_VOI
+# - SKACTIVEML_VOI_LABELED
+# - SKACTIVEML_VOI_UNLABELED
+- SMALLTEXT_BREAKINGTIES
+- SMALLTEXT_CONTRASTIVEAL
+- SMALLTEXT_EMBEDDINGKMEANS
+- SMALLTEXT_GREEDYCORESET
+- SMALLTEXT_LEASTCONFIDENCE
+- SMALLTEXT_LIGHTWEIGHTCORESET
+- SMALLTEXT_PREDICTIONENTROPY
+- SMALLTEXT_RANDOM
+datasets:
+- gaussian_unbalanced
+- thyroid
+- statlog_australian
+- statlog_vehicle
+- statlog_germany
+- wine_origin
+- parkinsons
+- sonar
+- splice_junction
+- tic_tac_toe
+- seeds
+- Iris
+- wdbc
+- diabetes
+- gaussian_balanced
+- xor_2x2
+- ex8a
+- xor_4x4
+- appendicitis
+- ionosphere
+- statlog_heart
+- glass
+- r15
+- xor_2x2_rotated
+- ex8b
+- breast_cancer_wisconsin_original
+metrices:
+- biggest_drop_per_macro_recall_time_lag.csv.xz
+- avg_dist_labeled.csv.xz
+- biggest_drop_per_weighted_f1-score_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_accuracy_time_lag.csv.xz
+hyperparameter: 05_done_workload.csv
+data_dir : ../kp_test_int/strategies/
