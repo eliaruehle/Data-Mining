@@ -1,10 +1,9 @@
-import torch
 from enum import Enum
 from omegaconf import OmegaConf, DictConfig
-from remake.clustering.gpu.kmeans_torch import KMeansTorch
-from remake.clustering.gpu.tensor_matrix import TensorMatrix
-from remake.data.loader import DataLoader
-from remake.clustering.cpu.kmeans_cpu import KmeansCPU
+from .gpu.kmeans_torch import KMeansTorch
+from .gpu.tensor_matrix import TensorMatrix
+from data.loader import DataLoader
+from .cpu.kmeans_cpu import KmeansCPU
 import multiprocessing as mp
 import numpy as np
 from time import time
@@ -36,9 +35,9 @@ class ClusterRunner:
         self.mode = mode
         if mode == MODE.CPU:
             # should not affect anything, just for safety
-            self.device = torch.device("cpu")
-        else:
-            self.device = self._check_available_device()
+            self.device = "cpu"
+        #else:
+        #    self.device = self._check_available_device()
         # the config file for the clustering
         self.config = config
         self.gpu_config = self.config["clustering"]["gpu"]
@@ -50,10 +49,8 @@ class ClusterRunner:
         # specifies whether we will use a dimension reduction
         self.dim_reduce = dim_reduce
 
+    """
     def _check_available_device(self):
-        """
-        Function to check if a GPU is available and if yes, which one.
-        """
         if torch.cuda.is_available():
             return torch.device("cuda")
         elif torch.backends.mps.is_available():
@@ -61,6 +58,7 @@ class ClusterRunner:
         else:
             print("No GPU available, running on CPU.")
             return torch.device("cpu")
+    """
 
     def run(self, index:int):
         """
@@ -69,7 +67,7 @@ class ClusterRunner:
         if self.mode == MODE.CPU:
             self._run_cpu(index)
         elif self.mode == MODE.GPU:
-            self._run_gpu()
+            self._run_gpu2()
         else:
             raise ValueError("The mode is not specified correctly.")
 
@@ -101,6 +99,8 @@ class ClusterRunner:
         cluster.get_matrix.write_numeric_normalized_to_csv(metric)
         print(f"Terminated normally for every dataset and metric {metric} in {(time()-start_glob)/3600} hours")
 
+    def _run_gpu2(self):
+        return
 
     def _run_gpu(self):
         # create a kmeans object for pytorch_clustering

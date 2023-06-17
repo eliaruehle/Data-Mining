@@ -5,7 +5,7 @@ from sklearn.cluster import KMeans
 from typing import List
 import os
 import traceback
-from remake.clustering.cpu.matrix import Matrix
+from .matrix import Matrix
 
 class KmeansCPU:
 
