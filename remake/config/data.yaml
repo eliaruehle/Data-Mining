@@ -173,7 +173,7 @@ metrices:
 workload: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/05_done_workload.csv"
 data_dir: "/scratch/ws/0/vime121c-db-project/Extrapolation"
 hyperparameter: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/assets/dataset_hyper.yaml"
-save_dir: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/results/cpu"
+save_dir: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/results"
 clustering:
   cpu:
     num_components: 4
