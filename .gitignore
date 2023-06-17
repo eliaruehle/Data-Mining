@@ -15,4 +15,3 @@ log
 __pycache__/**
 **/__pycache__/
 .env
-/src/seed_analysis/results/**
