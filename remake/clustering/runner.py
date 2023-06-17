@@ -83,8 +83,8 @@ class ClusterRunner:
             runned_hypers = self.data.get_hyperparameter_for_dataset(dataset)
             print(f"Number of experiments sampled: {len(runned_hypers)}")
             labels, frames = self.data.load_data_for_metric_dataset(metric, dataset)
-            if None in frames:
-                print("Metric file not in Dataset!")
+            if labels is None and frames is None:
+                print("Nicht aufgenommen")
                 continue
             for hyper in runned_hypers:
                 to_process = list(zip(labels, frames, [hyper for _ in range(len(frames))]))

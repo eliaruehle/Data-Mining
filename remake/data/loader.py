@@ -101,14 +101,13 @@ class DataLoader:
         return self.config["datasets"]
 
     def load_single_df(self, path:str):
-        if not os.path.exists(path):
-            print("Path for file load does not exist.")
-            return path.split("/")[-3], None
         return path.split("/")[-3], pd.merge(pd.read_csv(path), self.done_workload)
 
     def load_data_for_metric_dataset(self, metric:str, dataset:str):
         # read in all the paths for the datasets
         paths = [os.path.join(os.path.join(self.data_dir, strategy), f"{dataset}/{metric}") for strategy in self.get_strategies()]
+        if not all([os.path.exists(path) for path in paths]):
+            return None, None
         with mp.Pool(mp.cpu_count()) as pool:
             results = pool.map(self.load_single_df, paths)
         pool.close()
