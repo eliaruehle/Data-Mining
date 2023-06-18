@@ -130,6 +130,45 @@ class Matrix:
 
         self.values.to_csv(os.path.join(self.result_path, f"numeric_cluster_results_{metric}.csv"), index=True, mode=mode)
 
+    def write_final_numeric_csv(self):
+        """
+        Function to write the final numeric results to csv.
+
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        None
+        """
+        if not os.path.exists(os.path.join(self.result_path, "final_cluster.csv")):
+            mode = "x"
+        else:
+            mode = "w"
+
+        self.values.to_csv(os.path.join(self.result_path, "final_cluster.csv"), index=True, mode=mode)
+
+    def write_final_numeric_normalized_csv(self):
+        """
+        Function to write the final normalized numeric results to csv.
+
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        None
+        """
+        if not os.path.exists(os.path.join(self.result_path, "final_cluster_normalized.csv")):
+            mode = "x"
+        else:
+            mode = "w"
+
+        normalized_matrix = self.normalize()
+        normalized_matrix.to_csv(os.path.join(self.result_path, "final_cluster_normalized.csv"), index=True, mode=mode)
+
     def write_numeric_normalized_to_csv(self, metric: str):
         """
         Function to write normalized numeric results to csv.
@@ -186,3 +225,20 @@ class Matrix:
         """
         # create an 2-dimensional array
         return self.values.values.tolist()
+
+    def set_values(self, df: pd.DataFrame) -> None:
+        """
+        Function to set the values to a new dataframe.
+
+        Parameters:
+        -----------
+        df : pd.DataFrame
+            The new dataframe.
+
+        Returns:
+        --------
+        None
+        """
+        if df.isnull().values.any():
+            print("Warning: There are null values in the frame!")
+        self.values = df
