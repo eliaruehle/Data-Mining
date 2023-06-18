@@ -5,11 +5,24 @@ import os
 import multiprocessing as mp
 
 
-def process_file(path:str) -> Set:
+def process_file(path: str) -> Set:
+    """
+    Function to process one csv file containing hyperparameter tuples.
+
+    Parameters:
+    -----------
+    path: str
+        The path to the scv file.
+
+    Returns:
+    --------
+    tuples : Set
+        A set of hyperparameter tuples.
+    """
     if os.path.exists(path):
         df = pd.read_csv(path)
         tuples = set(df.apply(tuple, axis=1))
-        print("number entries: ", len(tuples), path)
+        print("Number entries: ", len(tuples), path)
         if len(tuples) < 25_000:
             return set()
         return tuples
