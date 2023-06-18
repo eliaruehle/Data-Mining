@@ -280,6 +280,7 @@ class Seed_Analysis:
             "less_equal_and_equal",
             "equal_and_less",
             "equal_and_less_equal",
+            "less_and_greater_equal",
         ]
 
         filtered_counts = {"pairs": {}}
@@ -290,27 +291,48 @@ class Seed_Analysis:
                 # Convert the string to a tuple of floats
                 pair = literal_eval(row["value"])
 
-                if operator == "less":
-                    condition = pair[0] < threshold_first and pair[1] < threshold_last
-                elif operator == "less_equal":
-                    condition = pair[0] <= threshold_first and pair[1] <= threshold_last
-                elif operator == "greater":
-                    condition = pair[0] > threshold_first and pair[1] > threshold_last
-                elif operator == "greater_equal":
-                    condition = pair[0] >= threshold_first and pair[1] >= threshold_last
-                elif operator == "less_and_equal":
-                    condition = pair[0] < threshold_first and pair[1] == threshold_last
-                elif operator == "less_equal_and_equal":
-                    condition = pair[0] <= threshold_first and pair[1] == threshold_last
-                elif operator == "equal_and_less":
-                    condition = pair[0] == threshold_first and pair[1] < threshold_last
-                elif operator == "equal_and_less_equal":
-                    condition = pair[0] == threshold_first and pair[1] <= threshold_last
+                match operator:
+                    case "less":
+                        condition = (
+                            pair[0] < threshold_first and pair[1] < threshold_last
+                        )
+                    case "less_equal":
+                        condition = (
+                            pair[0] <= threshold_first and pair[1] <= threshold_last
+                        )
+                    case "greater":
+                        condition = (
+                            pair[0] > threshold_first and pair[1] > threshold_last
+                        )
+                    case "greater_equal":
+                        condition = (
+                            pair[0] >= threshold_first and pair[1] >= threshold_last
+                        )
+                    case "less_and_equal":
+                        condition = (
+                            pair[0] < threshold_first and pair[1] == threshold_last
+                        )
+                    case "less_equal_and_equal":
+                        condition = (
+                            pair[0] <= threshold_first and pair[1] == threshold_last
+                        )
+                    case "equal_and_less":
+                        condition = (
+                            pair[0] == threshold_first and pair[1] < threshold_last
+                        )
+                    case "equal_and_less_equal":
+                        condition = (
+                            pair[0] == threshold_first and pair[1] <= threshold_last
+                        )
+                    case "less_and_greater_equal":
+                        condition = (
+                            pair[0] < threshold_first and pair[1] >= threshold_last
+                        )
 
-                else:
-                    raise ValueError(
-                        f"Unknown operator value: '{operator}'. Expected: '{allowed_operators}'"
-                    )
+                    case _:
+                        raise ValueError(
+                            f"Unknown operator value: '{operator}'. Expected: '{allowed_operators}'"
+                        )
 
                 if condition:
                     filtered_rows.append(row)
@@ -385,15 +407,15 @@ class Seed_Analysis:
 
     def plot_histograms_filtered_pairs(self, filtered_counts: Dict[str, pd.DataFrame]):
         """
-        Plot histograms of the filtered counts.
+        Plot histograms of the filtered counts for the second value in the pair.
 
         Args:
             filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
         """
-
         for metric, df in filtered_counts["pairs"].items():
             # Convert the string representation of tuple to actual tuple
             df["value"] = df["value"].apply(lambda x: literal_eval(x))
+
             # Split the tuples into two separate columns
             df[["first_value", "second_value"]] = pd.DataFrame(
                 df["value"].tolist(), index=df.index
@@ -401,9 +423,10 @@ class Seed_Analysis:
 
             plt.figure(figsize=(20, 6))
 
+            # Update this to plot histogram of the "second_value"
             plot = sns.histplot(
                 data=df,
-                x="first_value",
+                x="second_value",  # change here to plot second_value
                 weights="count",
                 bins=30,
                 kde=False,
@@ -418,7 +441,7 @@ class Seed_Analysis:
                 plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
 
             plt.title(f"Histogram for filtered pairs: {metric}")
-            plt.xlabel("Starting Value")
+            plt.xlabel("Final Value")
             plt.ylabel("Frequency")
             plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
             plt.tight_layout()
@@ -453,6 +476,7 @@ def run(
         "less_equal_and_equal",
         "equal_and_less",
         "equal_and_less_equal",
+        "less_and_greater_equal",
     ]
 
     if operator not in allowed_operators:
@@ -508,8 +532,8 @@ def run(
 if __name__ == "__main__":
     run(
         threshold_first=0.5,
-        threshold_last=0.7,
-        operator="less",
+        threshold_last=0.98,
+        operator="less_and_greater_equal",
         save_filtered=True,
         plot=True,
         plot_filtered=True,
