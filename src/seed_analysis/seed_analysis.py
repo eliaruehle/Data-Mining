@@ -444,7 +444,17 @@ def run(
             f"The threshold of 'threshhold_last' can only be between [0, 1], provided: '{threshold_last}'"
         )
 
-    allowed_operators = ["less", "less_equal", "greater", "greater_equal"]
+    allowed_operators = [
+        "less",
+        "less_equal",
+        "greater",
+        "greater_equal",
+        "less_and_equal",
+        "less_equal_and_equal",
+        "equal_and_less",
+        "equal_and_less_equal",
+    ]
+
     if operator not in allowed_operators:
         raise ValueError(
             f"The provided operator '{operator}' is not recognised, available operators are: '{allowed_operators}' "
