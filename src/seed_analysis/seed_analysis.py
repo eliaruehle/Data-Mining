@@ -271,6 +271,17 @@ class Seed_Analysis:
         Returns:
             Dict[str, DataFrame]: Dictionary containing filtered DataFrames.
         """
+        allowed_operators = [
+            "less",
+            "less_equal",
+            "greater",
+            "greater_equal",
+            "less_and_equal",
+            "less_equal_and_equal",
+            "equal_and_less",
+            "equal_and_less_equal",
+        ]
+
         filtered_counts = {"pairs": {}}
         for metric, df in column_counts["pairs"].items():
             filtered_rows = []
@@ -287,10 +298,18 @@ class Seed_Analysis:
                     condition = pair[0] > threshold_first and pair[1] > threshold_last
                 elif operator == "greater_equal":
                     condition = pair[0] >= threshold_first and pair[1] >= threshold_last
+                elif operator == "less_and_equal":
+                    condition = pair[0] < threshold_first and pair[1] == threshold_last
+                elif operator == "less_equal_and_equal":
+                    condition = pair[0] <= threshold_first and pair[1] == threshold_last
+                elif operator == "equal_and_less":
+                    condition = pair[0] == threshold_first and pair[1] < threshold_last
+                elif operator == "equal_and_less_equal":
+                    condition = pair[0] == threshold_first and pair[1] <= threshold_last
 
                 else:
                     raise ValueError(
-                        f"Unknown operator_last value: {operator}. Expected 'less' or 'less_equal'"
+                        f"Unknown operator value: '{operator}'. Expected: '{allowed_operators}'"
                     )
 
                 if condition:
