@@ -145,15 +145,28 @@ class JsonAll:
     def score_integral(time_series: np.ndarray):
         return np.sum(time_series)
 
-    def gen_performance_json(self):
+    @staticmethod
+    def get_dataset_names_from_json(directory):
+        dataset_names = []
+        for filename in os.listdir(directory):
+            if filename.endswith(".json"):
+                dataset_name = filename.rsplit("_", 1)[0]
+                dataset_names.append(dataset_name)
+        return dataset_names
+
+    def gen_performance_json(self, directory: str):
         result_dict = {}
-        for dataset in self.get_all_datasets():
+        for dataset in json_all.get_dataset_names_from_json(directory=directory):
             for batch_size in [1, 5, 10]:
                 if batch_size not in result_dict:
                     result_dict[batch_size] = {}
-                file_name = f"{self.destination}/dataset_batch_size/{dataset}_{batch_size}.json"
+                file_name = f"{directory}/{dataset}_{batch_size}.json"
                 with open(file_name, 'r') as file:
-                    data: Dict[str, List[Tuple[str, int]]] = json.load(file)
+                    try:
+                        data: Dict[str, List[Tuple[str, int]]] = json.load(file)
+                    except json.decoder.JSONDecodeError:
+                        data = {}
+                        print(file_name)
                 for strategy in data.keys():
                     if dataset not in result_dict[batch_size]:
                         result_dict[batch_size][dataset] = {}
@@ -173,17 +186,21 @@ if hpc:
 
     # Directory where the JSON files are stored to
     destination_directory = "/home/vime121c/Workspaces/scratch/vime121c-db-project/JSON"
+
+    json_all = JsonAll(loader_directory=source_directory, destination=destination_directory)
+
+    if len(sys.argv) > 1:
+        index = int(sys.argv[1])
+        print(f"Datasets: {json_all.get_all_datasets()}")
+        print(f"This dataset: {json_all.get_all_datasets()[index]}")
+        json_all.write_dataset_batch_size_for(json_all.get_all_datasets()[index], score=json_all.score_integral)
+
 else:
     # Directory where all the data provided by Julius lies
-    source_directory = "/home/ature/Programming/Python/DB-Mining-Data/Small_dataset"
+    source_directory = "/home/ature/University/6th-Semester/Data-Mining/kp_test/strategies"
 
     # Directory where the JSON files are stored to
-    destination_directory = "/home/ature/Programming/Python/DB-Mining-Data/JSON"
+    destination_directory = "/home/ature/University/6th-Semester/Data-Mining/src/clustering/generated/JSON"
 
-json_all = JsonAll(loader_directory=source_directory, destination=destination_directory)
-
-if len(sys.argv) > 1:
-    index = int(sys.argv[1])
-    print(f"Datasets: {json_all.get_all_datasets()}")
-    print(f"This dataset: {json_all.get_all_datasets()[index]}")
-    json_all.write_dataset_batch_size_for(json_all.get_all_datasets()[index], score=json_all.score_integral)
+    json_all = JsonAll(loader_directory=source_directory, destination=destination_directory)
+    json_all.gen_performance_json(directory="/home/ature/University/6th-Semester/Data-Mining/src/clustering/generated/JSON/dataset_batch_size")
