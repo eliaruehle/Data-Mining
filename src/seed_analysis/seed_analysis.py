@@ -407,11 +407,13 @@ class Seed_Analysis:
 
     def plot_histograms_filtered_pairs(self, filtered_counts: Dict[str, pd.DataFrame]):
         """
-        Plot histograms of the filtered counts for the second value in the pair.
+        Plot histograms of the filtered counts for the second value in the pair
+        and a distribution plot for the first values in a different window.
 
         Args:
             filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
         """
+
         for metric, df in filtered_counts["pairs"].items():
             # Convert the string representation of tuple to actual tuple
             df["value"] = df["value"].apply(lambda x: literal_eval(x))
@@ -421,16 +423,18 @@ class Seed_Analysis:
                 df["value"].tolist(), index=df.index
             )
 
-            plt.figure(figsize=(20, 6))
+            # Create figure with two subplots
+            fig, axes = plt.subplots(nrows=2, figsize=(20, 12))
 
-            # Update this to plot histogram of the "second_value"
+            # Plot histogram of the "second_value" in the first subplot
             plot = sns.histplot(
                 data=df,
-                x="second_value",  # change here to plot second_value
+                x="second_value",
                 weights="count",
                 bins=30,
                 kde=False,
                 label=metric,
+                ax=axes[0],  # assign this plot to the first subplot
             )
 
             total = float(df["count"].sum())
@@ -440,10 +444,27 @@ class Seed_Analysis:
                 y = p.get_y() + p.get_height()
                 plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
 
-            plt.title(f"Histogram for filtered pairs: {metric}")
-            plt.xlabel("Final Value")
-            plt.ylabel("Frequency")
-            plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
+            # Labels and title for the first plot
+            plot.set_title(f"Histogram for filtered pairs: {metric}")
+            plot.set_xlabel("Second Value")
+            plot.set_ylabel("Frequency")
+            plot.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
+
+            # Plot distribution of "first_value" in the second subplot
+            sns.kdeplot(
+                data=df,
+                x="first_value",
+                label=metric,
+                ax=axes[1],  # assign this plot to the second subplot
+            )
+
+            # Labels and title for the second plot
+            axes[1].set_title(f"Distribution for first values: {metric}")
+            axes[1].set_xlabel("First Value")
+            axes[1].set_ylabel("Density")
+            axes[1].legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
+
+            # Show the plots
             plt.tight_layout()
             plt.show()
 
