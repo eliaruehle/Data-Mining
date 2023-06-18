@@ -407,8 +407,7 @@ class Seed_Analysis:
 
     def plot_histograms_filtered_pairs(self, filtered_counts: Dict[str, pd.DataFrame]):
         """
-        Plot histograms of the filtered counts for the second value in the pair
-        and a distribution plot for the first values in a different window.
+        Plot histograms of the filtered counts for the first and second value in the pair in separate subplots.
 
         Args:
             filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
@@ -445,24 +444,32 @@ class Seed_Analysis:
                 plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
 
             # Labels and title for the first plot
-            plot.set_title(f"Histogram for filtered pairs: {metric}")
+            plot.set_title(f"Histogram for second values: {metric}")
             plot.set_xlabel("Second Value")
             plot.set_ylabel("Frequency")
-            plot.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
 
-            # Plot distribution of "first_value" in the second subplot
-            sns.kdeplot(
+            # Plot histogram of "first_value" in the second subplot
+            plot = sns.histplot(
                 data=df,
                 x="first_value",
+                weights="count",
+                bins=30,
+                kde=False,
                 label=metric,
                 ax=axes[1],  # assign this plot to the second subplot
             )
 
+            total = float(df["count"].sum())
+            for p in plot.patches:
+                percentage = "{:.1f}%".format(100 * p.get_height() / total)
+                x = p.get_x() + p.get_width() / 2
+                y = p.get_y() + p.get_height()
+                plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
+
             # Labels and title for the second plot
-            axes[1].set_title(f"Distribution for first values: {metric}")
-            axes[1].set_xlabel("First Value")
-            axes[1].set_ylabel("Density")
-            axes[1].legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
+            plot.set_title(f"Histogram for first values: {metric}")
+            plot.set_xlabel("First Value")
+            plot.set_ylabel("Frequency")
 
             # Show the plots
             plt.tight_layout()
