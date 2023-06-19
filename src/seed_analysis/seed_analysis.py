@@ -421,6 +421,20 @@ class Seed_Analysis:
             output_path = os.path.join(output_dir, output_filename)
             df.to_csv(output_path, index=False)
 
+    def save_top_k_pairs_to_csv(
+        self, filtered_counts: Dict[str, pd.DataFrame], output_dir: str
+    ) -> None:
+        """
+        Save the filtered pairs to csv files.
+
+        Args:
+            filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
+            output_dir (str): The directory where to save the csv files.
+        """
+        for metric, df in filtered_counts["pairs"].items():
+            output_path = os.path.join(output_dir, f"top_k_{metric}.csv")
+            df.to_csv(output_path, index=False)
+
     def plot_histograms(self, column_counts: Dict[str, pd.DataFrame], column_name: str):
         """
         Plot histograms of the column counts.
