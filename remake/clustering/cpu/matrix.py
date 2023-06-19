@@ -73,7 +73,7 @@ class Matrix:
         for index, row in self.values.iterrows():
             sorted_indices = row.sort_values(ascending=False).index.to_list()
             sorted_indices.remove(index)
-            similarities[index] = sorted_indices.cops()
+            similarities[index] = sorted_indices.copy()
         return dict(similarities)
 
     def get_results_as_json(self) -> None:
@@ -239,6 +239,4 @@ class Matrix:
         --------
         None
         """
-        if df.isnull().values.any():
-            print("Warning: There are null values in the frame!")
         self.values = df
