@@ -3,7 +3,7 @@ import fnmatch
 import os
 from ast import literal_eval
 from collections import Counter
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -271,6 +271,18 @@ class Seed_Analysis:
         Returns:
             Dict[str, DataFrame]: Dictionary containing filtered DataFrames.
         """
+        allowed_operators = [
+            "less",
+            "less_equal",
+            "greater",
+            "greater_equal",
+            "less_and_equal",
+            "less_equal_and_equal",
+            "equal_and_less",
+            "equal_and_less_equal",
+            "less_and_greater_equal",
+        ]
+
         filtered_counts = {"pairs": {}}
         for metric, df in column_counts["pairs"].items():
             filtered_rows = []
@@ -279,19 +291,48 @@ class Seed_Analysis:
                 # Convert the string to a tuple of floats
                 pair = literal_eval(row["value"])
 
-                if operator == "less":
-                    condition = pair[0] < threshold_first and pair[1] < threshold_last
-                elif operator == "less_equal":
-                    condition = pair[0] <= threshold_first and pair[1] <= threshold_last
-                elif operator == "greater":
-                    condition = pair[0] > threshold_first and pair[1] > threshold_last
-                elif operator == "greater_equal":
-                    condition = pair[0] >= threshold_first and pair[1] >= threshold_last
+                match operator:
+                    case "less":
+                        condition = (
+                            pair[0] < threshold_first and pair[1] < threshold_last
+                        )
+                    case "less_equal":
+                        condition = (
+                            pair[0] <= threshold_first and pair[1] <= threshold_last
+                        )
+                    case "greater":
+                        condition = (
+                            pair[0] > threshold_first and pair[1] > threshold_last
+                        )
+                    case "greater_equal":
+                        condition = (
+                            pair[0] >= threshold_first and pair[1] >= threshold_last
+                        )
+                    case "less_and_equal":
+                        condition = (
+                            pair[0] < threshold_first and pair[1] == threshold_last
+                        )
+                    case "less_equal_and_equal":
+                        condition = (
+                            pair[0] <= threshold_first and pair[1] == threshold_last
+                        )
+                    case "equal_and_less":
+                        condition = (
+                            pair[0] == threshold_first and pair[1] < threshold_last
+                        )
+                    case "equal_and_less_equal":
+                        condition = (
+                            pair[0] == threshold_first and pair[1] <= threshold_last
+                        )
+                    case "less_and_greater_equal":
+                        condition = (
+                            pair[0] < threshold_first and pair[1] >= threshold_last
+                        )
 
-                else:
-                    raise ValueError(
-                        f"Unknown operator_last value: {operator}. Expected 'less' or 'less_equal'"
-                    )
+                    case _:
+                        raise ValueError(
+                            f"Unknown operator value: '{operator}'. Expected: '{allowed_operators}'"
+                        )
 
                 if condition:
                     filtered_rows.append(row)
@@ -366,7 +407,7 @@ class Seed_Analysis:
 
     def plot_histograms_filtered_pairs(self, filtered_counts: Dict[str, pd.DataFrame]):
         """
-        Plot histograms of the filtered counts.
+        Plot histograms of the filtered counts for the first and second value in the pair in separate subplots.
 
         Args:
             filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
@@ -375,20 +416,24 @@ class Seed_Analysis:
         for metric, df in filtered_counts["pairs"].items():
             # Convert the string representation of tuple to actual tuple
             df["value"] = df["value"].apply(lambda x: literal_eval(x))
+
             # Split the tuples into two separate columns
             df[["first_value", "second_value"]] = pd.DataFrame(
                 df["value"].tolist(), index=df.index
             )
 
-            plt.figure(figsize=(20, 6))
+            # Create figure with two subplots
+            fig, axes = plt.subplots(nrows=2, figsize=(20, 12))
 
+            # Plot histogram of the "second_value" in the first subplot
             plot = sns.histplot(
                 data=df,
-                x="first_value",
+                x="second_value",
                 weights="count",
                 bins=30,
                 kde=False,
                 label=metric,
+                ax=axes[0],  # assign this plot to the first subplot
             )
 
             total = float(df["count"].sum())
@@ -398,10 +443,35 @@ class Seed_Analysis:
                 y = p.get_y() + p.get_height()
                 plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
 
-            plt.title(f"Histogram for filtered pairs: {metric}")
-            plt.xlabel("Starting Value")
-            plt.ylabel("Frequency")
-            plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
+            # Labels and title for the first plot
+            plot.set_title(f"Histogram for second values: {metric}")
+            plot.set_xlabel("Second Value")
+            plot.set_ylabel("Frequency")
+
+            # Plot histogram of "first_value" in the second subplot
+            plot = sns.histplot(
+                data=df,
+                x="first_value",
+                weights="count",
+                bins=30,
+                kde=False,
+                label=metric,
+                ax=axes[1],  # assign this plot to the second subplot
+            )
+
+            total = float(df["count"].sum())
+            for p in plot.patches:
+                percentage = "{:.1f}%".format(100 * p.get_height() / total)
+                x = p.get_x() + p.get_width() / 2
+                y = p.get_y() + p.get_height()
+                plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
+
+            # Labels and title for the second plot
+            plot.set_title(f"Histogram for first values: {metric}")
+            plot.set_xlabel("First Value")
+            plot.set_ylabel("Frequency")
+
+            # Show the plots
             plt.tight_layout()
             plt.show()
 
@@ -425,7 +495,18 @@ def run(
             f"The threshold of 'threshhold_last' can only be between [0, 1], provided: '{threshold_last}'"
         )
 
-    allowed_operators = ["less", "less_equal", "greater", "greater_equal"]
+    allowed_operators = [
+        "less",
+        "less_equal",
+        "greater",
+        "greater_equal",
+        "less_and_equal",
+        "less_equal_and_equal",
+        "equal_and_less",
+        "equal_and_less_equal",
+        "less_and_greater_equal",
+    ]
+
     if operator not in allowed_operators:
         raise ValueError(
             f"The provided operator '{operator}' is not recognised, available operators are: '{allowed_operators}' "
@@ -479,8 +560,8 @@ def run(
 if __name__ == "__main__":
     run(
         threshold_first=0.5,
-        threshold_last=0.7,
-        operator="less",
+        threshold_last=0.98,
+        operator="less_and_greater_equal",
         save_filtered=True,
         plot=True,
         plot_filtered=True,

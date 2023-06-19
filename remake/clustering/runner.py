@@ -31,6 +31,26 @@ class ClusterRunner:
 
     def __init__(self, mode: MODE, config: DictConfig, data: DataLoader, dim_reduce: bool = True,
                  stacked: STACKED = STACKED.SINGLE) -> None:
+        """
+        The init function of the runner.
+
+        Parameters:
+        -----------
+            mode: Mode
+                Specifies whether we run the clustering on CPU or GPU.
+            config: DictConfig
+                The config file as a dictionary.
+            data: DataLoader
+                The DataLoader for the project.
+            dim_reduce: Bool
+                Specifies whether we need a reduction of dimensions.
+            stacked:
+                Specifies if the data should be stacked. Only useful for GPU calculations.
+
+        Returns:
+        --------
+        None
+        """
 
         self.mode = mode
         if mode == MODE.CPU:
@@ -60,22 +80,47 @@ class ClusterRunner:
             return torch.device("cpu")
     """
 
-    def run(self, index:int):
+    def run(self, index:int) -> None:
         """
         Function to call if you want to run the clustering.
+
+        Parameters:
+        -----------
+        index : int
+            The index of the metric file we want to calculate on.
+
+        Returns:
+        --------
+        None
         """
         if self.mode == MODE.CPU:
             self._run_cpu(index)
         elif self.mode == MODE.GPU:
-            self._run_gpu2()
+            self._run_gpu()
         else:
             raise ValueError("The mode is not specified correctly.")
 
-    def _run_cpu(self, index:int):
+    def _run_cpu(self, index:int) -> None:
+        """
+        Function to run the clustering on the CPU.
+
+        Parameters:
+        -----------
+        index : int
+            The index for the metric file we want to run the calculations on.
+
+        Returns:
+        --------
+        None
+        """
+        # hide potential convergence warning to avoid output log overflow
         warnings.filterwarnings("ignore", category=ConvergenceWarning)
+        # create the clustering object
         cluster = KmeansCPU(self.cpu_config, self.data.get_strategies(), self.config["save_dir"])
+        # define a counter to track the number of calculated clusters
         counter = 1
         metric = self.data.get_metrices()[index]
+        # track the start time for performance issues
         start_glob = time()
         for dataset in self.data.get_datasets():
             start_lok = time()
@@ -84,7 +129,7 @@ class ClusterRunner:
             print(f"Number of experiments sampled: {len(runned_hypers)}")
             labels, frames = self.data.load_data_for_metric_dataset(metric, dataset)
             if labels is None and frames is None:
-                print("Nicht aufgenommen")
+                print(f"Metric {metric} wasn't sampled for every strategy on dataset {dataset}!")
                 continue
             for hyper in runned_hypers:
                 to_process = list(zip(labels, frames, [hyper for _ in range(len(frames))]))
@@ -103,31 +148,16 @@ class ClusterRunner:
         cluster.get_matrix.write_numeric_normalized_to_csv(metric)
         print(f"Terminated normally for every dataset and metric {metric} in {(time()-start_glob)/3600} hours")
 
-    def _run_gpu2(self):
+    def _run_gpu(self) -> None:
+        """
+        Function to run clustering on the GPU.
+
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        None
+        """
         return
-
-    def _run_gpu(self):
-        # create a kmeans object for pytorch_clustering
-        kmeans = KMeansTorch(self.gpu_config["num_clusters"], self.gpu_config["error"], device=self.device)
-        matrix = TensorMatrix(self.config["save_dir"], len(self.data.get_strategies()), self.device)
-
-        if self.stacked == STACKED.SINGLE:
-
-            for metric in self.data.get_metrices():
-                for dataset in self.data.get_datasets():
-                    cluster_data = self.data.retrieve_tensor(metric, dataset)
-                    if cluster_data is None:
-                        print(f"Shape Error, skip clustering for metric {metric} on dataset: {dataset}")
-                        continue
-                    else:
-                        cluster_data = cluster_data[1]
-                    if self.dim_reduce:
-                        try:
-                            cluster_data = self.reduce_gpu_data(cluster_data)
-                        except AssertionError:
-                            print(f"Shape Error, skip clustering for Dataset: {dataset}")
-                            continue
-                    _, labels = kmeans.fit(cluster_data)
-                    print("labels", labels)
-                    matrix.update(labels)
-            matrix.write_back()

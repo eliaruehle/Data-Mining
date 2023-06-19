@@ -11,10 +11,24 @@ import multiprocessing as mp
 
 
 to_discard: List[str] = list()
+# contains all the parameters which are calculated on all experiments
 all_hyper: pd.DataFrame = pd.read_csv("/scratch/ws/0/vime121c-db-project/Extrapolation/05_done_workload.csv")
 
 
 def scrape_all_files(root: str) -> List[str]:
+    """
+    Function to scrape all files starting from a root directory.
+
+    Parameters:
+    -----------
+    root : str
+        The root directory.
+
+    Returns:
+    --------
+    all_files : List[str]
+        The list of paths to all files.
+    """
     if not os.path.exists(root):
         raise ValueError("File directory does not exist")
     files: List[str] = list()
@@ -25,7 +39,21 @@ def scrape_all_files(root: str) -> List[str]:
     return files
 
 
-def get_hyperparameters_from_single_file(path: str) -> Tuple[str, Set[Tuple[int, int, int, int]]]:
+def get_hyperparameters_from_single_file(path: str) -> Tuple[str, Set[Tuple[int, int, int, int, int, int, int]]]:
+    """
+    Function to get all hyperparameters from a single file.
+    Parameters:
+    -----------
+    path : str
+        The path of the file.
+
+    Returns:
+    --------
+    path, hyperparameters : Tuple[str, Set[Tuple[int, int, int, int, int, int, int]]]
+        A tuple containing the path and the set of all hyperparameters.
+
+
+    """
     df = pd.merge(pd.read_csv(path), all_hyper, on="EXP_UNIQUE_ID")
     df = df[
         [
@@ -45,7 +73,19 @@ def get_hyperparameters_from_single_file(path: str) -> Tuple[str, Set[Tuple[int,
     return path, result
 
 
-def main(index: int):
+def main(index: int) -> None:
+    """
+    Function to retrieve the hyperparameters per strategy.
+
+    Parameters:
+    -----------
+    index : int
+        The index which specifies the AL strategy we run the sampling on.
+
+    Returns:
+    --------
+    None
+    """
     root: str = "/scratch/ws/0/vime121c-db-project/Extrapolation"
     #root: str = "../../kp_test_int/strategies"
     strategy = sorted([entry.name for entry in os.scandir(root) if entry.is_dir()])[index]
