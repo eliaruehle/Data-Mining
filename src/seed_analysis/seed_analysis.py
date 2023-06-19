@@ -377,7 +377,7 @@ class Seed_Analysis:
             df = df[df["second_value"] >= threshold]
 
             # Sort DataFrame by the second value in descending order
-            df = df.sort_values(by="second_value", ascending=False)
+            df = df.sort_values(by=["second_value", "count"], ascending=False)
 
             # Initialize cumulative sum
             cumulative_sum = 0
