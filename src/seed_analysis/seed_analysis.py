@@ -345,6 +345,65 @@ class Seed_Analysis:
 
         return filtered_counts
 
+    def filter_top_k_pairs(
+        self,
+        column_counts: Dict[str, pd.DataFrame],
+        top_k: int,
+        threshold: float,
+    ) -> Dict[str, pd.DataFrame]:
+        """
+        Filters the pairs based on the top_k results and a minimum threshold for the second value in a pair.
+
+        Args:
+            column_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with pair counts.
+            top_k (int): Minimum cumulative sum of counts to reach.
+            threshold (float): Minimum value for the second value in a pair.
+
+        Returns:
+            Dict[str, DataFrame]: Dictionary containing filtered DataFrames.
+        """
+
+        filtered_counts = {"pairs": {}}
+        for metric, df in column_counts["pairs"].items():
+            # Convert the string representation of tuple to actual tuple
+            df["value"] = df["value"].apply(lambda x: literal_eval(x))
+
+            # Split the tuples into two separate columns
+            df[["first_value", "second_value"]] = pd.DataFrame(
+                df["value"].tolist(), index=df.index
+            )
+
+            # Only keep rows where the second value of the tuple is greater than or equal to the threshold
+            df = df[df["second_value"] >= threshold]
+
+            # Sort DataFrame by the second value in descending order
+            df = df.sort_values(by=["second_value", "count"], ascending=False)
+
+            # Initialize cumulative sum
+            cumulative_sum = 0
+            filtered_rows = []
+
+            # Iterate over the DataFrame rows
+            for _, row in df.iterrows():
+                # If the cumulative sum is less than top_k, add the row
+                if cumulative_sum < top_k:
+                    cumulative_sum += row["count"]
+                    row["cumulative_sum"] = cumulative_sum
+                    filtered_rows.append(row)
+                else:
+                    break  # If the cumulative sum has reached top_k, stop adding rows
+
+            # Convert the list of filtered rows back to a DataFrame
+            filtered_df = pd.DataFrame(filtered_rows)
+
+            # Retain only the necessary columns
+            filtered_df = filtered_df[["value", "count", "cumulative_sum"]]
+
+            # store the filtered DataFrame
+            filtered_counts["pairs"][metric] = filtered_df
+
+        return filtered_counts
+
     def save_filtered_pairs_to_csv(
         self, output_dir: str, filtered_counts: Dict[str, pd.DataFrame]
     ):
@@ -360,6 +419,20 @@ class Seed_Analysis:
         for metric, df in filtered_counts["pairs"].items():
             output_filename = f"{metric}_filtered_pairs.csv"
             output_path = os.path.join(output_dir, output_filename)
+            df.to_csv(output_path, index=False)
+
+    def save_top_k_pairs_to_csv(
+        self, filtered_counts: Dict[str, pd.DataFrame], output_dir: str
+    ) -> None:
+        """
+        Save the filtered pairs to csv files.
+
+        Args:
+            filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
+            output_dir (str): The directory where to save the csv files.
+        """
+        for metric, df in filtered_counts["pairs"].items():
+            output_path = os.path.join(output_dir, f"top_k_{metric}.csv")
             df.to_csv(output_path, index=False)
 
     def plot_histograms(self, column_counts: Dict[str, pd.DataFrame], column_name: str):
@@ -475,6 +548,47 @@ class Seed_Analysis:
             plt.tight_layout()
             plt.show()
 
+    def plot_histograms_top_k_pairs(
+        self, filtered_counts: Dict[str, pd.DataFrame]
+    ) -> None:
+        """
+        Plot histograms of the filtered counts.
+
+        Args:
+            filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
+        """
+        max_cumulative_sum = 0
+        for metric, df in filtered_counts["pairs"].items():
+            max_cumulative_sum = df["cumulative_sum"].max()
+            # Split the tuples into two separate columns
+            df[["first_value", "second_value"]] = pd.DataFrame(
+                df["value"].tolist(), index=df.index
+            )
+
+            # Plot histogram of the "first_value"
+            plt.figure(figsize=(20, 6))
+            plot = sns.histplot(
+                data=df,
+                x="first_value",
+                weights="count",
+                bins=30,
+                kde=False,
+                label=metric,
+            )
+            total = float(df["count"].sum())
+            for p in plot.patches:
+                percentage = "{:.1f}%".format(100 * p.get_height() / total)
+                x = p.get_x() + p.get_width() / 2
+                y = p.get_y() + p.get_height()
+                plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
+
+            plt.title(f"Histogram for top-k pairs ({max_cumulative_sum}): {metric}")
+            plt.xlabel("Starting Values")
+            plt.ylabel("Frequency")
+            plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
+            plt.tight_layout()
+            plt.show()
+
 
 def run(
     threshold_first: float,
@@ -558,38 +672,23 @@ def run(
 
 
 if __name__ == "__main__":
-    run(
-        threshold_first=0.5,
-        threshold_last=0.98,
-        operator="less_and_greater_equal",
-        save_filtered=True,
-        plot=True,
-        plot_filtered=True,
+    # run(
+    #     threshold_first=0,
+    #     threshold_last=0,
+    #     operator="greater_equal",
+    #     save_filtered=True,
+    #     plot=False,
+    #     plot_filtered=True,
+    # )
+    seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
+    pair_counts = seed.load_unique_pair_frequency(
+        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/column_pairs"
     )
-
-    # file_path is the path to the strategy directory
-    # seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
-
-    # # pair_count = seed.count_unique_start_and_end_frequency()
-    # start_end_count = seed.load_saved_csvs(
-    #     input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/columns"
-    # )
-
-    # loaded_pair_counts = seed.load_unique_pair_frequency(
-    #     input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/column_pairs",
-    # )
-
-    # filtered_pairs = seed.filter_pairs(
-    #     loaded_pair_counts,
-    #     threshold_first=0.4,
-    #     threshold_last=0.9,
-    #     operator="less",
-    # )
-
-    # seed.save_filtered_pairs_to_csv(
-    #     output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/column_pairs_filtered",
-    #     filtered_counts=filtered_pairs,
-    # )
-
-    # seed.plot_histograms(start_end_count, "first_column")
-    # seed.plot_histograms_filtered_pairs(filtered_pairs)
+    top_k = seed.filter_top_k_pairs(
+        column_counts=pair_counts, top_k=50000, threshold=0.99
+    )
+    seed.save_top_k_pairs_to_csv(
+        output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
+        filtered_counts=top_k,
+    )
+    seed.plot_histograms_top_k_pairs(top_k)
