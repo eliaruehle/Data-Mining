@@ -21,7 +21,7 @@ def read_single_result(result_path: str) -> pd.DataFrame:
     """
     if not os.path.exists(result_path):
         raise FileNotFoundError(f"File on path {result_path} does not exist.")
-    df = pd.read_csv(result_path)
+    df = pd.read_csv(result_path, index_col=0)
     return df
 
 def read_all_results() -> Matrix:
@@ -43,14 +43,18 @@ def read_all_results() -> Matrix:
         raise FileNotFoundError(f"Directory {root} does not exist.")
     if "init.txt" in os.listdir(root):
         os.remove(os.path.join(root, "init.txt"))
-    all_files = [file for file in os.listdir(root) if file.split("_")[3] != "normalized"]
+    all_files = [os.path.join(root, file) for file in os.listdir(root) if file.split("_")[3] != "normalized"]
     with mp.Pool(mp.cpu_count()) as pool:
         results = pool.map(read_single_result, all_files)
     pool.close()
-    labels: List[str] = results[0].index.to_list()
-    combined_df = pd.DataFrame.sum(results)
+    merged_df = results[0]
+    labels: List[str] = merged_df.columns.to_list()[1:]
+    print(labels)
+    for df in results[1:]:
+        merged_df += df
+    print(merged_df)
     matrix = Matrix(labels, result_path)
-    matrix.set_values(combined_df)
+    matrix.set_values(merged_df)
     return matrix
 
 def main():
