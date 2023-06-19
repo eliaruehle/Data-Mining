@@ -692,30 +692,3 @@ if __name__ == "__main__":
         filtered_counts=top_k,
     )
     seed.plot_histograms_top_k_pairs(top_k)
-
-    # file_path is the path to the strategy directory
-    # seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
-
-    # # pair_count = seed.count_unique_start_and_end_frequency()
-    # start_end_count = seed.load_saved_csvs(
-    #     input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/columns"
-    # )
-
-    # loaded_pair_counts = seed.load_unique_pair_frequency(
-    #     input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/column_pairs",
-    # )
-
-    # filtered_pairs = seed.filter_pairs(
-    #     loaded_pair_counts,
-    #     threshold_first=0.4,
-    #     threshold_last=0.9,
-    #     operator="less",
-    # )
-
-    # seed.save_filtered_pairs_to_csv(
-    #     output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/column_pairs_filtered",
-    #     filtered_counts=filtered_pairs,
-    # )
-
-    # seed.plot_histograms(start_end_count, "first_column")
-    # seed.plot_histograms_filtered_pairs(filtered_pairs)
