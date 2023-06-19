@@ -557,7 +557,9 @@ class Seed_Analysis:
         Args:
             filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
         """
+        max_cumulative_sum = 0
         for metric, df in filtered_counts["pairs"].items():
+            max_cumulative_sum = df["cumulative_sum"].max()
             # Split the tuples into two separate columns
             df[["first_value", "second_value"]] = pd.DataFrame(
                 df["value"].tolist(), index=df.index
@@ -580,7 +582,7 @@ class Seed_Analysis:
                 y = p.get_y() + p.get_height()
                 plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
 
-            plt.title(f"Histogram for top-k pairs (Starting Values): {metric}")
+            plt.title(f"Histogram for top-k pairs ({max_cumulative_sum}): {metric}")
             plt.xlabel("Starting Values")
             plt.ylabel("Frequency")
             plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
