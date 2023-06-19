@@ -1,8 +1,9 @@
 from clustering.cpu.matrix import Matrix
 import os
 import multiprocessing as mp
-from typing import List
+from typing import List, Dict
 import pandas as pd
+import json
 
 
 def read_single_result(result_path: str) -> pd.DataFrame:
@@ -57,6 +58,54 @@ def read_all_results() -> Matrix:
     matrix.set_values(merged_df)
     return matrix
 
+
+def check_against_assumptions():
+    """
+    Function to check if the guessed similarities correspond to the calculated ones.
+
+    Parameters:
+    -----------
+    None
+
+    Returns:
+    --------
+    None
+    """
+    with open("../results/cpu_cluster_result.json", "r") as file:
+        json_data = file.read()
+    result_dict = json.loads(json_data)
+
+    similar: List[List[str]] = [
+        ['ALIPY_UNCERTAINTY_LC','LIBACT_UNCERTAINTY_LC','ALIPY_UNCERTAINTY_MM','ALIPY_UNCERTAINTY_ENTROPY','ALIPY_UNCERTAINTY_DTB',
+         'LIBACT_UNCERTAINTY_SM', 'LIBACT_UNCERTAINTY_ENT', 'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY',
+         'SMALLTEXT_SEALS', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY'],
+        ['ALIPY_UNCERTAINTY_LC','LIBACT_UNCERTAINTY_LC', 'SMALLTEXT_LEASTCONFIDENCE','SKACTIVEML_US_LC'],
+        ['ALIPY_UNCERTAINTY_ENTROPY', 'LIBACT_UNCERTAINTY_ENT', 'SMALLTEXT_PREDICTIONENTROPY', 'SKACTIVEML_US_ENTROPY'],
+        ['PLAYGROUND_MARGIN', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM', 'SMALLTEXT_BREAKINGTIES',
+         'SKACTIVEML_US_MARGIN'],
+        ['ALIPY_RANDOM', 'SMALLTEXT_RANDOM'],
+        ['LIBACT_QUIRE', 'SKACTIVEML_QUIRE'],
+        ['ALIPY_EXPECTED_ERROR_REDUCTION', 'LIBACT_EER', 'SKACTIVEML_EXPECTED_AVERAGE_PRECISION'],
+        ['SMALLTEXT_GREEDYCORESET', 'SMALLTEXT_LIGHTWEIGHTCORESET']
+    ]
+
+    for cluster in similar:
+        for entry in cluster:
+            guessed_sim = [strat for strat in cluster if strat != entry and strat in result_dict.keys()]
+            # select a threshold in which the strategies can occur -> 6 seems to fit good for 36 calculated experiments
+            # 12 is also ok, for this case we have only PLAYGROUND_MARGIN which is not that good
+            threshold = len(guessed_sim) + 12
+            if entry in result_dict.keys():
+                cluster_res = result_dict[entry][:threshold]
+            else:
+                continue
+            if all(names in cluster_res for names in guessed_sim):
+                print("Guessed similarities and cluster results correspond to each other.")
+            else:
+                print("NO correspondence between guessed and clustered similarities.")
+                print(entry)
+
+
 def main():
     """
     The main function of the apllication.
@@ -74,8 +123,11 @@ def main():
     matrix.get_results_as_json()
     # get result_dict as csv
     matrix.get_result_as_csv()
+    # check against the guesses
+    check_against_assumptions()
     print("Terminated normally and wrote all results!")
 
 
 if __name__ == "__main__":
-    main()
+    #main()
+    check_against_assumptions()
