@@ -21,26 +21,64 @@ def comparison():
                     'EER': ['ALIPY_EXPECTED_ERROR_REDUCTION','LIBACT_EER','SKACTIVEML_EXPECTED_AVERAGE_PRECISION'],
                     'Coreset': ['SMALLTEXT_GREEDYCORESET','SMALLTEXT_LIGHTWEIGHTCORESET']}
 
-    filepath = './generated/cl_res'
+    filepath = "../../remake/results/final_cluster.csv"
 
-    for filename in os.listdir(filepath):
-        print(filename)
-        ordered_lists = SimilarityMatrix.get_orderd_similarities(SimilarityMatrix.from_csv(filepath + "/" + filename))
-        dict = {}      
-        for key, value in julius_object.items():
-            for element in julius_object[key]:
-                list_len = len(julius_object[key])
-                if element in ordered_lists.keys():
-                    for similar_strategy in julius_object[key]:
-                            ordered_lists[element] = ordered_lists[element][:list_len+3]
-                            if similar_strategy in ordered_lists[element]:
-                                if element in dict.keys():
-                                    dict[element].append(similar_strategy)
-                                else:
-                                    dict[element] = [similar_strategy]
+    
+    ordered_lists = SimilarityMatrix.get_orderd_similarities(SimilarityMatrix.from_csv(filepath))
+    dict = {}      
+    for key, value in julius_object.items():
+        for element in julius_object[key]:
+            list_len = len(julius_object[key])
+            if element in ordered_lists.keys():
+                for similar_strategy in julius_object[key]:
+                        short_ordered_lists = ordered_lists[element][:list_len+3]
+                        if similar_strategy in short_ordered_lists:
+                            if element in dict.keys():
+                                dict[element].append(similar_strategy)
+                            else:
+                                dict[element] = [similar_strategy]
 
-        print(dict)
+    print(dict)
 
 
 if __name__ == "__main__":
     comparison()
+
+
+# {'ALIPY_UNCERTAINTY_LC': ['LIBACT_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM', 'LIBACT_UNCERTAINTY_ENT',
+#                            'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 
+#                            'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY'],
+# 'LIBACT_UNCERTAINTY_LC': ['ALIPY_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM', 
+#                           'LIBACT_UNCERTAINTY_ENT', 'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY',
+#                             'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY'], 
+# 'ALIPY_UNCERTAINTY_MM': ['ALIPY_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_SM', 'LIBACT_UNCERTAINTY_ENT',
+#                           'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 
+#                           'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY', 'PLAYGROUND_MARGIN'],
+# 'LIBACT_UNCERTAINTY_SM': ['ALIPY_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_ENT', 
+#                           'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 
+#                           'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY', 'PLAYGROUND_MARGIN'], 
+# 'LIBACT_UNCERTAINTY_ENT': ['ALIPY_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM',
+#                             'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 
+#                             'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY'], 
+# 'SMALLTEXT_LEASTCONFIDENCE': ['ALIPY_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM', 
+#                               'LIBACT_UNCERTAINTY_ENT', 'SMALLTEXT_PREDICTIONENTROPY', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 
+#                               'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY'], 
+# 'SMALLTEXT_PREDICTIONENTROPY': ['ALIPY_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM',
+#                                  'LIBACT_UNCERTAINTY_ENT', 'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 
+#                                  'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY'], 
+# 'SMALLTEXT_BREAKINGTIES': ['ALIPY_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM', 
+#                            'LIBACT_UNCERTAINTY_ENT', 'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY', 'SKACTIVEML_US_MARGIN', 
+#                            'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY', 'PLAYGROUND_MARGIN'], 
+# 'SKACTIVEML_US_MARGIN': ['ALIPY_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM', 
+#                          'LIBACT_UNCERTAINTY_ENT', 'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY', 'SMALLTEXT_BREAKINGTIES', 
+#                          'SKACTIVEML_US_LC', 'SKACTIVEML_US_ENTROPY', 'PLAYGROUND_MARGIN'], 
+# 'SKACTIVEML_US_LC': ['ALIPY_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM', 'LIBACT_UNCERTAINTY_ENT',
+#                       'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 'SKACTIVEML_US_ENTROPY'],
+# 'SKACTIVEML_US_ENTROPY': ['ALIPY_UNCERTAINTY_LC', 'LIBACT_UNCERTAINTY_LC', 'ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM', 'LIBACT_UNCERTAINTY_ENT',
+#                            'SMALLTEXT_LEASTCONFIDENCE', 'SMALLTEXT_PREDICTIONENTROPY', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN', 'SKACTIVEML_US_LC'],
+# 'PLAYGROUND_MARGIN': ['ALIPY_UNCERTAINTY_MM', 'LIBACT_UNCERTAINTY_SM', 'SMALLTEXT_BREAKINGTIES', 'SKACTIVEML_US_MARGIN'], 
+# 'ALIPY_RANDOM': ['SMALLTEXT_RANDOM'], 
+# 'SMALLTEXT_RANDOM': ['ALIPY_RANDOM'], 
+# 'LIBACT_QUIRE': ['SKACTIVEML_QUIRE'], 
+# 'SKACTIVEML_QUIRE': ['LIBACT_QUIRE'], 
+# 'SMALLTEXT_GREEDYCORESET': ['SMALLTEXT_LIGHTWEIGHTCORESET']}
