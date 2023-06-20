@@ -1,0 +1,17 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label=<number of examples &le; 2.516<br/>gini = 0.409<br/>samples = 39<br/>value = [3, 7, 29]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#a877ed"] ;
+1 [label=<entropy mean &le; 52.5<br/>gini = 0.512<br/>samples = 11<br/>value = [3, 7, 1]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#9cf2c0"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label=<entropy mean &le; 0.5<br/>gini = 0.219<br/>samples = 8<br/>value = [0, 7, 1]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#55e993"] ;
+1 -> 2 ;
+3 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#8139e5"] ;
+2 -> 3 ;
+4 [label=<gini = 0.0<br/>samples = 7<br/>value = [0, 7, 0]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#39e581"] ;
+2 -> 4 ;
+5 [label=<gini = 0.0<br/>samples = 3<br/>value = [3, 0, 0]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#e58139"] ;
+1 -> 5 ;
+6 [label=<gini = 0.0<br/>samples = 28<br/>value = [0, 0, 28]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#8139e5"] ;
+0 -> 6 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+}

@@ -1,0 +1,33 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label=<number of examples &le; 2.516<br/>gini = 0.394<br/>samples = 39<br/>value = [1, 1, 1, 30, 4, 1, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#6cece9"] ;
+1 [label=<range mean &le; 0.452<br/>gini = 0.793<br/>samples = 11<br/>value = [1, 1, 1, 2, 4, 1, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#d3d9f9"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label=<quantile mean &le; 0.041<br/>gini = 0.741<br/>samples = 9<br/>value = [1, 1, 1, 0, 4, 1, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#b5c0f5"] ;
+1 -> 2 ;
+3 [label=<examples feature_ratio &le; 0.033<br/>gini = 0.75<br/>samples = 4<br/>value = [1, 1, 1, 0, 0, 1, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#ffffff"] ;
+2 -> 3 ;
+4 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 1, 0, 0, 0, 0, 0]<br/>class = LIBACT_QUIRE>, fillcolor="#b7e539"] ;
+3 -> 4 ;
+5 [label=<feature dummy 1 &le; 2.0<br/>gini = 0.667<br/>samples = 3<br/>value = [1, 0, 1, 0, 0, 1, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#ffffff"] ;
+3 -> 5 ;
+6 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 1, 0, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#39e54d"] ;
+5 -> 6 ;
+7 [label=<feature dummy 1 &le; 5.5<br/>gini = 0.5<br/>samples = 2<br/>value = [1, 0, 0, 0, 0, 1, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#ffffff"] ;
+5 -> 7 ;
+8 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 0, 0, 0, 1, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#b139e5"] ;
+7 -> 8 ;
+9 [label=<gini = 0.0<br/>samples = 1<br/>value = [1, 0, 0, 0, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#e58139"] ;
+7 -> 9 ;
+10 [label=<range mean &le; 0.406<br/>gini = 0.32<br/>samples = 5<br/>value = [0, 0, 0, 0, 4, 0, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#6a80ec"] ;
+2 -> 10 ;
+11 [label=<gini = 0.0<br/>samples = 4<br/>value = [0, 0, 0, 0, 4, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#3956e5"] ;
+10 -> 11 ;
+12 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 0, 0, 0, 0, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#e53986"] ;
+10 -> 12 ;
+13 [label=<gini = 0.0<br/>samples = 2<br/>value = [0, 0, 0, 2, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#39e5e2"] ;
+1 -> 13 ;
+14 [label=<gini = 0.0<br/>samples = 28<br/>value = [0, 0, 0, 28, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#39e5e2"] ;
+0 -> 14 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+}
