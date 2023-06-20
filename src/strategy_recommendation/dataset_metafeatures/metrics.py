@@ -101,7 +101,6 @@ class Metrics(ABC):
         data_name = data_set.name
         if data_name not in self.metafeatures_dict:
             self.metafeatures_dict[data_name] = np.array([])
-
         self.metafeatures_dict[data_name] = np.append(
             self.metafeatures_dict[data_name], metafeature
         )

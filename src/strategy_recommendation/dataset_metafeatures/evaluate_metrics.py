@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
 import umap.umap_ as umap
 from matplotlib.lines import Line2D
-from metrics import Metrics
+from strategy_recommendation.dataset_metafeatures.metrics import Metrics
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE

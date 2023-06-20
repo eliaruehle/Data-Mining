@@ -9,13 +9,15 @@ import strategy_recommendation.strategy_performance.recommendation_handler as re
 
 
 def read_vector_space(path_to_vector_space='/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/'):
+    # ToDo make this more compatible with the measurement like "accuracy". For this we could only read the column
+    #  with the metrics and the al-strategies
     if len(path_to_vector_space.split('.')) < 2:
         path_to_vector_space = path_to_vector_space + 'vector_space.pkl'
     vector_space = pd.read_pickle(path_to_vector_space)
     return vector_space
 
 
-def calculate_scoring(path_to_vector_space, vector):
+def calculate_scoring(vector, path_to_vector_space="/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/vector_space.pkl"):
     scoring_df = pd.DataFrame(columns=['al-strategy', 'score_sum', 'summand_number'])
     vector_space = read_vector_space(path_to_vector_space)
     vector = np.array(vector)
@@ -38,7 +40,32 @@ def calculate_scoring(path_to_vector_space, vector):
                     #  add row to the df, with key , value, 1
                     new_row = {'al-strategy': str(key), 'score_sum': float(als_dict[key] * cosine_sim), 'summand_number': 1}
                     scoring_df = scoring_df._append(new_row, ignore_index=True)
-    print(scoring_df)
+    """
+    scoring df looks like this:
+                                      al-strategy    score_sum summand_number
+    0                      PLAYGROUND_MIXTURE  2204.267837             40
+    1                       PLAYGROUND_MARGIN  2203.521726             40
+    2          PLAYGROUND_INFORMATIVE_DIVERSE  2203.281387             40
+    3                       PLAYGROUND_BANDIT  2202.550327             40
+    4                               ALIPY_QBC  2195.377969             40
+    5               SKACTIVEML_COST_EMBEDDING  2184.472079             40
+    6                    ALIPY_CORESET_GREEDY  2155.434913             40
+    7               PLAYGROUND_KCENTER_GREEDY  2147.936080             40
+    8                       OPTIMAL_GREEDY_10  2271.314929             40
+    9   SKACTIVEML_EXPECTED_AVERAGE_PRECISION  1541.372976             25
+    """
+
+
+    """
+    There is another problem: 
+                                      al-strategy    score_sum summand_number
+    0                       OPTIMAL_GREEDY_20  1761.993551             30
+    1                       OPTIMAL_GREEDY_10  1760.555648             30
+    """
+    scoring_df = scoring_df.sort_values("score_sum", ascending=False)
+    scoring_df.reset_index(drop=True, inplace=True)
+    #  ToDo make this more of an average and sort it
+    return scoring_df
 
 
 def calculate_similarities(vector_space, vector, evaluate_metrics):
@@ -50,16 +77,18 @@ def calculate_similarities(vector_space, vector, evaluate_metrics):
         cosine_sim = 1.0 - cdist(x_reshaped, y_reshaped, "cosine")
         print(element)
         dataset = element.split(".")[0]
-        top_k_list=rec_handler.get_all_strategies(dataset=dataset)
+        top_k_list = rec_handler.get_all_strategies(dataset=dataset)
         print(top_k_list)
         print(cosine_sim)
 
 
 def get_dummy_vec():
-    dummy_vec = [3.01029996e-01,  3.30103000e+00,  1.00000000e-03, 0.00000000e+00,
-     0.00000000e+00,  4.97702808e-01,  1.00000000e+00, 2.89675643e-01,
-     8.39158805e-02,  4.98164912e-01,  1.46535835e-02, - 1.22123342e+00,
-     1.00000000e+00, 0.00000000e+00, 0.00000000e+00, 7.60090246e+00]
+    dummy_vec = [ 6.02059991e-01,  2.17609126e+00,  2.66666667e-02, 0.00000000e+00,
+                  0.00000000e+00,  4.48304692e-01,  0.00000000e+00,  0.00000000e+00,
+                  1.00000000e+00,  2.56930154e-01,  6.90237786e-02,  4.75282486e-01,
+                  6.73757010e-02, -7.50739488e-01,  1.85145951e-01,  4.75282486e-01,
+                  6.32062147e-01,  8.83949858e-01,  1.00000000e+00,  5.70534983e+01,
+                  3.00000000e+00,  0.00000000e+00,  3.00000000e+00,  3.10759025e+00]
     return dummy_vec
 
 
