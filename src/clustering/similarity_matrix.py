@@ -162,26 +162,12 @@ class SimilarityMatrix:
         return similarity_matrix
 
     def normalize(self) -> 'SimilarityMatrix':
-        """
-        Normalize the similarity matrix by dividing the values by the sum of the upper half.
+        n_rows, n_cols = self.values.shape
 
-        Parameters:
-        -----------
-        similarity_matrix : SimilarityMatrix
-            The SimilarityMatrix object to be normalized.
-
-        Returns:
-        --------
-        None
-        """
-        # Get the upper triangle of the similarity matrix
-        upper_triangle = np.triu(self.values)
-
-        # Calculate the sum of the upper triangle values
-        upper_sum = np.sum(upper_triangle)
-
-        # Normalize the similarity matrix values by dividing by the sum
-        self.values /= upper_sum
+        for row in range(n_rows):
+            diagonal_value = self.values.iloc[row, row]
+            for col in range(n_cols):
+                self.values.iloc[row, col] = self.values.iloc[row, col] / diagonal_value
 
         return self
 
