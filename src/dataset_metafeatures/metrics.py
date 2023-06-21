@@ -92,7 +92,7 @@ class Metrics(ABC):
 
         self.data_frames_list = data_frames
 
-    def add_to_meatafeatures_dict(
+    def add_to_metafeatures_dict(
         self, data_set: pd.DataFrame, metafeature: float
     ) -> None:
         """
@@ -124,7 +124,7 @@ class Metrics(ABC):
         """
         features_n = log10(len(data_set.columns))
 
-        self.add_to_meatafeatures_dict(data_set, features_n)
+        self.add_to_metafeatures_dict(data_set, features_n)
 
     def number_of_examples(self, data_set: pd.DataFrame) -> None:
         """
@@ -139,7 +139,7 @@ class Metrics(ABC):
         """
         examples_n = log10(len(data_set))
 
-        self.add_to_meatafeatures_dict(data_set, examples_n)
+        self.add_to_metafeatures_dict(data_set, examples_n)
 
     def examples_feature_ratio(self, data_set: pd.DataFrame) -> None:
         features = len(data_set.columns)
@@ -147,83 +147,36 @@ class Metrics(ABC):
 
         feature_examples_ratio = features / examples
 
-        self.add_to_meatafeatures_dict(data_set, feature_examples_ratio)
+        self.add_to_metafeatures_dict(data_set, feature_examples_ratio)
 
     def overall_mean(self, data_set: pd.DataFrame) -> None:
-        overall_mean = data_set.mean().mean()
-
-        self.add_to_meatafeatures_dict(data_set, overall_mean)
-
-    def total_geometric_mean(self, data_set: pd.DataFrame) -> None:
-        """
-        Compute and store the geometric mean of all values in the data_set.
-
-        The data_set is flattened to a single series, and the geometric mean is computed.
-        The geometric mean is then added to a metadata features dictionary.
-
-        Parameters
-        ----------
-        data_set : pd.DataFrame
-            The input data set (a pandas DataFrame) for which the total geometric mean
-            will be computed. It is assumed that the DataFrame only contains numerical
-            data and no missing or null values.
-
-        Returns
-        -------
-        None
-        """
-        flattened_df = data_set.values.flatten()
-        total_geometric_mean = gmean(flattened_df)
-
-        self.add_to_meatafeatures_dict(data_set, total_geometric_mean)
-
-    def total_harmonic_mean(self, data_set: pd.DataFrame) -> None:
-        """
-        Compute and store the harmonic mean of all values in the data_set.
-
-        The data_set is flattened to a single series, and the harmonic mean is computed.
-        The harmonic mean is then added to a metadata features dictionary.
-
-        Parameters
-        ----------
-        data_set : pd.DataFrame
-            The input data set (a pandas DataFrame) for which the total harmonic mean
-            will be computed. It is assumed that the DataFrame only contains numerical
-            data and no missing or null values.
-
-        Returns
-        -------
-        None
-        """
-        flattened_df = data_set.values.flatten()
-        total_harmonic_mean = hmean(flattened_df)
-
-        self.add_to_meatafeatures_dict(data_set, total_harmonic_mean)
+        overall_mean = data_set.values.flatten().mean()
+        self.add_to_metafeatures_dict(data_set, overall_mean)
 
     def overall_median(self, data_set: pd.DataFrame) -> None:
         overall_median = data_set.median().median()
 
-        self.add_to_meatafeatures_dict(data_set, overall_median)
+        self.add_to_metafeatures_dict(data_set, overall_median)
 
     def average_min(self, data_set: pd.DataFrame) -> None:
         average_min = data_set.min().mean()
 
-        self.add_to_meatafeatures_dict(data_set, average_min)
+        self.add_to_metafeatures_dict(data_set, average_min)
 
     def median_min(self, data_set: pd.DataFrame) -> None:
         median_min = data_set.min().median()
 
-        self.add_to_meatafeatures_dict(data_set, median_min)
+        self.add_to_metafeatures_dict(data_set, median_min)
 
     def average_max(self, data_set: pd.DataFrame) -> None:
         average_max = data_set.max().mean()
 
-        self.add_to_meatafeatures_dict(data_set, average_max)
+        self.add_to_metafeatures_dict(data_set, average_max)
 
     def median_max(self, data_set: pd.DataFrame) -> None:
         median_max = data_set.max().median()
 
-        self.add_to_meatafeatures_dict(data_set, median_max)
+        self.add_to_metafeatures_dict(data_set, median_max)
 
     def standard_deviation_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -235,12 +188,12 @@ class Metrics(ABC):
         """
         standard_deviation_mean = data_set.std().mean()
 
-        self.add_to_meatafeatures_dict(data_set, standard_deviation_mean)
+        self.add_to_metafeatures_dict(data_set, standard_deviation_mean)
 
     def standard_deviation_median(self, data_set: pd.DataFrame) -> None:
         standard_deviation_median = data_set.std().median()
 
-        self.add_to_meatafeatures_dict(data_set, standard_deviation_median)
+        self.add_to_metafeatures_dict(data_set, standard_deviation_median)
 
     def variance_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -252,12 +205,12 @@ class Metrics(ABC):
         """
         variance_mean = data_set.var().mean()
 
-        self.add_to_meatafeatures_dict(data_set, variance_mean)
+        self.add_to_metafeatures_dict(data_set, variance_mean)
 
     def variance_median(self, data_set: pd.DataFrame) -> None:
         variance_median = data_set.var().median()
 
-        self.add_to_meatafeatures_dict(data_set, variance_median)
+        self.add_to_metafeatures_dict(data_set, variance_median)
 
     def quantile_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -269,12 +222,12 @@ class Metrics(ABC):
         """
         quantile_mean = data_set.quantile().mean()
 
-        self.add_to_meatafeatures_dict(data_set, quantile_mean)
+        self.add_to_metafeatures_dict(data_set, quantile_mean)
 
     def quantile_median(self, data_set: pd.DataFrame) -> None:
         quantile_median = data_set.quantile().median()
 
-        self.add_to_meatafeatures_dict(data_set, quantile_median)
+        self.add_to_metafeatures_dict(data_set, quantile_median)
 
     def proportion_of_missing_values(self, data_set: pd.DataFrame) -> None:
         """
@@ -292,7 +245,7 @@ class Metrics(ABC):
         prop_miss_values = data_set.isna().sum() / examples_n
         prop_miss_values = prop_miss_values.to_dict()
 
-        self.add_to_meatafeatures_dict(data_set, prop_miss_values)
+        self.add_to_metafeatures_dict(data_set, prop_miss_values)
 
     def skewness_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -308,30 +261,12 @@ class Metrics(ABC):
 
         skew_mean = data_set.skew().mean()
 
-        self.add_to_meatafeatures_dict(data_set, skew_mean)
+        self.add_to_metafeatures_dict(data_set, skew_mean)
 
     def skewness_median(self, data_set: pd.DataFrame) -> None:
         skew_median = data_set.skew().median()
 
-        self.add_to_meatafeatures_dict(data_set, skew_median)
-
-    def skewness_of_features(self, data_set: pd.DataFrame) -> None:
-        """
-        Calculate the skewness for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
-
-        This method calculates the number of examples (rows) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict.
-
-        Args:
-            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
-
-        """
-
-        skew_features = {
-            k: v for k, v in zip(data_set.columns, skew(data_set.to_numpy()))
-        }
-
-        self.add_to_meatafeatures_dict(data_set, skew_features)
+        self.add_to_metafeatures_dict(data_set, skew_median)
 
     def kurtosis_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -347,30 +282,12 @@ class Metrics(ABC):
 
         kurtosis_mean = data_set.kurt().mean()
 
-        self.add_to_meatafeatures_dict(data_set, kurtosis_mean)
+        self.add_to_metafeatures_dict(data_set, kurtosis_mean)
 
     def kurtosis_median(self, data_set: pd.DataFrame) -> None:
         kurtosis_median = data_set.kurt().median()
 
-        self.add_to_meatafeatures_dict(data_set, kurtosis_median)
-
-    def kurtosis_of_features(self, data_set: pd.DataFrame) -> None:
-        """
-        Calculate the kurtosis for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
-
-        This method calculates the kurtosis for each feature (column) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict.
-
-        Args:
-            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
-
-        """
-
-        kurtosis_features = {
-            k: v for k, v in zip(data_set.columns, kurtosis(data_set.to_numpy()))
-        }
-
-        self.add_to_meatafeatures_dict(data_set, kurtosis_features)
+        self.add_to_metafeatures_dict(data_set, kurtosis_median)
 
     def number_of_feature_correlations(
         self, data_set: pd.DataFrame, correlation_threshold=0.75
@@ -400,7 +317,7 @@ class Metrics(ABC):
             ]
         )
 
-        self.add_to_meatafeatures_dict(data_set, feature_correlation_n)
+        self.add_to_metafeatures_dict(data_set, feature_correlation_n)
 
     def covariance(self, data_set: pd.DataFrame) -> None:
         """
@@ -428,9 +345,9 @@ class Metrics(ABC):
             np.sum(np.sum(np.array(rounded_covariance) < 0, axis=0))
         )
 
-        self.add_to_meatafeatures_dict(data_set, number_of_positive_covariance)
-        self.add_to_meatafeatures_dict(data_set, number_of_exact_zero_covariance)
-        self.add_to_meatafeatures_dict(data_set, number_of_negative_covariance)
+        self.add_to_metafeatures_dict(data_set, number_of_positive_covariance)
+        self.add_to_metafeatures_dict(data_set, number_of_exact_zero_covariance)
+        self.add_to_metafeatures_dict(data_set, number_of_negative_covariance)
 
     def percentile(self, data_set: pd.DataFrame) -> None:
         """
@@ -448,7 +365,7 @@ class Metrics(ABC):
 
         mean_percentiles_nparray = mean_percentiles.to_numpy()
         for percentile in mean_percentiles_nparray:
-            self.add_to_meatafeatures_dict(data_set, percentile)
+            self.add_to_metafeatures_dict(data_set, percentile)
 
     def coloumn_cosine_similarity_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -469,7 +386,7 @@ class Metrics(ABC):
         ).mean()
 
         cos_sim_overall_mean = cos_sim_df_mean.mean()
-        self.add_to_meatafeatures_dict(data_set, cos_sim_overall_mean)
+        self.add_to_metafeatures_dict(data_set, cos_sim_overall_mean)
 
     def range_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -484,7 +401,7 @@ class Metrics(ABC):
 
         range_mean = (data_set.max() - data_set.min()).mean()
 
-        self.add_to_meatafeatures_dict(data_set, range_mean)
+        self.add_to_metafeatures_dict(data_set, range_mean)
 
     def coefficient_variation_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -498,10 +415,10 @@ class Metrics(ABC):
             None
         """
 
-        coefficient_var_df = (data_set.std() / data_set.mean()) * 100
+        coefficient_var_df = data_set.std() / data_set.mean()
 
         mean_coefficient_var = coefficient_var_df.mean()
-        self.add_to_meatafeatures_dict(data_set, mean_coefficient_var)
+        self.add_to_metafeatures_dict(data_set, mean_coefficient_var)
 
     def entropy_mean(self, data_set: pd.DataFrame) -> None:
         """
@@ -522,7 +439,7 @@ class Metrics(ABC):
             feature_entropies = np.append(feature_entropies, feature_entropy)
         entropy_mean = np.mean(feature_entropies)
 
-        self.add_to_meatafeatures_dict(data_set, entropy_mean)
+        self.add_to_metafeatures_dict(data_set, entropy_mean)
 
     def entropy_median(self, data_set: pd.DataFrame) -> None:
         feature_entropies = np.array([])
@@ -533,24 +450,4 @@ class Metrics(ABC):
 
         entropy_median = np.mean(feature_entropies)
 
-        self.add_to_meatafeatures_dict(data_set, entropy_median)
-
-    def entropies_of_features(self, data_set: pd.DataFrame) -> None:
-        """
-        Calculate the entropy for each feature (column) in a given DataFrame and store it in the metafeatures_dict.
-
-        This method calculates the entropy for each feature (column) in the input DataFrame and appends the value
-        to the list associated with the DataFrame's name in the metafeatures_dict.
-
-        Args:
-            data_set (pd.DataFrame): The input DataFrame for which the number of examples needs to be calculated.
-
-        """
-
-        feature_entropies = {}
-        for feature in data_set.columns:
-            _, counts = np.unique(data_set[feature], return_counts=True)
-            feature_entropy = entropy(counts)
-            feature_entropies[feature] = feature_entropy
-
-        self.add_to_meatafeatures_dict(data_set, feature_entropies)
+        self.add_to_metafeatures_dict(data_set, entropy_median)
