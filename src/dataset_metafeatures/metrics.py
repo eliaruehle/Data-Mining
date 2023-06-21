@@ -19,6 +19,8 @@ class Metrics(ABC):
         A sorted list of CSV file names in the specified directory.
     data_frames_list : list[pd.DataFrame]
         A list to store loaded CSV datasets.
+    data_frame_names : list[str]
+        A list to store the names of the loaded dataframes.
     metafeatures_dict: dict[str, list[float]]
         A dictionary which stores all the existing datasets with their corresponding metafeatures.
         The key being the name of the dataset (ending with .csv), while the value is a list containing
@@ -44,6 +46,7 @@ class Metrics(ABC):
             ]
         )
         self.data_frames_list: list[pd.DataFrame] = list()
+        self.data_frame_names: list[str] = list()
         self.metafeatures_dict: dict[str, np.array] = dict()
 
     def load_single_csv_dataset(self, data_set: str) -> pd.DataFrame:
@@ -67,6 +70,7 @@ class Metrics(ABC):
                 usecols=lambda coloumn: coloumn != "LABEL_TARGET",
             )
             df.name = data_set
+            self.data_frame_names.append(df.name)
             return df
         except (FileNotFoundError, pd.errors.EmptyDataError) as exception:
             raise FileNotFoundError(
@@ -97,6 +101,7 @@ class Metrics(ABC):
         Args:
             data_set (pd.DataFrame): The input DataFrame for which the metafeature has been calculated.
             metafeature (float): The calculated metafeature value.
+
         """
         data_name = data_set.name
         if data_name not in self.metafeatures_dict:

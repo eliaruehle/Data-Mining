@@ -1,0 +1,184 @@
+strategies:
+# - ALIPY_BMDR
+- ALIPY_CORESET_GREEDY
+- ALIPY_DENSITY_WEIGHTED
+# - ALIPY_EXPECTED_ERROR_REDUCTION
+- ALIPY_GRAPH_DENSITY
+# - ALIPY_QBC
+- ALIPY_RANDOM
+# - ALIPY_SPAL
+# - ALIPY_UNCERTAINTY_ENTROPY
+- ALIPY_UNCERTAINTY_LC
+- ALIPY_UNCERTAINTY_MM
+- LIBACT_DWUS
+# - LIBACT_EER
+- LIBACT_QUIRE
+- LIBACT_UNCERTAINTY_ENT
+- LIBACT_UNCERTAINTY_LC
+- LIBACT_UNCERTAINTY_SM
+- OPTIMAL_GREEDY_10
+- OPTIMAL_GREEDY_20
+- PLAYGROUND_BANDIT
+- PLAYGROUND_GRAPH_DENSITY
+# - PLAYGROUND_HIERARCHICAL_CLUSTER
+- PLAYGROUND_INFORMATIVE_DIVERSE
+- PLAYGROUND_KCENTER_GREEDY
+- PLAYGROUND_MARGIN
+- PLAYGROUND_MIXTURE
+- PLAYGROUND_UNIFORM
+- SKACTIVEML_COST_EMBEDDING
+- SKACTIVEML_DAL
+- SKACTIVEML_DWUS
+# - SKACTIVEML_EXPECTED_AVERAGE_PRECISION
+# - SKACTIVEML_MC_EER_LOG_LOSS
+# - SKACTIVEML_MC_EER_MISCLASS_LOSS
+- SKACTIVEML_QBC
+- SKACTIVEML_QBC_VOTE_ENTROPY
+- SKACTIVEML_QUIRE
+- SKACTIVEML_US_ENTROPY
+- SKACTIVEML_US_LC
+- SKACTIVEML_US_MARGIN
+# - SKACTIVEML_VOI
+# - SKACTIVEML_VOI_LABELED
+# - SKACTIVEML_VOI_UNLABELED
+- SMALLTEXT_BREAKINGTIES
+- SMALLTEXT_CONTRASTIVEAL
+- SMALLTEXT_EMBEDDINGKMEANS
+- SMALLTEXT_GREEDYCORESET
+- SMALLTEXT_LEASTCONFIDENCE
+- SMALLTEXT_LIGHTWEIGHTCORESET
+- SMALLTEXT_PREDICTIONENTROPY
+- SMALLTEXT_RANDOM
+datasets:
+- gaussian_unbalanced
+- thyroid
+- statlog_australian
+- statlog_vehicle
+- statlog_germany
+- wine_origin
+- parkinsons
+- sonar
+- splice_junction
+- tic_tac_toe
+- seeds
+- Iris
+- wdbc
+- diabetes
+- gaussian_balanced
+- xor_2x2
+- ex8a
+- xor_4x4
+- appendicitis
+- ionosphere
+- statlog_heart
+- glass
+- r15
+- xor_2x2_rotated
+- ex8b
+- breast_cancer_wisconsin_original
+metrices:
+- biggest_drop_per_accuracy_time_lag.csv.xz
+- CLOSENESS_TO_SAMPLES_OF_SAME_CLASS_kNN.csv.xz
+- CLOSENESS_TO_SAMPLES_OF_SAME_CLASS.csv.xz
+- class_distributions_chebyshev_batch.csv.xz
+- CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS_kNN_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_weighted_precision_time_lag.csv.xz
+- biggest_drop_per_weighted_recall.csv.xz
+- biggest_drop_per_macro_f1-score_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_weighted_recall.csv.xz
+- accuracy.csv.xz
+- biggest_drop_per_weighted_recall_time_lag.csv.xz
+- COUNT_WRONG_CLASSIFICATIONS.csv.xz
+- class_distributions_manhattan_added_up.csv.xz
+- nr_decreasing_al_cycles_per_macro_recall_time_lag.csv.xz
+- class_distributions_chebyshev_added_up_time_lag.csv.xz
+- IMPROVES_ACCURACY_BY_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_accuracy_time_lag.csv.xz
+- weighted_f1-score.csv.xz
+- biggest_drop_per_macro_f1-score.csv.xz
+- y_pred_train.csv.xz
+- macro_recall_time_lag.csv.xz
+- REGION_DENSITY.csv.xz
+- class_distributions_chebyshev_batch_time_lag.csv.xz
+- biggest_drop_per_weighted_precision_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_macro_precision_time_lag.csv.xz
+- class_distributions_chebyshev_added_up.csv.xz
+- CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS_kNN.csv.xz
+- weighted_f1-score_time_lag.csv.xz
+- macro_precision_time_lag.csv.xz
+- query_selection_time.csv.xz
+- macro_f1-score_time_lag.csv.xz
+- REGION_DENSITY_time_lag.csv.xz
+- macro_precision.csv.xz
+- CLOSENESS_TO_DECISION_BOUNDARY_time_lag.csv.xz
+- avg_dist_batch_time_lag.csv.xz
+- MELTING_POT_REGION.csv.xz
+- class_distributions_manhattan_added_up_time_lag.csv.xz
+- INCLUDED_IN_OPTIMAL_STRATEGY.csv.xz
+- macro_recall.csv.xz
+- CLOSENESS_TO_DECISION_BOUNDARY.csv.xz
+- macro_f1-score.csv.xz
+- SWITCHES_CLASS_OFTEN.csv.xz
+- nr_decreasing_al_cycles_per_weighted_f1-score_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_weighted_precision.csv.xz
+- nr_decreasing_al_cycles_per_macro_f1-score.csv.xz
+- learner_training_time_time_lag.csv.xz
+- CLOSENESS_TO_SAMPLES_OF_SAME_CLASS_time_lag.csv.xz
+- biggest_drop_per_macro_precision_time_lag.csv.xz
+- biggest_drop_per_macro_recall.csv.xz
+- SWITCHES_CLASS_OFTEN_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_macro_precision.csv.xz
+- mismatch_train_test_time_lag.csv.xz
+- IMPROVES_ACCURACY_BY.csv.xz
+- biggest_drop_per_macro_precision.csv.xz
+- MELTING_POT_REGION_time_lag.csv.xz
+- CLOSENESS_TO_CLUSTER_CENTER.csv.xz
+- mismatch_train_test.csv.xz
+- biggest_drop_per_accuracy.csv.xz
+- learner_training_time.csv.xz
+- query_selection_time_time_lag.csv.xz
+- avg_dist_batch.csv.xz
+- CLOSENESS_TO_CLUSTER_CENTER_time_lag.csv.xz
+- avg_dist_labeled.csv.xz
+- biggest_drop_per_macro_recall_time_lag.csv.xz
+- OUTLIERNESS_time_lag.csv.xz
+- AVERAGE_UNCERTAINTY.csv.xz
+- AVERAGE_UNCERTAINTY_time_lag.csv.xz
+- class_distributions_manhattan_batch_time_lag.csv.xz
+- weighted_precision_time_lag.csv.xz
+- weighted_recall_time_lag.csv.xz
+- selected_indices.csv.xz
+- y_pred_test.csv.xz
+- weighted_precision.csv.xz
+- CLOSENESS_TO_SAMPLES_OF_SAME_CLASS_kNN_time_lag.csv.xz
+- CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS_time_lag.csv.xz
+- accuracy_time_lag.csv.xz
+- weighted_recall.csv.xz
+- COUNT_WRONG_CLASSIFICATIONS_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_weighted_f1-score.csv.xz
+- class_distributions_manhattan_batch.csv.xz
+- OUTLIERNESS.csv.xz
+- avg_dist_labeled_time_lag.csv.xz
+- nr_decreasing_al_cycles_per_accuracy.csv.xz
+- nr_decreasing_al_cycles_per_weighted_recall_time_lag.csv.xz
+- avg_dist_unlabeled.csv.xz
+- avg_dist_unlabeled_time_lag.csv.xz
+- biggest_drop_per_weighted_f1-score.csv.xz
+- biggest_drop_per_weighted_f1-score_time_lag.csv.xz
+- INCLUDED_IN_OPTIMAL_STRATEGY_time_lag.csv.xz
+- biggest_drop_per_weighted_precision.csv.xz
+- CLOSENESS_TO_SAMPLES_OF_OTHER_CLASS.csv.xz
+- nr_decreasing_al_cycles_per_macro_recall.csv.xz
+- nr_decreasing_al_cycles_per_macro_f1-score_time_lag.csv.xz
+workload: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/05_done_workload.csv"
+data_dir: "/scratch/ws/0/vime121c-db-project/Extrapolation"
+hyperparameter: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/assets/dataset_hyper.yaml"
+save_dir: "/home/h9/elru535b/scratch/elru535b-workspace/Data-Mining/remake/results/clust"
+clustering:
+  cpu:
+    num_components: 4
+    svd_solver: full
+    num_clusters: 10
+  gpu:
+    num_clusters: 2
+    error: 1e-6
