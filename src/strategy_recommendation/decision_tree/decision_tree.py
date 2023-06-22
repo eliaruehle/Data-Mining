@@ -47,7 +47,7 @@ def draw_forrest(path_to_datasets):
     metric_names = get_metric_names()
     #  'ThinCross' is not there
     datasets = dataset_list
-    batchsize_list = ["1", "5", "10"]
+    batchsize_list = ["5", "10", "1"]
     for batchsize in batchsize_list:
         for metric in metric_list:
             draw_classification_tree(evaluate_metrics, metric_names, batchsize=batchsize, datasets=datasets, metric=metric,
