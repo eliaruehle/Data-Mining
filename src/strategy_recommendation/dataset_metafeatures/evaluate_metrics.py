@@ -1,17 +1,22 @@
 import itertools
+import warnings
 from typing import Dict, List, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import umap.umap_ as umap
 from matplotlib.lines import Line2D
-from strategy_recommendation.dataset_metafeatures.metrics import Metrics
+from metrics import Metrics
+from numba.core.errors import NumbaDeprecationWarning
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, RobustScaler
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=NumbaDeprecationWarning)
+    import umap.umap_ as umap
 
 
 class Evaluate_Metrics:
@@ -62,7 +67,7 @@ class Evaluate_Metrics:
             # metric.skewness_median(data)
             self.metric.kurtosis_mean(data)
             # metric.kurtosis_median(data)
-            # metric.number_of_feature_correlations(data)
+            self.metric.number_of_feature_correlations(data)
             self.metric.percentile(data)
             self.metric.coloumn_cosine_similarity_mean(data)
             self.metric.range_mean(data)
@@ -230,7 +235,7 @@ class Evaluate_Metrics:
 
     def visualize(self, n_components: int):
         methods = ["tsne", "umap"]
-        le = LabelEncoder()
+        label_encoder = LabelEncoder()
 
         for i, method in enumerate(methods):
             if method not in self.reduced_metafeatures_dict:
@@ -238,9 +243,9 @@ class Evaluate_Metrics:
                 continue
 
             labels = list(self.reduced_metafeatures_dict[method].keys())
-            encoded_labels = le.fit_transform(
-                labels
-            )  # Convert labels to integers for coloring
+
+            # Convert labels to integers for coloring
+            encoded_labels = label_encoder.fit_transform(labels)
 
             if n_components == 2:
                 data = {
@@ -293,7 +298,9 @@ class Evaluate_Metrics:
                 plt.title(f"{method} 3D scatter plot")
 
                 # Create a custom legend
-                legend_labels = le.inverse_transform(list(set(encoded_labels)))
+                legend_labels = label_encoder.inverse_transform(
+                    list(set(encoded_labels))
+                )
                 legend_elements = [
                     Line2D(
                         [0],
@@ -316,34 +323,43 @@ class Evaluate_Metrics:
 
                 plt.show()
 
-    def cosine_sim_scipy(self, data_set_a, data_set_b):
-        """Calculates the cosine similarity between the two given datasets.
+    def cosine_sim_scipy(
+        self,
+        data_key_a: str,
+        data_key_b: str,
+        metafeatures_dict: Dict[str, List[float]],
+    ):
+        """Calculates the cosine similarity between two sets of metafeatures,
+        represented by the given keys.
 
         Args:
-            data_set_a: The first dataset.
-            data_set_b: The second dataset.
+            data_key_a (str): Key for the first set of metafeatures.
+            data_key_b (str): Key for the second set of metafeatures.
+            metafeatures_dict (Dict[str, List[float]]): A dictionary mapping
+                keys to corresponding metafeatures.
 
         Returns:
-            float: The cosine similarity between the two datasets.
+            float: The cosine similarity between the two sets of metafeatures.
         """
 
-        x = self.metric.metafeatures_dict[data_set_a]
-        y = self.metric.metafeatures_dict[data_set_b]
-
-        x = x.reshape(1, -1)
-        y = y.reshape(1, -1)
+        x = np.array(metafeatures_dict[data_key_a]).reshape(1, -1)
+        y = np.array(metafeatures_dict[data_key_b]).reshape(1, -1)
 
         return 1.0 - cdist(x, y, "cosine")
 
-    def calculate_all_cosine_similarities(self) -> pd.DataFrame:
-        """Calculates cosine similarities for all unique pairs of datasets in the given list.
+    def calculate_all_cosine_similarities(
+        self, metafeatures_dict: Dict[str, List[float]]
+    ) -> pd.DataFrame:
+        """Calculates cosine similarities for all unique pairs of datasets
+        in the `metafeatures_dict`.
 
         Args:
-            data_sets_list (list[pd.DataFrame]): List of datasets for which cosine similarities
-                are to be calculated.
+            metafeatures_dict (Dict[str, List[float]]): A dictionary mapping
+                dataset names to corresponding metafeatures.
 
         Returns:
-            pd.DataFrame: DataFrame containing pairs of dataset names and their cosine similarity.
+            pd.DataFrame: DataFrame containing pairs of dataset names and
+                their cosine similarity.
         """
 
         results = []
@@ -351,10 +367,9 @@ class Evaluate_Metrics:
         for data_set_a, data_set_b in itertools.combinations(
             self.metric.data_frames_list, 2
         ):
-            # Calculate cosine similarity only for unique pairs
-            cos_sim = self.cosine_sim_scipy(data_set_a.name, data_set_b.name)
-
-            # Explicit Tuple Notation [(data_set_a, data_set_b, cosine_similarity)]
+            cos_sim = self.cosine_sim_scipy(
+                data_set_a.name, data_set_b.name, metafeatures_dict
+            )
             results.append((data_set_a.name, data_set_b.name, cos_sim[0][0]))
 
         df = pd.DataFrame(
@@ -573,11 +588,13 @@ def main():
     evaluate_metrics = Evaluate_Metrics("kp_test/datasets")
     evaluate_metrics.calculate_all_metrics()
 
-    df_cosine_similarities = evaluate_metrics.calculate_all_cosine_similarities()
+    df_cosine_similarities = evaluate_metrics.calculate_all_cosine_similarities(
+        evaluate_metrics.metric.metafeatures_dict
+    )
 
     # Load the Results from the Master Thesis
     other_results_df = pd.read_csv(
-        "./src/dataset_metafeatures/results/cos_sim_mastergroup.csv"
+        "/Users/user/GitHub/Data-Mining/src/dataset_metafeatures/results/cos_sim_mastergroup.csv"
     )
 
     other_results_filtered = filter_for_matching_pairs(
