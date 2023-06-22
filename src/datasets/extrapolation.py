@@ -13,7 +13,6 @@ class Extrapolation:
     def __init__(self, source_directory: str, destination_directory: str):
         self.source_directory = source_directory
         self.destination_directory = destination_directory
-        self.LAST = 49
 
     # Extrapolate data of a given strategy
     def extrapolate_strategy(self, strategy_index: int):
@@ -50,9 +49,9 @@ class Extrapolation:
     @staticmethod
     def do_everything(frame: pd.DataFrame, is_lag: bool, file_name: str):
         second_last_columns = len(frame.columns) - 1
-        for col_idx, column in enumerate(frame.columns):
+        for row_idx, row in frame.iterrows():
             last_valid = 0
-            for row_idx, row in frame.iterrows():
+            for col_idx, column in enumerate(frame.columns):
                 # Get the current value
                 value = frame.iloc[row_idx, col_idx]
 
@@ -114,7 +113,7 @@ class Extrapolation:
 
     @staticmethod
     def get_subdirectories(path: str):
-        return [entry.name for entry in os.scandir(path) if entry.is_dir()]
+        return [entry.name for entry in os.scandir(path) if entry.is_dir() and not entry.name.startswith('_')]
 
     @staticmethod
     def get_files(path: str):
@@ -122,8 +121,8 @@ class Extrapolation:
 
 
 extrapolation = Extrapolation(
-    source_directory="/home/ature/University/6th-Semester/Data-Mining/kp_test/strategies",
-    destination_directory="/home/ature/Programming/Python/DB-Mining-Data/EXTRAPOLATION"
+    source_directory="/beegfs/ws/1/s5968580-al_benchmark/exp_results/fuller_exp",
+    destination_directory="/home/vime121c/Workspaces/scratch/vime121c-db-project/Pain"
 )
 
 warnings.filterwarnings('ignore')
