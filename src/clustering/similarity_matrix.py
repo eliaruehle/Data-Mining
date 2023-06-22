@@ -74,7 +74,7 @@ class SimilarityMatrix:
             same_cluster: List[str] = [
                 key
                 for key, value in strat_label.items()
-                if value == label and key != strat and label >= 0
+                if value == label and label >= 0
             ]
             for sim_label_strat in same_cluster:
                 self.values.loc[strat, sim_label_strat] += 1

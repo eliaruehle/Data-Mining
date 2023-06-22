@@ -12,7 +12,8 @@ from numba.core.errors import NumbaDeprecationWarning
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler, RobustScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=NumbaDeprecationWarning)
@@ -39,8 +40,7 @@ class Evaluate_Metrics:
         """
         self.metric = Metrics(file_path)
         self.reduced_metafeatures_dict: dict[str, np.array] = {}
-        self.robust_scaler = RobustScaler()
-        self.min_max_scaler = MinMaxScaler()
+        self.standard_normaliser = StandardScaler()
 
     def calculate_all_metrics(self) -> None:
         """Calculates all metrics for all datasets in data_frames_list of the Metrics object."""
@@ -49,24 +49,13 @@ class Evaluate_Metrics:
             self.metric.number_of_features(data)
             self.metric.number_of_examples(data)
             self.metric.examples_feature_ratio(data)
-            self.metric.average_min(data)
-            self.metric.median_min(data)
             self.metric.overall_mean(data)
-            self.metric.total_geometric_mean(data)
-            self.metric.total_harmonic_mean(data)
-            # metric.overall_median(data)
             self.metric.average_max(data)
-            # metric.median_max(data)
             self.metric.standard_deviation_mean(data)
-            # metric.standard_deviation_median(data)
             self.metric.variance_mean(data)
-            # metric.variance_median(data)
             self.metric.quantile_mean(data)
-            # metric.quantile_median(data)
             self.metric.skewness_mean(data)
-            # metric.skewness_median(data)
             self.metric.kurtosis_mean(data)
-            # metric.kurtosis_median(data)
             self.metric.number_of_feature_correlations(data)
             self.metric.percentile(data)
             self.metric.coloumn_cosine_similarity_mean(data)
@@ -74,18 +63,9 @@ class Evaluate_Metrics:
             self.metric.coefficient_variation_mean(data)
             self.metric.covariance(data)
             self.metric.entropy_mean(data)
-            # metric.entropy_median(data)
-            #  This seems very pointless! All the data sets in use have no nan --> no information gain
-            # metric.proportion_of_missing_values(data)
-            #  This produces a dict, we can not handle as parameter --> might still come in handy
-            #  same with kurtosis and entropy
-            #  metric.skewness_of_features(data)
-            #  metric.entropies_of_features(data)
 
-    def normalise_metrics_weights_robust_scaler(
-        self, metafeatures: np.array
-    ) -> np.array:
-        """Normalizes the given metafeatures using a robust scaler.
+    def normalise_metrics_standard_normaliser(self, metafeatures: np.array) -> np.array:
+        """Normalizes the given metafeatures using a standard scaler.
 
         Args:
             metafeatures (np.array): The metafeatures to be normalized.
@@ -94,32 +74,16 @@ class Evaluate_Metrics:
             np.array: The normalized metafeatures.
         """
 
-        metafeatures_scaled = self.robust_scaler.fit_transform(
-            metafeatures.reshape(-1, 1)
-        )
-
-        return metafeatures_scaled.flatten()
-
-    def normalise_metrics_weights_min_max_scaler(
-        self, metafeatures: np.array
-    ) -> np.array:
-        """Normalizes the given metafeatures using a min-max scaler.
-
-        Args:
-            metafeatures (np.array): The metafeatures to be normalized.
-
-        Returns:
-            np.array: The normalized metafeatures.
-        """
-
-        metafeatures_scaled = self.min_max_scaler.fit_transform(
+        metafeatures_scaled = self.standard_normaliser.fit_transform(
             metafeatures.reshape(-1, 1)
         )
 
         return metafeatures_scaled.flatten()
 
     def calculate_normalisation_for_all_metafeatures(
-        self, metafeatures: dict[str, np.array], normalisation_method
+        self,
+        metafeatures: dict[str, np.array],
+        normalisation_method=normalise_metrics_standard_normaliser,
     ) -> None:
         """Calculate the normalisation for all metafeatures.
 
@@ -155,10 +119,19 @@ class Evaluate_Metrics:
             dict[str, np.array]: Dictionary of reduced metafeatures obtained through PCA,
                 where the keys are the names and the values are the reduced metafeature arrays.
         """
+        scaler = StandardScaler()
+
         X = np.vstack(list(normalised_metafeatures.values()))
 
         pca = PCA(n_components=n_components)
-        X_pca = pca.fit_transform(X)
+
+        pipeline = make_pipeline(scaler, pca)
+        X_pca = pipeline.fit_transform(X)
+
+        # This is for Debugging purposes
+        # print(pca.explained_variance_ratio_)
+        # print(pca.singular_values_)
+        # print(pca.explained_variance_)
 
         pca_dict = {
             name: vec for name, vec in zip(self.metric.metafeatures_dict.keys(), X_pca)
@@ -365,12 +338,10 @@ class Evaluate_Metrics:
         results = []
 
         for data_set_a, data_set_b in itertools.combinations(
-            self.metric.data_frames_list, 2
+            self.metric.data_frame_names, 2
         ):
-            cos_sim = self.cosine_sim_scipy(
-                data_set_a.name, data_set_b.name, metafeatures_dict
-            )
-            results.append((data_set_a.name, data_set_b.name, cos_sim[0][0]))
+            cos_sim = self.cosine_sim_scipy(data_set_a, data_set_b, metafeatures_dict)
+            results.append((data_set_a, data_set_b, cos_sim[0][0]))
 
         df = pd.DataFrame(
             results, columns=["dataset_name_a", "dataset_name_b", "cosine_similarity"]
@@ -445,7 +416,6 @@ class Evaluate_Metrics:
 
     def generate_evaluations(
         self,
-        normalisation: bool,
         dimension_reductions: List[List[Union[str, Dict[str, Union[int, str]]]]],
         visualize: bool = False,
     ):
@@ -463,10 +433,6 @@ class Evaluate_Metrics:
             ValueError: If a dimension reduction method is not recognised.
 
         """
-        if not isinstance(normalisation, bool):
-            raise TypeError(
-                f"`normalision` must be of type `bool`, not {type(normalisation)}"
-            )
 
         if not isinstance(visualize, bool):
             raise TypeError(
@@ -475,13 +441,7 @@ class Evaluate_Metrics:
 
         self.calculate_all_metrics()
 
-        if normalisation:
-            normalised_metafeatures = self.calculate_normalisation_for_all_metafeatures(
-                metafeatures=self.metric.metafeatures_dict,
-                normalisation_method=self.normalise_metrics_weights_robust_scaler,
-            )
-
-        if normalisation and dimension_reductions:
+        if dimension_reductions:
             # Mapping dimension reduction methods to their corresponding functions
             dimension_reduction_methods = {
                 "pca": self.principal_component_analysis,
@@ -500,7 +460,7 @@ class Evaluate_Metrics:
 
                 # Call the corresponding function
                 dimension_reduction_methods[method](
-                    normalised_metafeatures, **parameters
+                    self.metric.metafeatures_dict, **parameters
                 )
 
         if visualize:
@@ -619,14 +579,39 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    eval_metrics = Evaluate_Metrics(file_path="kp_test/datasets")
-
-    eval_metrics.generate_evaluations(
-        normalisation=True,
-        dimension_reductions=[
-            ["pca", {"n_components": 8}],
-            ["tsne", {"n_components": 2}],
-            ["umap", {"n_components": 2}],
-        ],
-        visualize=True,
+    eval_metrics = Evaluate_Metrics(
+        file_path="/Users/user/GitHub/Data-Mining/kp_test/datasets"
     )
+    eval_metrics.calculate_all_metrics()
+    # pprint(eval_metrics.metric.metafeatures_dict)
+
+    x = eval_metrics.metric.metafeatures_dict
+
+    for key in x:
+        x[key] = x[key].tolist()
+
+    df = pd.DataFrame.from_dict(x, orient="index")
+    df.columns = [
+        "number_of_features",
+        "number_of_examples",
+        "examples_feature_ratio",
+        "overall_mean",
+        "average_max",
+        "standard_deviation_mean",
+        "variance_mean",
+        "quantile_mean",
+        "skewness_mean",
+        "kurtosis_mean",
+        "number_of_feature_correlations",
+        "mean_25_percentile",
+        "mean_50_percentile",
+        "mean_75_percentile",
+        "cos_sim_mean",
+        "range_mean",
+        "coefficient_variation_mean",
+        "pos_covariance_mean",
+        "exact_zerp_covariance_mean",
+        "negative_covariance_mean",
+        "entropy_mean",
+    ]
+    df.to_csv("test.csv")
