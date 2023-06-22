@@ -82,9 +82,9 @@ class Evaluate_Metrics:
 
     def calculate_normalisation_for_all_metafeatures(
         self,
-        metafeatures: dict[str, np.array],
-        normalisation_method=normalise_metrics_standard_normaliser,
-    ) -> None:
+        metafeatures: dict[str, np.array]
+        #normalisation_method=normalise_metrics_standard_normaliser,
+    ) -> dict[str, np.array]:
         """Calculate the normalisation for all metafeatures.
 
         Args:
@@ -98,9 +98,8 @@ class Evaluate_Metrics:
         """
 
         normalised_dict = {}
-
         for key, value in metafeatures.items():
-            normalised_dict[key] = normalisation_method(value)
+            normalised_dict[key] = self.normalise_metrics_standard_normaliser(value)
 
         return normalised_dict
 

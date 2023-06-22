@@ -5,7 +5,7 @@ import strategy_recommendation.vector_space.vector_space as vector_space_class
 
 def check_vector_usage(path_to_vector_space):
     vector_space = vector_space_class.read_vector_space(path_to_vector_space)
-    vector_counter = [0] * 25
+    vector_counter = [0] * 21
     print(vector_counter)
     for index, row in vector_space.iterrows():
         i = 0
@@ -16,8 +16,6 @@ def check_vector_usage(path_to_vector_space):
                 vector_counter[i] = vector_counter[i] + 1
             i += 1
     print(vector_counter)
-    
-            
 
 
 def main():
