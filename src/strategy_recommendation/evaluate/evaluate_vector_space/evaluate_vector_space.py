@@ -1,24 +1,14 @@
 import pandas as pd
 import numpy as np
-#  from scipy.spatial.distance import cdist
 from strategy_recommendation.dataset_metafeatures.evaluate_metrics import Evaluate_Metrics
 import strategy_recommendation.strategy_performance.recommendation_handler as rec_handler
-import strategy_recommendation.vector_space.vector_space as vector_space
+import strategy_recommendation.vector_space.vector_space as vector_space_class
 from scipy.spatial.distance import cdist
-
-
-def read_vector_space(path_to_vector_space='/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/'):
-    # ToDo make this more compatible with the measurement like "accuracy". For this we could only read the column
-    #  with the metrics and the al-strategies
-    if len(path_to_vector_space.split('.')) < 2:
-        path_to_vector_space = path_to_vector_space + 'vector_space.pkl'
-    vector_space = pd.read_pickle(path_to_vector_space)
-    return vector_space
 
 
 def calculate_scoring(vector, path_to_vector_space="/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/vector_space.pkl"):
     scoring_df = pd.DataFrame(columns=['al-strategy', 'score_sum', 'summand_number'])
-    vector_space = read_vector_space(path_to_vector_space)
+    vector_space = vector_space_class.read_vector_space(path_to_vector_space)
     vector = np.array(vector)
     y_reshaped = vector.reshape(1, -1)
     for index, row in vector_space.iterrows():
@@ -69,7 +59,7 @@ def calculate_scoring(vector, path_to_vector_space="/home/wilhelm/Uni/data_minin
 def evaluate_1_run_old(path_to_datasets='/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'):
     evaluate_metrics = Evaluate_Metrics(path_to_datasets)
     evaluate_metrics.calculate_all_metrics()
-    test_set = vector_space.create_vector_space_split_at_n(evaluate_metrics)
+    test_set = vector_space_class.create_vector_space_split_at_n(evaluate_metrics)
     hit = 0
     miss = 0
     for vector_name in test_set:
@@ -89,7 +79,7 @@ def evaluate_1_run_old(path_to_datasets='/home/wilhelm/Uni/data_mining/Data-Mini
 def evaluate_1_run(path_to_datasets='/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'):
     evaluate_metrics = Evaluate_Metrics(path_to_datasets)
     evaluate_metrics.calculate_all_metrics()
-    test_set = vector_space.create_vector_space_split_at_n(evaluate_metrics)
+    test_set = vector_space_class.create_vector_space_split_at_n(evaluate_metrics)
     hit = 0
     miss = 0
     for vector_name in test_set:
@@ -109,7 +99,7 @@ def evaluate_1_run(path_to_datasets='/home/wilhelm/Uni/data_mining/Data-Mining/k
 
 def is_calculated_a_hit(calculated_first_place, vector_name):
     hit_list = rec_handler.get_all_strategy(dataset=vector_name.split(".")[0])
-    print(hit_list)
+    #  print(hit_list)
 
 
 
@@ -139,7 +129,7 @@ def get_averages(path_to_run='/home/wilhelm/Uni/data_mining/Data-Mining/src/stra
 def main():
     path_to_datasets = '/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'
     get_averages()
-    #evaluate_100_runs(path_to_datasets)
+    evaluate_100_runs(path_to_datasets)
 
 
 if __name__ == '__main__':

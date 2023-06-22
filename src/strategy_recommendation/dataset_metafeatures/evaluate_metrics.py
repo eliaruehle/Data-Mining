@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib.lines import Line2D
-from metrics import Metrics
+from strategy_recommendation.dataset_metafeatures.metrics import Metrics
 from numba.core.errors import NumbaDeprecationWarning
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA

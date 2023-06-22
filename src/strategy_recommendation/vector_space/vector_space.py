@@ -6,6 +6,15 @@ import strategy_recommendation.strategy_performance.recommendation_handler as re
 import random
 
 
+def read_vector_space(path_to_vector_space='/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/'):
+    # ToDo make this more compatible with the measurement like "accuracy". For this we could only read the column
+    #  with the metrics and the al-strategies
+    if len(path_to_vector_space.split('.')) < 2:
+        path_to_vector_space = path_to_vector_space + 'vector_space.pkl'
+    vector_space = pd.read_pickle(path_to_vector_space)
+    return vector_space
+
+
 def create_vector_space(path_to_datasets):
     evaluate_metrics = Evaluate_Metrics(path_to_datasets)
     evaluate_metrics.calculate_all_metrics()
@@ -54,8 +63,9 @@ def main():
     path_to_datasets = '/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'
     evaluate_metrics = Evaluate_Metrics(path_to_datasets)
     evaluate_metrics.calculate_all_metrics()
-    create_vector_space_split_at_n(evaluate_metrics)
-
+    #  create_vector_space_split_at_n(evaluate_metrics)
+    create_vector_space(path_to_datasets)
+    
 
 if __name__ == '__main__':
     main()
