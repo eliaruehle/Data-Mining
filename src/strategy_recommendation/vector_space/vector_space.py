@@ -15,6 +15,48 @@ def read_vector_space(path_to_vector_space='/home/wilhelm/Uni/data_mining/Data-M
     return vector_space
 
 
+def normalize_vectorspace(path_to_vector_space='/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/', number_of_features = 21):
+    #  if you have to read this, I am sorry. The code is very ugly and runs very slow. Out of time.
+    max_list = [0] * number_of_features  # 21 is number of metrics
+    min_list = [0] * number_of_features  #  same same
+    i = 0
+    vector_space = read_vector_space(path_to_vector_space)
+    for index, row in vector_space.iterrows():
+        for element in row["metric_vector"]:
+            if element > max_list[i]:
+                max_list[i] = element
+            if element < min_list[i]:
+                min_list[i] = element
+            i = i + 1
+        i = 0
+    print(max_list)
+    print(min_list)
+    data = {'max_list': [max_list], 'min_list': [min_list]}
+    normalization_lists = pd.DataFrame(data=data)
+    normalization_lists.to_pickle(
+        '/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/normalization_lists.pkl')
+    normalization_lists.to_csv(
+        '/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/normalization_lists.csv')
+    for index, row in vector_space.iterrows():
+        metric_vector = row['metric_vector']
+        i = 0
+        new_list = []
+        for element in metric_vector:
+            new_list.append((element - min_list[i]) / (max_list[i] - min_list[i]))
+            i = i + 1
+        new_list = np.array(new_list)
+        vector_space.at[index, 'metric_vector'] = new_list
+    print(vector_space)
+    vector_space.to_pickle(
+        '/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/vector_space.pkl')
+    vector_space.to_csv(
+        '/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/vector_space.csv')
+    
+
+def normalize_value(number, max_val, min_val):
+    return
+
+
 def create_vector_space(path_to_datasets):
     evaluate_metrics = Evaluate_Metrics(path_to_datasets)
     evaluate_metrics.calculate_all_metrics()
@@ -62,11 +104,12 @@ def create_vector_space_split_at_n(evaluate_metrics, n=10):
 
 
 def main():
-    path_to_datasets = '/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'
+    normalize_vectorspace()
+    """path_to_datasets = '/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'
     evaluate_metrics = Evaluate_Metrics(path_to_datasets)
     evaluate_metrics.calculate_all_metrics()
     #  create_vector_space_split_at_n(evaluate_metrics)
-    create_vector_space(path_to_datasets)
+    create_vector_space(path_to_datasets)"""
     
 
 if __name__ == '__main__':
