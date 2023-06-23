@@ -4,7 +4,7 @@ import os
 from ast import literal_eval
 from collections import Counter
 from typing import Dict, List, Tuple
-
+from collections import defaultdict
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -195,9 +195,10 @@ class Seed_Analysis:
         Returns:
             Dict[str, pd.DataFrame]: A dictionary of DataFrames for each metric, representing the frequency of unique pairs of values.
         """
-
         column_counts = {"pairs": {}}
+
         for metric, dfs in self.data_frames.items():
+            row_sum = defaultdict(list)
             pairs_freq = Counter()
 
             # unpack the tuple
@@ -205,17 +206,25 @@ class Seed_Analysis:
                 # get the first and last columns
                 first_col = df.iloc[:, 0]
                 last_col = df.iloc[:, -1]
+                total_row_sum = df.sum(axis=1)
 
                 # count frequency of pairs
-                pairs_freq += Counter(list(zip(first_col, last_col)))
+                for pair, sum_val in zip(zip(first_col, last_col), total_row_sum):
+                    row_sum[pair].append(sum_val)
+                    pairs_freq[(pair, sum_val)] += 1
 
-            # convert the Counter dict to a DataFrame
-            pairs_df = pd.DataFrame.from_records(
-                list(pairs_freq.items()), columns=["value", "count"]
-            )
+            # create a DataFrame for each unique pair
+            for pair, sums in row_sum.items():
+                for sum_val in set(sums):
+                    count = pairs_freq[(pair, sum_val)]
+                    column_counts["pairs"].setdefault(metric, []).append(
+                        {"value": pair, "total": sum_val, "count": count}
+                    )
 
-            # store a DataFrame
-            column_counts["pairs"][metric] = pairs_df
+            if metric in column_counts["pairs"]:
+                column_counts["pairs"][metric] = pd.DataFrame(
+                    column_counts["pairs"][metric]
+                )
 
         return column_counts
 
