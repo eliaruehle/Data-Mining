@@ -45,8 +45,8 @@ def normalize_vectorspace(path_to_vector_space='/home/wilhelm/Uni/data_mining/Da
             new_list.append((element - min_list[i]) / (max_list[i] - min_list[i]))
             i = i + 1
         new_list = np.array(new_list)
+        #  Todo get the rest of the vector space (als_dict)
         vector_space.at[index, 'metric_vector'] = new_list
-    print(vector_space)
     vector_space.to_pickle(
         '/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/vector_space.pkl')
     vector_space.to_csv(
@@ -77,7 +77,7 @@ def create_vector_space(path_to_datasets):
     vector_space.to_csv('/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/vector_space.csv')
 
 
-def create_vector_space_split_at_n(evaluate_metrics, n=10):
+def create_vector_space_split_at_n(evaluate_metrics, n=10, normalized=False):
     metric_vector_space = evaluate_metrics.metric.metafeatures_dict
     whole_metric_vector_space = []
     for element in metric_vector_space:

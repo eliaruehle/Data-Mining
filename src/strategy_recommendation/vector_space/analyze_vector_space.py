@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
+import os
 import strategy_recommendation.vector_space.vector_space as vector_space_class
+
+
 
 
 def check_vector_usage(path_to_vector_space):
