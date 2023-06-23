@@ -22,10 +22,6 @@ class BatchSizePerformance:
     def get_all_strategies(self):
         return self.get_subdirectories(self.source)
 
-    @staticmethod
-    def remove_nan_rows(data_frame: pd.DataFrame) -> pd.DataFrame:
-        return data_frame.dropna(subset=data_frame.columns[:-1], how="all")
-
     def generate_plot_for(self, dataset: str, metric: str):
         categorized = {}
         for batch_size in [1, 5, 10]:
@@ -58,7 +54,7 @@ class BatchSizePerformance:
             plt.plot(series)
         plt.xlabel('Score')
         plt.xlabel('Iteration')
-        plt.title(f'Average time series for dataset @{dataset} and metric @{metric}')
+        plt.title(f'Average time series for dataset \'{dataset}\' and metric \'{metric}\'')
         plt.legend(legend)
         plt.show()
 

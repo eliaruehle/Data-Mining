@@ -122,7 +122,7 @@ class Extrapolation:
 
 extrapolation = Extrapolation(
     source_directory="/beegfs/ws/1/s5968580-al_benchmark/exp_results/fuller_exp",
-    destination_directory="/home/vime121c/Workspaces/scratch/vime121c-db-project/Pain"
+    destination_directory="/home/vime121c/Workspaces/scratch/vime121c-db-project/Extrapolation"
 )
 
 warnings.filterwarnings('ignore')
