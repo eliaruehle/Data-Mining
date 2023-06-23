@@ -386,7 +386,7 @@ class Seed_Analysis:
             df = df[df["second_value"] >= threshold]
 
             # Sort DataFrame by the second value in descending order
-            df = df.sort_values(by=["second_value", "count"], ascending=False)
+            df = df.sort_values(by=["total"], ascending=False)
 
             # Initialize cumulative sum
             cumulative_sum = 0
@@ -406,7 +406,7 @@ class Seed_Analysis:
             filtered_df = pd.DataFrame(filtered_rows)
 
             # Retain only the necessary columns
-            filtered_df = filtered_df[["value", "count", "cumulative_sum"]]
+            filtered_df = filtered_df[["value", "count", "total", "cumulative_sum"]]
 
             # store the filtered DataFrame
             filtered_counts["pairs"][metric] = filtered_df
@@ -600,9 +600,9 @@ class Seed_Analysis:
 
 
 def run(
-    threshold_first: float,
-    threshold_last: float,
-    operator: str,
+    threshold_first=0,
+    threshold_last=0,
+    operator="less",
     hpc=False,
     save_filtered=False,
     plot=False,
@@ -681,21 +681,12 @@ def run(
 
 
 if __name__ == "__main__":
-    # run(
-    #     threshold_first=0,
-    #     threshold_last=0,
-    #     operator="greater_equal",
-    #     save_filtered=True,
-    #     plot=False,
-    #     plot_filtered=True,
-    # )
+    # run(hpc=True)
     seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
     pair_counts = seed.load_unique_pair_frequency(
-        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/column_pairs"
+        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/columns_pairs"
     )
-    top_k = seed.filter_top_k_pairs(
-        column_counts=pair_counts, top_k=50000, threshold=0.99
-    )
+    top_k = seed.filter_top_k_pairs(column_counts=pair_counts, top_k=50000, threshold=0)
     seed.save_top_k_pairs_to_csv(
         output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
         filtered_counts=top_k,
