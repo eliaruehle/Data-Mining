@@ -40,6 +40,7 @@ class Evaluate_Metrics:
         """
         self.metric = Metrics(file_path)
         self.reduced_metafeatures_dict: dict[str, np.array] = {}
+        self.standard_normaliser = StandardScaler()
 
     def calculate_all_metrics(self) -> None:
         """Calculates all metrics for all datasets in data_frames_list of the Metrics object."""
@@ -48,24 +49,13 @@ class Evaluate_Metrics:
             self.metric.number_of_features(data)
             self.metric.number_of_examples(data)
             self.metric.examples_feature_ratio(data)
-            self.metric.average_min(data)
-            self.metric.median_min(data)
             self.metric.overall_mean(data)
-            self.metric.total_geometric_mean(data)
-            self.metric.total_harmonic_mean(data)
-            # metric.overall_median(data)
             self.metric.average_max(data)
-            # metric.median_max(data)
             self.metric.standard_deviation_mean(data)
-            # metric.standard_deviation_median(data)
             self.metric.variance_mean(data)
-            # metric.variance_median(data)
             self.metric.quantile_mean(data)
-            # metric.quantile_median(data)
             self.metric.skewness_mean(data)
-            # metric.skewness_median(data)
             self.metric.kurtosis_mean(data)
-            # metric.kurtosis_median(data)
             self.metric.number_of_feature_correlations(data)
             self.metric.percentile(data)
             self.metric.coloumn_cosine_similarity_mean(data)
@@ -73,18 +63,9 @@ class Evaluate_Metrics:
             self.metric.coefficient_variation_mean(data)
             self.metric.covariance(data)
             self.metric.entropy_mean(data)
-            # metric.entropy_median(data)
-            #  This seems very pointless! All the data sets in use have no nan --> no information gain
-            # metric.proportion_of_missing_values(data)
-            #  This produces a dict, we can not handle as parameter --> might still come in handy
-            #  same with kurtosis and entropy
-            #  metric.skewness_of_features(data)
-            #  metric.entropies_of_features(data)
 
-    def normalise_metrics_weights_robust_scaler(
-        self, metafeatures: np.array
-    ) -> np.array:
-        """Normalizes the given metafeatures using a robust scaler.
+    def normalise_metrics_standard_normaliser(self, metafeatures: np.array) -> np.array:
+        """Normalizes the given metafeatures using a standard scaler.
 
         Args:
             metafeatures (np.array): The metafeatures to be normalized.
@@ -93,32 +74,16 @@ class Evaluate_Metrics:
             np.array: The normalized metafeatures.
         """
 
-        metafeatures_scaled = self.robust_scaler.fit_transform(
-            metafeatures.reshape(-1, 1)
-        )
-
-        return metafeatures_scaled.flatten()
-
-    def normalise_metrics_weights_min_max_scaler(
-        self, metafeatures: np.array
-    ) -> np.array:
-        """Normalizes the given metafeatures using a min-max scaler.
-
-        Args:
-            metafeatures (np.array): The metafeatures to be normalized.
-
-        Returns:
-            np.array: The normalized metafeatures.
-        """
-
-        metafeatures_scaled = self.min_max_scaler.fit_transform(
+        metafeatures_scaled = self.standard_normaliser.fit_transform(
             metafeatures.reshape(-1, 1)
         )
 
         return metafeatures_scaled.flatten()
 
     def calculate_normalisation_for_all_metafeatures(
-        self, metafeatures: dict[str, np.array], normalisation_method
+        self,
+        metafeatures: dict[str, np.array],
+        normalisation_method=normalise_metrics_standard_normaliser,
     ) -> None:
         """Calculate the normalisation for all metafeatures.
 
@@ -614,12 +579,39 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    eval_metrics = Evaluate_Metrics(file_path="kp_test/datasets")
-
-    eval_metrics.generate_evaluations(
-        dimension_reductions=[
-            ["pca", {"n_components": None}],
-        ],
+    eval_metrics = Evaluate_Metrics(
+        file_path="/Users/user/GitHub/Data-Mining/kp_test/datasets"
     )
+    eval_metrics.calculate_all_metrics()
+    # pprint(eval_metrics.metric.metafeatures_dict)
 
-    # print(eval_metrics.reduced_metafeatures_dict["pca"])
+    x = eval_metrics.metric.metafeatures_dict
+
+    for key in x:
+        x[key] = x[key].tolist()
+
+    df = pd.DataFrame.from_dict(x, orient="index")
+    df.columns = [
+        "number_of_features",
+        "number_of_examples",
+        "examples_feature_ratio",
+        "overall_mean",
+        "average_max",
+        "standard_deviation_mean",
+        "variance_mean",
+        "quantile_mean",
+        "skewness_mean",
+        "kurtosis_mean",
+        "number_of_feature_correlations",
+        "mean_25_percentile",
+        "mean_50_percentile",
+        "mean_75_percentile",
+        "cos_sim_mean",
+        "range_mean",
+        "coefficient_variation_mean",
+        "pos_covariance_mean",
+        "exact_zerp_covariance_mean",
+        "negative_covariance_mean",
+        "entropy_mean",
+    ]
+    df.to_csv("test.csv")
