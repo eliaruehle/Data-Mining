@@ -33,14 +33,17 @@ class BatchSizePerformance:
             path_to_metric = f'{self.source}/{strategy}/{dataset}/{metric}.csv.xz'
 
             # Load dataframe
-            df = pd.merge(pd.read_csv(path_to_metric), self.hyperparameters, on="EXP_UNIQUE_ID")
-            for batch_size in [1, 5, 10]:
-                dummy: pd.DataFrame = df.loc[df["EXP_BATCH_SIZE"] == batch_size].iloc[:, :-9]
-                # dummy.to_csv(f'{self.destination}/{metric}_{strategy}_{batch_size}.csv', index=False)
-                time_series = dummy.to_numpy().tolist()
-                time_series = time_series if time_series is not None else []
-                for series in time_series:
-                    categorized[batch_size].append(series)
+            try:
+                df = pd.merge(pd.read_csv(path_to_metric), self.hyperparameters, on="EXP_UNIQUE_ID")
+                for batch_size in [1, 5, 10]:
+                    dummy: pd.DataFrame = df.loc[df["EXP_BATCH_SIZE"] == batch_size].iloc[:, :-9]
+                    # dummy.to_csv(f'{self.destination}/{metric}_{strategy}_{batch_size}.csv', index=False)
+                    time_series = dummy.to_numpy().tolist()
+                    time_series = time_series if time_series is not None else []
+                    for series in time_series:
+                        categorized[batch_size].append(series)
+            except FileNotFoundError:
+                pass
 
         to_plot = []
         legend = []
@@ -90,14 +93,17 @@ class BatchSizePerformance:
                 path_to_metric = f'{self.source}/{strategy}/{dataset}/{metric}.csv.xz'
 
                 # Load dataframe
-                df = pd.merge(pd.read_csv(path_to_metric), self.hyperparameters, on="EXP_UNIQUE_ID")
-                for batch_size in [1, 5, 10]:
-                    dummy: pd.DataFrame = df.loc[df["EXP_BATCH_SIZE"] == batch_size].iloc[:, :-9]
-                    # dummy.to_csv(f'{self.destination}/{metric}_{strategy}_{batch_size}.csv', index=False)
-                    time_series = dummy.to_numpy().tolist()
-                    time_series = time_series if time_series is not None else []
-                    for series in time_series:
-                        categorized[batch_size].append(series)
+                try:
+                    df = pd.merge(pd.read_csv(path_to_metric), self.hyperparameters, on="EXP_UNIQUE_ID")
+                    for batch_size in [1, 5, 10]:
+                        dummy: pd.DataFrame = df.loc[df["EXP_BATCH_SIZE"] == batch_size].iloc[:, :-9]
+                        # dummy.to_csv(f'{self.destination}/{metric}_{strategy}_{batch_size}.csv', index=False)
+                        time_series = dummy.to_numpy().tolist()
+                        time_series = time_series if time_series is not None else []
+                        for series in time_series:
+                            categorized[batch_size].append(series)
+                except FileNotFoundError:
+                    pass
 
         to_plot = []
         legend = []
@@ -135,5 +141,5 @@ else:
     destination = '/home/ature/Programming/Python/DB-Mining-Data/Plots'
 
     analysis = BatchSizePerformance(source_directory=source, destination_directory=destination)
-    # analysis.generate_plot_for(dataset='Iris', metric='accuracy')
+    analysis.generate_plot_for(dataset='Iris', metric='accuracy')
     analysis.generate_all_average(metric='accuracy')
