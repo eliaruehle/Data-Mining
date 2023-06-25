@@ -38,7 +38,7 @@ def read_all_results() -> Matrix:
     matrix : Matrix
         A matrix object containing all combined values.
     """
-    root:str = "../results/clust"
+    root:str = "../results/clust2"
     result_path = "../results"
     if not os.path.exists(root):
         raise FileNotFoundError(f"Directory {root} does not exist.")
@@ -124,10 +124,10 @@ def main():
     # get result_dict as csv
     matrix.get_result_as_csv()
     # check against the guesses
-    check_against_assumptions()
+    # check_against_assumptions()
     print("Terminated normally and wrote all results!")
 
 
 if __name__ == "__main__":
-    #main()
-    check_against_assumptions()
+    main()
+    #check_against_assumptions()

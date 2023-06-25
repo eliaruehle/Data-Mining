@@ -89,7 +89,7 @@ class Matrix:
         None
         """
         result_dict = self.get_results_as_dict()
-        with open(os.path.join(self.result_path, "cpu_cluster_result.json"), "w") as json_file:
+        with open(os.path.join(self.result_path, "cpu_cluster_result_nopca.json"), "w") as json_file:
             json.dump(result_dict, json_file)
 
     def get_result_as_csv(self):
@@ -105,7 +105,7 @@ class Matrix:
         None
         """
         result_dict = self.get_results_as_dict()
-        with open(os.path.join(self.result_path, "cpu_cluster_result.csv"), "w", newline="") as csv_file:
+        with open(os.path.join(self.result_path, "cpu_cluster_result_nopca.csv"), "w", newline="") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=result_dict.keys())
             writer.writeheader()
             writer.writerow(result_dict)
@@ -142,12 +142,12 @@ class Matrix:
         --------
         None
         """
-        if not os.path.exists(os.path.join(self.result_path, "final_cluster.csv")):
+        if not os.path.exists(os.path.join(self.result_path, "final_cluster_nopca.csv")):
             mode = "x"
         else:
             mode = "w"
 
-        self.values.to_csv(os.path.join(self.result_path, "final_cluster.csv"), index=True, mode=mode)
+        self.values.to_csv(os.path.join(self.result_path, "final_cluster_nopca.csv"), index=True, mode=mode)
 
     def write_final_numeric_normalized_csv(self):
         """
@@ -161,13 +161,13 @@ class Matrix:
         --------
         None
         """
-        if not os.path.exists(os.path.join(self.result_path, "final_cluster_normalized.csv")):
+        if not os.path.exists(os.path.join(self.result_path, "final_cluster_nopca_normalized.csv")):
             mode = "x"
         else:
             mode = "w"
 
         normalized_matrix = self.normalize()
-        normalized_matrix.to_csv(os.path.join(self.result_path, "final_cluster_normalized.csv"), index=True, mode=mode)
+        normalized_matrix.to_csv(os.path.join(self.result_path, "final_cluster_nopca_normalized.csv"), index=True, mode=mode)
 
     def write_numeric_normalized_to_csv(self, metric: str):
         """
@@ -182,13 +182,13 @@ class Matrix:
         --------
         None
         """
-        if not os.path.exists(os.path.join(self.result_path, f"numeric_cluster_results_normalized_{metric}.csv")):
+        if not os.path.exists(os.path.join(self.result_path, f"numeric_cluster_results_nopca_normalized_{metric}.csv")):
             mode = "x"
         else:
             mode = "w"
 
         normalized_matrix: pd.DataFrame = self.normalize()
-        normalized_matrix.to_csv(os.path.join(self.result_path, f"numeric_cluster_results_normalized_{metric}.csv"), index=True, mode=mode)
+        normalized_matrix.to_csv(os.path.join(self.result_path, f"numeric_cluster_results_nopca_normalized_{metric}.csv"), index=True, mode=mode)
 
     def normalize(self):
         """
