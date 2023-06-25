@@ -6,16 +6,15 @@ from clustering.base_cluster import BaseClustering
 
 
 class DBSCANClustering(BaseClustering):
-
     """
-    Class for setup a OPTICS clustering.
+    Class to set up a OPTICS clustering.
     """
 
     def __init__(self, cluster_name: str, labels: List[str]) -> None:
         """
-        Iniitalizes the class object.
+        Initializes the class object.
 
-        Paramters:
+        Parameters:
         ----------
         cluster_name : str
             the name for the cluster object
@@ -32,7 +31,7 @@ class DBSCANClustering(BaseClustering):
         """
         Implementation of abstract method from BaseClustering class.
 
-        Paramters:
+        Parameters:
         ----------
         data_vecs : np.ndarray
             the data vectors for the clustering algorithm
@@ -41,7 +40,7 @@ class DBSCANClustering(BaseClustering):
         --------
         None
 
-        Explaination:
+        Explanation:
             - a larger eps value will result in larger clusters
             - a larger min_sample value will require more points to be present in the
               eps radius for a point to be considered a core point, resulting in smaller clusters
@@ -64,7 +63,7 @@ class DBSCANClustering(BaseClustering):
         Parameters:
         -----------
         cluster_size : int
-            the choosen cluster size for experiment
+            the chosen cluster size for experiment
 
         Returns:
         --------

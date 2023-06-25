@@ -94,7 +94,7 @@ class JsonAll:
             try:
                 df = self.load_single_csv(strategy=strategy, dataset=dataset, metric=metric)
                 df = df.loc[df["EXP_BATCH_SIZE"] == batch_size]
-                df = df.iloc[:, :(int(50 / batch_size) - 59)].dropna(axis=1)
+                df = df.iloc[:, :-9].dropna(axis=1)
 
                 as_numpy = df.to_numpy()
                 if len(as_numpy) > 0:

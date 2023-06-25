@@ -1,13 +1,12 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datasets.loader import Loader
-from project_helper.Logger import Logger
 from typing import List, Any
 
 
 class BaseRunner(ABC):
     """
-    The base runner class. Provides underlying structrure for every experiment runner.
+    The base runner class. Provides underlying structure for every experiment runner.
     """
 
     data: Loader
@@ -18,7 +17,7 @@ class BaseRunner(ABC):
         """
         Initialize the BaseRunner object.
 
-        Paramters:
+        Parameters:
         ----------
         data : Loader
             the loaded data
@@ -51,7 +50,7 @@ class BaseRunner(ABC):
         return self.name
 
     @abstractmethod
-    def run(self) -> None:
+    def run(self, index: int) -> None:
         """
         Runs all the experiments.
         """
@@ -60,6 +59,6 @@ class BaseRunner(ABC):
     @abstractmethod
     def get_components(self) -> List[Any]:
         """
-        Returns all the registeres components.
+        Returns all the registered components.
         """
         ...

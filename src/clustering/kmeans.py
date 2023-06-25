@@ -16,9 +16,9 @@ class KMeansClustering(BaseClustering):
         self, cluster_name: str, labels: List[str], num_clusters: List[int]
     ) -> None:
         """
-        Iniitalizes the class object.
+        Initializes the class object.
 
-        Paramters:
+        Parameters:
         ----------
         cluster_name : str
             the name for the cluster object
@@ -39,7 +39,7 @@ class KMeansClustering(BaseClustering):
         """
         Implementation of abstract method from BaseClustering class.
 
-        Paramters:
+        Parameters:
         ----------
         data_vecs : np.ndarray
             the data vectors for the clustering algorithm
@@ -63,7 +63,7 @@ class KMeansClustering(BaseClustering):
         Parameters:
         -----------
         cluster_size : int
-            the choosen cluster size for experiment
+            the chosen cluster size for experiment
 
         Returns:
         --------

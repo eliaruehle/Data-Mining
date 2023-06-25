@@ -1,3 +1,4 @@
+import sys
 import warnings
 
 from sklearn.exceptions import ConvergenceWarning
@@ -7,33 +8,27 @@ from experiment_runner import ClusterRunner
 from project_helper.method_types import CLUSTER_STRAT
 
 
-def main() -> None:
-    """
-    The main function of the project.
+def main(cluster_method: int):
+    hpc: bool = False
 
-    Parameters:
-    ----------
-    None
-
-    Returns:
-    --------
-    None
-    """
-    # ignore convergence warnings in sklearn clusterings
+    # Ignore convergence warnings in sklearn clusterings
     warnings.filterwarnings("ignore", category=ConvergenceWarning)
-    # the next one could be resolved by adjust OPTICS parameter
-    # TODO: adjust OPTICS Parameters to get rid of RuntimeWarnings instead of ignoring them
     warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-    # initialize loader
-    print("DEBUG: start reading in data")
-    PROJECT_DATA: Loader = Loader("/home/wilhelm/Uni/data_mining/Data-Mining/kp_test")
-    print("DEBUG: ready to load data")
+    # Initialize loader depending on whether we are on HPC
+    print("DEBUG: Start reading in data")
 
-    print("DEBUG: initialize cluster-runner")
-    # initialize experiment runners
-    CLUSTER_RUNNER = ClusterRunner(
-        PROJECT_DATA,
+    if hpc:
+        project_data: Loader = Loader("...")
+    else:
+        project_data: Loader = Loader("/home/ature/University/6th-Semester/Data-Mining/kp_test/strategies")
+
+    print("DEBUG: Ready to load data")
+    print("DEBUG: Initialize cluster-runner")
+
+    # Initialize experiment runners
+    cluster_runner = ClusterRunner(
+        project_data,
         "clusterings",
         [
             CLUSTER_STRAT.KMEANS,
@@ -42,10 +37,16 @@ def main() -> None:
             CLUSTER_STRAT.DBSCAN,
             CLUSTER_STRAT.GAUSSIAN_MIXTURE,
         ],
-        [4, 5],
+        [3, 4, 5],
     )
 
+    # Start clustering
+    cluster_runner.run(cluster_method)
 
-# start main
-print("now start main")
-main()
+
+# Start main
+print("Starting main ...")
+
+if len(sys.argv) > 1:
+    index = int(sys.argv[1])
+    main(index)

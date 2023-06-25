@@ -29,7 +29,7 @@ class STACKED(Enum):
 
 class ClusterRunner:
 
-    def __init__(self, mode: MODE, config: DictConfig, data: DataLoader, dim_reduce: bool = True,
+    def __init__(self, mode: MODE, config: DictConfig, data: DataLoader, dim_reduce: bool = False,
                  stacked: STACKED = STACKED.SINGLE) -> None:
         """
         The init function of the runner.

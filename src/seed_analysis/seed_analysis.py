@@ -4,7 +4,7 @@ import os
 from ast import literal_eval
 from collections import Counter
 from typing import Dict, List, Tuple
-
+from collections import defaultdict
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -195,9 +195,10 @@ class Seed_Analysis:
         Returns:
             Dict[str, pd.DataFrame]: A dictionary of DataFrames for each metric, representing the frequency of unique pairs of values.
         """
-
         column_counts = {"pairs": {}}
+
         for metric, dfs in self.data_frames.items():
+            row_sum = defaultdict(list)
             pairs_freq = Counter()
 
             # unpack the tuple
@@ -205,17 +206,25 @@ class Seed_Analysis:
                 # get the first and last columns
                 first_col = df.iloc[:, 0]
                 last_col = df.iloc[:, -1]
+                total_row_sum = df.sum(axis=1)
 
                 # count frequency of pairs
-                pairs_freq += Counter(list(zip(first_col, last_col)))
+                for pair, sum_val in zip(zip(first_col, last_col), total_row_sum):
+                    row_sum[pair].append(sum_val)
+                    pairs_freq[(pair, sum_val)] += 1
 
-            # convert the Counter dict to a DataFrame
-            pairs_df = pd.DataFrame.from_records(
-                list(pairs_freq.items()), columns=["value", "count"]
-            )
+            # create a DataFrame for each unique pair
+            for pair, sums in row_sum.items():
+                for sum_val in set(sums):
+                    count = pairs_freq[(pair, sum_val)]
+                    column_counts["pairs"].setdefault(metric, []).append(
+                        {"value": pair, "total": sum_val, "count": count}
+                    )
 
-            # store a DataFrame
-            column_counts["pairs"][metric] = pairs_df
+            if metric in column_counts["pairs"]:
+                column_counts["pairs"][metric] = pd.DataFrame(
+                    column_counts["pairs"][metric]
+                )
 
         return column_counts
 
@@ -377,7 +386,7 @@ class Seed_Analysis:
             df = df[df["second_value"] >= threshold]
 
             # Sort DataFrame by the second value in descending order
-            df = df.sort_values(by=["second_value", "count"], ascending=False)
+            df = df.sort_values(by=["total"], ascending=False)
 
             # Initialize cumulative sum
             cumulative_sum = 0
@@ -397,7 +406,7 @@ class Seed_Analysis:
             filtered_df = pd.DataFrame(filtered_rows)
 
             # Retain only the necessary columns
-            filtered_df = filtered_df[["value", "count", "cumulative_sum"]]
+            filtered_df = filtered_df[["value", "count", "total", "cumulative_sum"]]
 
             # store the filtered DataFrame
             filtered_counts["pairs"][metric] = filtered_df
@@ -591,9 +600,9 @@ class Seed_Analysis:
 
 
 def run(
-    threshold_first: float,
-    threshold_last: float,
-    operator: str,
+    threshold_first=0,
+    threshold_last=0,
+    operator="less",
     hpc=False,
     save_filtered=False,
     plot=False,
@@ -672,21 +681,12 @@ def run(
 
 
 if __name__ == "__main__":
-    # run(
-    #     threshold_first=0,
-    #     threshold_last=0,
-    #     operator="greater_equal",
-    #     save_filtered=True,
-    #     plot=False,
-    #     plot_filtered=True,
-    # )
+    # run(hpc=True)
     seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
     pair_counts = seed.load_unique_pair_frequency(
-        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/column_pairs"
+        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/columns_pairs"
     )
-    top_k = seed.filter_top_k_pairs(
-        column_counts=pair_counts, top_k=50000, threshold=0.99
-    )
+    top_k = seed.filter_top_k_pairs(column_counts=pair_counts, top_k=50000, threshold=0)
     seed.save_top_k_pairs_to_csv(
         output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
         filtered_counts=top_k,

@@ -15,7 +15,7 @@ class SimilarityMatrix:
     filename: str
     directory: str = "cl_res"
 
-    def __init__(self, labels: List[str], cluster_strat_name: str) -> None:
+    def __init__(self, labels: List[str], cluster_strategy_name: str) -> None:
         """
         Init function.
 
@@ -23,7 +23,7 @@ class SimilarityMatrix:
         -----------
         labels : List[str]
             the labels which indicate the rows and columns of the matrix
-        cluster_strat_name : str
+        cluster_strategy_name : str
             the name of the cluster strategy the matrix keeps track of
         -----------
 
@@ -34,7 +34,7 @@ class SimilarityMatrix:
         """
         self.labels = labels
         self.values = pd.DataFrame(index=labels, columns=labels, data=0)
-        self.filename = cluster_strat_name
+        self.filename = cluster_strategy_name
 
     def __str__(self) -> str:
         """
@@ -67,30 +67,30 @@ class SimilarityMatrix:
         None
         """
 
-        strat_label: Dict[str, int] = {
-            strat: label for strat, label in zip(strategies, labels)
+        strategy_label: Dict[str, int] = {
+            strategy: label for strategy, label in zip(strategies, labels)
         }
-        for strat, label in strat_label.items():
+        for strategy, label in strategy_label.items():
             same_cluster: List[str] = [
                 key
-                for key, value in strat_label.items()
+                for key, value in strategy_label.items()
                 if value == label and label >= 0
             ]
-            for sim_label_strat in same_cluster:
-                self.values.loc[strat, sim_label_strat] += 1
+            for sim_label_strategy in same_cluster:
+                self.values.loc[strategy, sim_label_strategy] += 1
 
-    def get_orderd_similarities(self) -> Dict[str, List[str]]:
+    def get_ordered_similarities(self) -> Dict[str, List[str]]:
         """
-        Function to retrieve the orderd similiarities.
+        Function to retrieve the ordered similarities.
 
-        Paramters:
+        Parameters:
         ----------
         None
 
         Returns:
         --------
         similarities : Dict[str, List[str]]
-            the dictionary with all similiar strategies
+            the dictionary with all similar strategies
         """
         similarities: Dict[str, List[str]] = dict()
         for index, row in self.values.iterrows():
@@ -103,7 +103,7 @@ class SimilarityMatrix:
         """
         Function to write the matrix data into an .csv file.
 
-        Paramters:
+        Parameters:
         ----------
         additional_tag : str
             an additional tag for specifying the name of the .csv file
@@ -162,27 +162,12 @@ class SimilarityMatrix:
         return similarity_matrix
 
     def normalize(self) -> 'SimilarityMatrix':
-        """
-        Normalize the similarity matrix by dividing the values by the sum of the upper half.
+        n_rows, n_cols = self.values.shape
 
-        Parameters:
-        -----------
-        similarity_matrix : SimilarityMatrix
-            The SimilarityMatrix object to be normalized.
-
-        Returns:
-        --------
-        None
-        """
-        # Get the upper triangle of the similarity matrix
-        upper_triangle = np.triu(self.values)
-
-        # Calculate the sum of the upper triangle values
-        upper_sum = np.sum(upper_triangle)
-
-        #self.values = self.values.astype(float)
-        # Normalize the similarity matrix values by dividing by the sum
-        self.values /= float(upper_sum)
+        for row in range(n_rows):
+            diagonal_value = self.values.iloc[row, row]
+            for col in range(n_cols):
+                self.values.iloc[row, col] = self.values.iloc[row, col] / diagonal_value
 
         return self
 

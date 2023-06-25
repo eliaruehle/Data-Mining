@@ -1,6 +1,5 @@
 from .base_cluster import *
 from .dbscan import *
-from .evaluation import *
 from .gaussian_mixture import *
 from .kmeans import *
 from .optics import *

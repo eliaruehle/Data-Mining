@@ -1,6 +1,5 @@
 from datasets.loader import Loader
 from project_helper.method_types import CLUSTER_STRAT
-from project_helper.Logger import Logger
 from experiment_runner import BaseRunner
 from typing import List
 from clustering import (
@@ -26,16 +25,16 @@ class ClusterRunner(BaseRunner):
     num_clusters: List[int]
 
     def __init__(
-        self,
-        data: Loader,
-        name: str,
-        components: List[CLUSTER_STRAT],
-        num_clusters: List[int],
+            self,
+            data: Loader,
+            name: str,
+            components: List[CLUSTER_STRAT],
+            num_clusters: List[int],
     ) -> None:
         """
         Initializes the ClusterRunner class.
 
-        Paramters:
+        Parameters:
         ----------
         data : Loader
             the loaded data
@@ -58,7 +57,7 @@ class ClusterRunner(BaseRunner):
         """
         Function that create the clustering objects.
 
-        Paramters:
+        Parameters:
         ----------
         None
 
@@ -69,36 +68,36 @@ class ClusterRunner(BaseRunner):
         """
         cluster_obj: List[BaseClustering] = list()
 
-        for strat in self.components:
-            match strat:
+        for cluster_method in self.components:
+            match cluster_method:
                 case 1:
-                    Strat: KMeansClustering = KMeansClustering(
+                    strategy: KMeansClustering = KMeansClustering(
                         "kmeans", self.labels, self.num_clusters
                     )
                 case 2:
-                    Strat: SpectralClustering = SpectralClustering(
+                    strategy: SpectralClustering = SpectralClustering(
                         "spec", self.labels, self.num_clusters
                     )
                 case 3:
-                    Strat: DBSCANClustering = DBSCANClustering("dbscan", self.labels)
+                    strategy: DBSCANClustering = DBSCANClustering("dbscan", self.labels)
                 case 4:
-                    Strat: OPTICSClustering = OPTICSClustering("optics", self.labels)
+                    strategy: OPTICSClustering = OPTICSClustering("optics", self.labels)
                 case 5:
-                    Strat: GaussianMixtureClustering = GaussianMixtureClustering(
+                    strategy: GaussianMixtureClustering = GaussianMixtureClustering(
                         "gaussian_mixture", self.labels
                     )
                 case _:
                     raise NoSuchClusterMethodError(
                         "Requested clustering method not registered"
                     )
-            cluster_obj.append(Strat)
+            cluster_obj.append(strategy)
         return cluster_obj
 
-    def run(self) -> None:
+    def run(self, index: int) -> None:
         """
         Function to run the clustering on the entire dataset.
 
-        Paramters:
+        Parameters:
         ----------
         None
 
@@ -106,6 +105,8 @@ class ClusterRunner(BaseRunner):
         --------
         None
         """
+        cluster_method = self.cluster_obj[index]
+        print(f"Method for clustering: {cluster_method}")
         for dataset in self.data.get_dataset_names():
             for metric in self.data.get_metric_names():
                 for hyper_tuple in self.data.get_hyperparameter_for_metric_filtering():
@@ -119,39 +120,26 @@ class ClusterRunner(BaseRunner):
                             & (frame["EXP_BATCH_SIZE"] == hyper_tuple[1])
                             & (frame["EXP_LEARNER_MODEL"] == hyper_tuple[2])
                             & (frame["EXP_TRAIN_TEST_BUCKET_SIZE"] == hyper_tuple[3])
-                        ]
+                            ]
                         single_vec = single_vec.iloc[:, :-9].dropna(axis=1)
-                        # proof if we collected some data, or data didn't exist
-                        if single_vec.empty:
-                            # continue loop
-                            # Logger.info(
-                            #    f"Single vector was empty. Strategy {strategy} skipped."
-                            # )
-                            pass
-                        else:
+                        # Proof if we collected some data, or data didn't exist
+                        if not single_vec.empty:
                             data_vectors.extend(single_vec.to_numpy())
                     if len(data_vectors) == self.data.NUM_STRATS:
                         try:
-                            for clustering in self.cluster_obj:
-                                clustering.cluster(data_vectors)
+                            cluster_method.cluster(data_vectors)
                             data_vectors.clear()
                         except:
-                            # Logger.info(
-                            #    ClusterFormatError("Error in clustering attempt!")
-                            # )
                             data_vectors.clear()
                     else:
                         data_vectors.clear()
-                break
-            break
 
         # saves the results from the clusterings
-        for cluster_strat in self.cluster_obj:
-            cluster_strat.write_cluster_results()
+        cluster_method.write_cluster_results()
 
     def get_components(self) -> List[str]:
         """
-        Function to get the actice cluster (components) of the Experiment.
+        Function to get the active cluster (components) of the Experiment.
 
         Parameters:
         -----------
@@ -162,4 +150,4 @@ class ClusterRunner(BaseRunner):
         cluster_strategy_names : List[str]
             the names of the experiments cluster strategies
         """
-        return [strat.name for strat in self.components]
+        return [cluster_method.name for cluster_method in self.components]
