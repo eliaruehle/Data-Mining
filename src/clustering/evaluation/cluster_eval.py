@@ -17,6 +17,8 @@ def get_csv_files(directory):
     return csv_files
 
 
+# Average Euclidean similarity: 54.74205240104193
+# Average Cosine similarity: 99.59091585800172
 def calculate_similarity(directory: str):
     csv_files = get_csv_files(directory)
 
@@ -186,8 +188,8 @@ def calculate_similarity_scores(directory: str):
     return scores
 
 
-# Average spearmanr: 0.5533234126984128
-# Average kendalltau: 0.49801587301587313
+# Average spearmanr: 0.5348462301587302
+# Average kendalltau: 0.48280423280423296
 def calc_average_ranking_agreement(directory: str):
     csv_files = get_csv_files(directory)
 
@@ -231,10 +233,10 @@ def calc_average_ranking_agreement(directory: str):
 
 
 # Directory where similarity matrices are stored
-source_directory = "/home/ature/University/6th-Semester/Data-Mining/src/clustering/generated/cl_res_small_dataset"
+source_directory = "/home/ature/University/6th-Semester/Data-Mining/src/clustering/generated/clustering_results"
 
 # Calculate both average Euclidean and average cosine similarity
-# calculate_similarity(directory=source_directory)
+calculate_similarity(directory=source_directory)
 
 spear, tau = calc_average_ranking_agreement(directory=source_directory)
 
