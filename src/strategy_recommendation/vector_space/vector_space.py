@@ -7,8 +7,6 @@ import random
 
 
 def read_vector_space(path_to_vector_space='/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/'):
-    # ToDo make this more compatible with the measurement like "accuracy". For this we could only read the column
-    #  with the metrics and the al-strategies
     if len(path_to_vector_space.split('.')) < 2:
         path_to_vector_space = path_to_vector_space + 'vector_space.pkl'
     vector_space = pd.read_pickle(path_to_vector_space)
@@ -61,7 +59,6 @@ def create_vector_space(path_to_datasets):
     evaluate_metrics = Evaluate_Metrics(path_to_datasets)
     evaluate_metrics.calculate_all_metrics()
     metric_vector_space = evaluate_metrics.metric.metafeatures_dict
-    #  print(metric_vector_space)
     print(evaluate_metrics.calculate_normalisation_for_all_metafeatures(metafeatures=metric_vector_space))
     vector_space = pd.DataFrame(columns=['dataset_name', 'metric_vector', 'als_dict'])
     for element in metric_vector_space:
@@ -77,18 +74,29 @@ def create_vector_space(path_to_datasets):
     vector_space.to_csv('/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/vector_space.csv')
 
 
-def create_vector_space_split_at_n(evaluate_metrics, n=10, normalized=False):
-    metric_vector_space = evaluate_metrics.metric.metafeatures_dict
+def create_vector_space_split_at_n(evaluate_metrics, pca, n=10, normalized=False):
+    #  Todo normalize vector here
+    if pca:
+        metric_vector_space = evaluate_metrics.reduced_metafeatures_dict
+    else:
+        metric_vector_space = evaluate_metrics.metric.metafeatures_dict
     whole_metric_vector_space = []
-    for element in metric_vector_space:
-        whole_metric_vector_space.append(element)
+    if pca:
+        for element in metric_vector_space['pca']:
+            whole_metric_vector_space.append(element)
+    else:
+        for element in metric_vector_space:
+            whole_metric_vector_space.append(element)
     random.shuffle(whole_metric_vector_space)
     test_set = whole_metric_vector_space[0:n]
     training_set = whole_metric_vector_space[n:len(whole_metric_vector_space)]
     vector_space = pd.DataFrame(columns=['dataset_name', 'metric_vector', 'als_dict'])
     for element in training_set:
         dataset_name = element.split('.')[0]
-        metric_vector = np.array(evaluate_metrics.metric.metafeatures_dict[element])
+        if pca:
+            metric_vector = np.array(evaluate_metrics.reduced_metafeatures_dict['pca'][element])
+        else:
+            metric_vector = np.array(evaluate_metrics.metric.metafeatures_dict[element])
         als_dict = rec_handler.get_all_strategies(dataset=dataset_name)
         """print(dataset_name)
         print(metric_vector)
@@ -99,12 +107,19 @@ def create_vector_space_split_at_n(evaluate_metrics, n=10, normalized=False):
         '/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/vector_space.pkl')
     vector_space.to_csv(
         '/home/wilhelm/Uni/data_mining/Data-Mining/src/strategy_recommendation/vector_space/vector_space.csv')
-    print(test_set)
     return test_set
 
 
 def main():
-    normalize_vectorspace()
+    path_to_datasets = '/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'
+    eval_metrics = Evaluate_Metrics(file_path=path_to_datasets)
+
+    eval_metrics.generate_evaluations(
+        dimension_reductions=[
+            ["pca", {"n_components": 8}]
+        ])
+    print(eval_metrics.reduced_metafeatures_dict)
+    #normalize_vectorspace()
     """path_to_datasets = '/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'
     evaluate_metrics = Evaluate_Metrics(path_to_datasets)
     evaluate_metrics.calculate_all_metrics()
