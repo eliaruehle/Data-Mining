@@ -8,9 +8,9 @@ from similarity_matrix import SimilarityMatrix
 
 
 def create_heatmap(clustering_method: str, title: str):
-  #filepath = "./remake/results/final_cluster_normalized.csv"
+  
   filepath = "./remake/results/" + clustering_method + ".csv"
-  #filepath = "./remake/results/final_cluster_nopca_normalized.csv"
+
   labels = ['ALIPY_CORESET_GREEDY','ALIPY_DENSITY_WEIGHTED','ALIPY_GRAPH_DENSITY','ALIPY_RANDOM','ALIPY_UNCERTAINTY_LC'
             ,'ALIPY_UNCERTAINTY_MM','LIBACT_DWUS','LIBACT_QUIRE','LIBACT_UNCERTAINTY_ENT','LIBACT_UNCERTAINTY_LC','LIBACT_UNCERTAINTY_SM',
             'OPTIMAL_GREEDY_10','OPTIMAL_GREEDY_20','PLAYGROUND_BANDIT','PLAYGROUND_GRAPH_DENSITY','PLAYGROUND_INFORMATIVE_DIVERSE',
@@ -19,8 +19,6 @@ def create_heatmap(clustering_method: str, title: str):
             'SKACTIVEML_US_LC','SKACTIVEML_US_MARGIN','SMALLTEXT_BREAKINGTIES','SMALLTEXT_CONTRASTIVEAL','SMALLTEXT_EMBEDDINGKMEANS',
             'SMALLTEXT_GREEDYCORESET','SMALLTEXT_LEASTCONFIDENCE','SMALLTEXT_LIGHTWEIGHTCORESET','SMALLTEXT_PREDICTIONENTROPY','SMALLTEXT_RANDOM']
 
-  #data_origin = pd.read_csv('./src/cl_res/'+ clustering_method +'.csv', index_col=0)
-  #data = SimilarityMatrix.from_csv(filepath='./src/cl_res/'+ clustering_method +'.csv').normalize().as_2d_list()
   data = SimilarityMatrix.from_csv(filepath=filepath).as_2d_list()
 
   fig, ax = plt.subplots(figsize=(30,20))
