@@ -8,7 +8,9 @@ from similarity_matrix import SimilarityMatrix
 
 
 def create_heatmap(clustering_method: str, title: str):
-  filepath = "./remake/results/final_cluster_normalized.csv"
+  #filepath = "./remake/results/final_cluster_normalized.csv"
+  filepath = "./remake/results/" + clustering_method + ".csv"
+  #filepath = "./remake/results/final_cluster_nopca_normalized.csv"
   labels = ['ALIPY_CORESET_GREEDY','ALIPY_DENSITY_WEIGHTED','ALIPY_GRAPH_DENSITY','ALIPY_RANDOM','ALIPY_UNCERTAINTY_LC'
             ,'ALIPY_UNCERTAINTY_MM','LIBACT_DWUS','LIBACT_QUIRE','LIBACT_UNCERTAINTY_ENT','LIBACT_UNCERTAINTY_LC','LIBACT_UNCERTAINTY_SM',
             'OPTIMAL_GREEDY_10','OPTIMAL_GREEDY_20','PLAYGROUND_BANDIT','PLAYGROUND_GRAPH_DENSITY','PLAYGROUND_INFORMATIVE_DIVERSE',
@@ -22,7 +24,7 @@ def create_heatmap(clustering_method: str, title: str):
   data = SimilarityMatrix.from_csv(filepath=filepath).as_2d_list()
 
   fig, ax = plt.subplots(figsize=(30,20))
-  sns.heatmap(data, ax=ax, annot=True, yticklabels=labels, xticklabels=labels, cbar_kws={'label': 'Similarity'}, cmap="YlGnBu")
+  sns.heatmap(data, ax=ax, annot=True, yticklabels=labels, xticklabels=labels, cbar_kws={'label': 'Similarity'}, cmap='YlGnBu')
   plt.yticks(rotation=0)
   plt.xticks(rotation=45, ha='right')
   plt.title(title)
@@ -31,5 +33,6 @@ def create_heatmap(clustering_method: str, title: str):
   plt.savefig('./src/clustering/generated/new_plots/'+ clustering_method + '.png', dpi=300, bbox_inches='tight')
 
 if __name__ == "__main__":
-  create_heatmap("all", "all")
-   
+  #create_heatmap("all", "all")
+  #create_heatmap("final_cluster_nopca_normalized_9","final cluster no PCA normalized")
+  create_heatmap("final_cluster_normalized","final cluster normalized")
