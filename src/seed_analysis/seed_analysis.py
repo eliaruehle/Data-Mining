@@ -196,9 +196,13 @@ class Seed_Analysis:
         os.makedirs(output_dir, exist_ok=True)
         for column, metrics in column_counts.items():
             for metric, df in metrics.items():
-                output_filename = f"{metric}_{column}_counts.csv"
-                output_path = os.path.join(output_dir, output_filename)
-                df.to_csv(output_path, index=False)
+                for batch_size in df["batch_size"].unique():
+                    df_filtered = df[df["batch_size"] == batch_size]
+                    output_filename = (
+                        f"{metric}_{column}_counts_batch_size_{batch_size}.csv"
+                    )
+                    output_path = os.path.join(output_dir, output_filename)
+                    df_filtered.to_csv(output_path, index=False)
 
     def load_saved_csvs(self, input_dir: str) -> Dict[str, Dict[str, pd.DataFrame]]:
         """
