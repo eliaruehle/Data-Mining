@@ -29,6 +29,7 @@ class Seed_Analysis:
     def __init__(self, file_path: str):
         self.file_path = file_path
         self.csv_files = self.find_csv_files()
+        self.done_workload = self.load_done_workload()
         self.data_frames = self.load_data_frames()
 
     def find_csv_files(self) -> Dict[str, List[str]]:
@@ -55,6 +56,20 @@ class Seed_Analysis:
                     csv_files[metric].append(os.path.join(root, filename))
 
         return csv_files
+
+    def load_done_workload(self):
+        done_workload_file = os.path.join(self.file_path, "05_done_workload.csv")
+
+        if not os.path.exists(done_workload_file):
+            raise FileNotFoundError(f"The file '{done_workload_file}' does not exist.")
+
+        done_workload = pd.read_csv(
+            done_workload_file,
+            usecols=["EXP_UNIQUE_ID", "EXP_BATCH_SIZE"],
+        )
+
+        done_workload = done_workload.drop_duplicates()
+        return done_workload
 
     def load_data_frames(self) -> Dict[str, List[Tuple[str, pd.DataFrame]]]:
         """
