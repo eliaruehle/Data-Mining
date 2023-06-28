@@ -255,11 +255,10 @@ class Seed_Analysis:
             for file, df in dfs:
                 # get the first and last columns
                 first_col = df.iloc[:, 0]
-                last_col = df.iloc[
-                    :, -2
-                ]  # -2 because the last column is now "batch_size"
+                # -2 because the last column is now "batch_size"
+                last_col = df.iloc[:, -2]
                 batch_size = df["batch_size"]
-                total_row_sum = df.sum(axis=1)
+                total_row_sum = df.iloc[:, :-1].sum(axis=1)
 
                 # count frequency of pairs along with the batch size
                 for pair, sum_val, size in zip(
