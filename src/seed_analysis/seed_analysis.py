@@ -141,12 +141,12 @@ class Seed_Analysis:
         self,
     ) -> Dict[str, Dict[str, pd.DataFrame]]:
         """
-        Count the frequency of unique values in the first and last columns of data frames for each metric.
+        Count the frequency of unique combinations of the first/last column values and batch sizes.
 
         Returns:
             Dict[str, Dict[str, pd.DataFrame]]:
                 A dictionary of DataFrames for each metric and column (first_column or last_column),
-                representing the frequency of unique values.
+                representing the frequency of unique combinations.
         """
         column_counts = {"first_column": {}, "last_column": {}}
         for metric, dfs in self.data_frames.items():
@@ -157,22 +157,26 @@ class Seed_Analysis:
             for file, df in dfs:
                 # get the first and last columns
                 first_col = df.iloc[:, 0]
-                last_col = df.iloc[:, -1]
+                last_col = df.iloc[:, -2]  # -2 Because -1 is "batch_size" column
+                batch_size = df["batch_size"]
 
-                # count frequency
-                first_col_freq += Counter(first_col)
-                last_col_freq += Counter(last_col)
+                # count frequency considering the batch size as a separate value
+                for value, size in zip(first_col, batch_size):
+                    first_col_freq[(value, size)] += 1
+                for value, size in zip(last_col, batch_size):
+                    last_col_freq[(value, size)] += 1
 
             # convert the Counter dict to a DataFrame
             first_col_df = pd.DataFrame.from_records(
-                list(first_col_freq.items()), columns=["value", "count"]
+                [(*k, v) for k, v in first_col_freq.items()],
+                columns=["value", "batch_size", "count"],
             )
-
             last_col_df = pd.DataFrame.from_records(
-                list(last_col_freq.items()), columns=["value", "count"]
+                [(*k, v) for k, v in last_col_freq.items()],
+                columns=["value", "batch_size", "count"],
             )
 
-            # store a tuple with the filename and the DataFrame
+            # store the DataFrame
             column_counts["first_column"][metric] = first_col_df
             column_counts["last_column"][metric] = last_col_df
 
