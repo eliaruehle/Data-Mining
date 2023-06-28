@@ -90,10 +90,11 @@ class Seed_Analysis:
                     file = future_to_file[future]
                     try:
                         df = future.result()
+                        merged_df = self.merge_dataframes(df)
                     except Exception as exc:
                         print("%r generated an exception: %s" % (file, exc))
                     else:
-                        data_frames[metric].append((file, df))
+                        data_frames[metric].append((file, merged_df))
             return data_frames
 
     def _load_dataframe_helper(self, file: str) -> pd.DataFrame:
@@ -107,8 +108,34 @@ class Seed_Analysis:
             pd.DataFrame: The loaded DataFrame.
         """
         df = pd.read_csv(file, compression="xz")
-        df = df.drop(columns="EXP_UNIQUE_ID", errors="ignore")
         return df
+
+    def merge_dataframes(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Merge input DataFrame with done_workload and replace the matching "EXP_UNIQUE_ID" with the Value from the "EXP_BATCH_SIZE" column. Then rename the column to "batch_size".
+
+        Args:
+            df (pd.DataFrame): DataFrame to be merged.
+
+        Returns:
+            pd.DataFrame: The merged DataFrame.
+        """
+
+        if "EXP_UNIQUE_ID" not in df.columns:
+            raise KeyError(
+                "Column 'EXP_UNIQUE_ID' not found in the provided DataFrame."
+            )
+
+        merged_df = pd.merge(self.done_workload, df, on="EXP_UNIQUE_ID", how="inner")
+
+        # Drop the 'EXP_UNIQUE_ID' column
+        merged_df = merged_df.drop(columns=["EXP_UNIQUE_ID"])
+
+        # Rename the 'EXP_BATCH_SIZE' column to 'batch_size' and move it to the end
+        batch_size = merged_df.pop("EXP_BATCH_SIZE")
+        merged_df = merged_df.assign(batch_size=batch_size)
+
+        return merged_df
 
     def count_unique_start_and_end_frequency(
         self,
