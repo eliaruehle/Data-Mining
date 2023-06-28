@@ -240,7 +240,7 @@ class Seed_Analysis:
 
     def count_unique_start_and_end_pair_frequency(self) -> Dict[str, pd.DataFrame]:
         """
-        Count the frequency of unique pairs of values in the first and last columns of data frames for each metric.
+        Count the frequency of unique pairs of values in the first and last columns of data frames for each metric along with the batch size.
 
         Returns:
             Dict[str, pd.DataFrame]: A dictionary of DataFrames for each metric, representing the frequency of unique pairs of values.
@@ -255,20 +255,30 @@ class Seed_Analysis:
             for file, df in dfs:
                 # get the first and last columns
                 first_col = df.iloc[:, 0]
-                last_col = df.iloc[:, -1]
+                last_col = df.iloc[
+                    :, -2
+                ]  # -2 because the last column is now "batch_size"
+                batch_size = df["batch_size"]
                 total_row_sum = df.sum(axis=1)
 
-                # count frequency of pairs
-                for pair, sum_val in zip(zip(first_col, last_col), total_row_sum):
-                    row_sum[pair].append(sum_val)
-                    pairs_freq[(pair, sum_val)] += 1
+                # count frequency of pairs along with the batch size
+                for pair, sum_val, size in zip(
+                    zip(first_col, last_col), total_row_sum, batch_size
+                ):
+                    row_sum[(pair, size)].append(sum_val)
+                    pairs_freq[((pair, size), sum_val)] += 1
 
-            # create a DataFrame for each unique pair
-            for pair, sums in row_sum.items():
+            # create a DataFrame for each unique pair and batch size
+            for (pair, size), sums in row_sum.items():
                 for sum_val in set(sums):
-                    count = pairs_freq[(pair, sum_val)]
+                    count = pairs_freq[((pair, size), sum_val)]
                     column_counts["pairs"].setdefault(metric, []).append(
-                        {"value": pair, "total": sum_val, "count": count}
+                        {
+                            "value": pair,
+                            "total": sum_val,
+                            "count": count,
+                            "batch_size": size,
+                        }
                     )
 
             if metric in column_counts["pairs"]:
