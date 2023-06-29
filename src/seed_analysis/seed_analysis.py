@@ -2,9 +2,8 @@ import concurrent.futures
 import fnmatch
 import os
 from ast import literal_eval
-from collections import Counter
+from collections import Counter, defaultdict
 from typing import Dict, List, Tuple
-from collections import defaultdict
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -204,7 +203,9 @@ class Seed_Analysis:
                     output_path = os.path.join(output_dir, output_filename)
                     df_filtered.to_csv(output_path, index=False)
 
-    def load_saved_csvs(self, input_dir: str) -> Dict[str, Dict[str, pd.DataFrame]]:
+    def load_saved_csvs(
+        self, input_dir: str
+    ) -> Dict[str, Dict[str, Dict[int, pd.DataFrame]]]:
         """
         Load the saved CSV files from a directory into a dictionary of data frames.
 
@@ -212,10 +213,10 @@ class Seed_Analysis:
             input_dir (str): The directory from which to load the CSV files.
 
         Returns:
-            Dict[str, Dict[str, pd.DataFrame]]: A dictionary of DataFrames for each metric and column (first_column or last_column).
+            Dict[str, Dict[str, Dict[int, pd.DataFrame]]]: A dictionary of DataFrames for each metric, column, and batch_size.
         """
 
-        data_frames = {"first_column": {}, "last_column": {}}
+        data_frames = defaultdict(lambda: defaultdict(dict))
 
         # Create a list of csv files in the output directory
         csv_files = [f for f in os.listdir(input_dir) if f.endswith(".csv")]
@@ -227,14 +228,18 @@ class Seed_Analysis:
             # Load the file into a DataFrame
             df = pd.read_csv(file_path)
 
-            # Extract the metric name from the file name
-            metric, _, _ = file.rpartition("_")
+            # Extract the metric, column, and batch_size from the file name
+            file_name = file.replace(".csv", "")
+            metric, column = file_name.rsplit("_", 2)[:2]
+            batch_size = int(file_name.rsplit("_", 2)[-1])
+
+            # Print out some debugging information to make sure everything is working correctly
+            # print(
+            #     f"Loading file '{file}' with parsed info - Metric: {metric}, Column: {column}, Batch size: {batch_size}"
+            # )
 
             # Store the DataFrame in the corresponding dictionary
-            if "first_column" in file:
-                data_frames["first_column"][metric] = df
-            elif "last_column" in file:
-                data_frames["last_column"][metric] = df
+            data_frames[metric][column][batch_size] = df
 
         return data_frames
 
@@ -287,7 +292,9 @@ class Seed_Analysis:
 
         return column_counts
 
-    def load_unique_pair_frequency(self, input_dir: str) -> Dict[str, pd.DataFrame]:
+    def load_unique_pair_frequency(
+        self, input_dir: str
+    ) -> Dict[str, Dict[int, pd.DataFrame]]:
         """
         Load csv files of unique pair frequency data from a directory, convert them into DataFrames and store
         them in a dictionary where key is metric name and value is corresponding DataFrame.
@@ -296,10 +303,10 @@ class Seed_Analysis:
             input_dir (str): Directory path where csv files are located.
 
         Returns:
-            Dict[str, DataFrame]: A dictionary containing DataFrames.
+            Dict[str, Dict[int, DataFrame]]: A dictionary containing DataFrames.
         """
 
-        data_frames = {"pairs": {}}
+        data_frames = {}
 
         # Create a list of csv files in the output directory
         csv_files = [f for f in os.listdir(input_dir) if f.endswith(".csv")]
@@ -311,197 +318,100 @@ class Seed_Analysis:
             # Load the file into a DataFrame
             df = pd.read_csv(file_path)
 
-            # Extract the metric name from the file name
-            metric, _, _ = file.rpartition("_")
+            # Extract the metric name and batch size from the file name
+            metric, _, batch_size_str = file.replace(".csv", "").rpartition("_")
+
+            batch_size = int(batch_size_str)
 
             # Store the DataFrame in the corresponding dictionary
-            if "pairs" in file:
-                data_frames["pairs"][metric] = df
+            if metric not in data_frames:
+                data_frames[metric] = {}
+
+            data_frames[metric][batch_size] = df
 
         return data_frames
 
-    def filter_pairs(
-        self,
-        column_counts: Dict[str, pd.DataFrame],
-        threshold_first: float,
-        threshold_last: float,
-        operator: str,
-    ) -> Dict[str, pd.DataFrame]:
-        """
-        Filters the pairs based on the provided thresholds and operator.
-
-        Args:
-            column_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with pair counts.
-            threshold_first (float): Threshold for the first value in pair.
-            threshold_last (float): Threshold for the second value in pair.
-            operator (str): Comparison operator to use.
-
-        Returns:
-            Dict[str, DataFrame]: Dictionary containing filtered DataFrames.
-        """
-        allowed_operators = [
-            "less",
-            "less_equal",
-            "greater",
-            "greater_equal",
-            "less_and_equal",
-            "less_equal_and_equal",
-            "equal_and_less",
-            "equal_and_less_equal",
-            "less_and_greater_equal",
-        ]
-
-        filtered_counts = {"pairs": {}}
-        for metric, df in column_counts["pairs"].items():
-            filtered_rows = []
-
-            for _, row in df.iterrows():
-                # Convert the string to a tuple of floats
-                pair = literal_eval(row["value"])
-
-                match operator:
-                    case "less":
-                        condition = (
-                            pair[0] < threshold_first and pair[1] < threshold_last
-                        )
-                    case "less_equal":
-                        condition = (
-                            pair[0] <= threshold_first and pair[1] <= threshold_last
-                        )
-                    case "greater":
-                        condition = (
-                            pair[0] > threshold_first and pair[1] > threshold_last
-                        )
-                    case "greater_equal":
-                        condition = (
-                            pair[0] >= threshold_first and pair[1] >= threshold_last
-                        )
-                    case "less_and_equal":
-                        condition = (
-                            pair[0] < threshold_first and pair[1] == threshold_last
-                        )
-                    case "less_equal_and_equal":
-                        condition = (
-                            pair[0] <= threshold_first and pair[1] == threshold_last
-                        )
-                    case "equal_and_less":
-                        condition = (
-                            pair[0] == threshold_first and pair[1] < threshold_last
-                        )
-                    case "equal_and_less_equal":
-                        condition = (
-                            pair[0] == threshold_first and pair[1] <= threshold_last
-                        )
-                    case "less_and_greater_equal":
-                        condition = (
-                            pair[0] < threshold_first and pair[1] >= threshold_last
-                        )
-
-                    case _:
-                        raise ValueError(
-                            f"Unknown operator value: '{operator}'. Expected: '{allowed_operators}'"
-                        )
-
-                if condition:
-                    filtered_rows.append(row)
-
-            # Convert the list of filtered rows back to a DataFrame
-            filtered_df = pd.DataFrame(filtered_rows)
-
-            # store the filtered DataFrame
-            filtered_counts["pairs"][metric] = filtered_df
-
-        return filtered_counts
-
     def filter_top_k_pairs(
         self,
-        column_counts: Dict[str, pd.DataFrame],
+        column_counts: Dict[str, Dict[int, pd.DataFrame]],
         top_k: int,
         threshold: float,
-    ) -> Dict[str, pd.DataFrame]:
+    ) -> Dict[str, Dict[int, pd.DataFrame]]:
         """
         Filters the pairs based on the top_k results and a minimum threshold for the second value in a pair.
 
         Args:
-            column_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with pair counts.
+            column_counts (Dict[str, Dict[int, DataFrame]]): Dictionary containing DataFrames with pair counts.
             top_k (int): Minimum cumulative sum of counts to reach.
             threshold (float): Minimum value for the second value in a pair.
 
         Returns:
-            Dict[str, DataFrame]: Dictionary containing filtered DataFrames.
+            Dict[str, Dict[int, DataFrame]]: Dictionary containing filtered DataFrames.
         """
 
-        filtered_counts = {"pairs": {}}
-        for metric, df in column_counts["pairs"].items():
-            # Convert the string representation of tuple to actual tuple
-            df["value"] = df["value"].apply(lambda x: literal_eval(x))
+        filtered_counts = {}
 
-            # Split the tuples into two separate columns
-            df[["first_value", "second_value"]] = pd.DataFrame(
-                df["value"].tolist(), index=df.index
-            )
+        for metric, batch_sizes in column_counts.items():
+            filtered_counts[metric] = {}
 
-            # Only keep rows where the second value of the tuple is greater than or equal to the threshold
-            df = df[df["second_value"] >= threshold]
+            for batch_size, df in batch_sizes.items():
+                # Convert the string representation of tuple to actual tuple
+                df["value"] = df["value"].apply(literal_eval)
 
-            # Sort DataFrame by the second value in descending order
-            df = df.sort_values(by=["total"], ascending=False)
+                # Split the tuples into two separate columns
+                df[["first_value", "second_value"]] = pd.DataFrame(
+                    df["value"].tolist(), index=df.index
+                )
 
-            # Initialize cumulative sum
-            cumulative_sum = 0
-            filtered_rows = []
+                # Only keep rows where the second value of the tuple is greater than or equal to the threshold
+                df = df[df["second_value"] >= threshold]
 
-            # Iterate over the DataFrame rows
-            for _, row in df.iterrows():
-                # If the cumulative sum is less than top_k, add the row
-                if cumulative_sum < top_k:
-                    cumulative_sum += row["count"]
-                    row["cumulative_sum"] = cumulative_sum
-                    filtered_rows.append(row)
-                else:
-                    break  # If the cumulative sum has reached top_k, stop adding rows
+                # Sort DataFrame by the second value in descending order
+                df = df.sort_values(by=["total"], ascending=False)
 
-            # Convert the list of filtered rows back to a DataFrame
-            filtered_df = pd.DataFrame(filtered_rows)
+                # Initialize cumulative sum
+                cumulative_sum = 0
+                filtered_rows = []
 
-            # Retain only the necessary columns
-            filtered_df = filtered_df[["value", "count", "total", "cumulative_sum"]]
+                # Iterate over the DataFrame rows
+                for _, row in df.iterrows():
+                    # If the cumulative sum is less than top_k, add the row
+                    if cumulative_sum < top_k:
+                        cumulative_sum += row["count"]
+                        row["cumulative_sum"] = cumulative_sum
+                        filtered_rows.append(row)
+                    else:
+                        break  # If the cumulative sum has reached top_k, stop adding rows
 
-            # store the filtered DataFrame
-            filtered_counts["pairs"][metric] = filtered_df
+                # Convert the list of filtered rows back to a DataFrame
+                filtered_df = pd.DataFrame(filtered_rows)
+
+                # Retain only the necessary columns
+                filtered_df = filtered_df[["value", "count", "total", "cumulative_sum"]]
+
+                # Store the filtered DataFrame
+                filtered_counts[metric][batch_size] = filtered_df
 
         return filtered_counts
 
-    def save_filtered_pairs_to_csv(
-        self, output_dir: str, filtered_counts: Dict[str, pd.DataFrame]
+    def save_top_k_to_csv(
+        self, output_dir: str, filtered_counts: Dict[str, Dict[int, pd.DataFrame]]
     ):
         """
         Save the filtered counts to csv files.
 
         Args:
             output_dir (str): Directory path where csv files will be saved.
-            filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
+            filtered_counts (Dict[str, Dict[int, DataFrame]]): Dictionary containing DataFrames with filtered counts.
         """
 
         os.makedirs(output_dir, exist_ok=True)
-        for metric, df in filtered_counts["pairs"].items():
-            output_filename = f"{metric}_filtered_pairs.csv"
-            output_path = os.path.join(output_dir, output_filename)
-            df.to_csv(output_path, index=False)
 
-    def save_top_k_pairs_to_csv(
-        self, filtered_counts: Dict[str, pd.DataFrame], output_dir: str
-    ) -> None:
-        """
-        Save the filtered pairs to csv files.
-
-        Args:
-            filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
-            output_dir (str): The directory where to save the csv files.
-        """
-        for metric, df in filtered_counts["pairs"].items():
-            output_path = os.path.join(output_dir, f"top_k_{metric}.csv")
-            df.to_csv(output_path, index=False)
+        for metric, batch_sizes in filtered_counts.items():
+            for batch_size, df in batch_sizes.items():
+                output_filename = f"{metric}_top_k_{batch_size}.csv"
+                output_path = os.path.join(output_dir, output_filename)
+                df.to_csv(output_path, index=False)
 
     def plot_histograms(self, column_counts: Dict[str, pd.DataFrame], column_name: str):
         """
@@ -546,154 +456,112 @@ class Seed_Analysis:
             plt.tight_layout()
             plt.show()
 
-    def plot_histograms_filtered_pairs(self, filtered_counts: Dict[str, pd.DataFrame]):
+    def plot_histograms_batchsize(
+        self,
+        column_counts: Dict[str, Dict[str, Dict[int, pd.DataFrame]]],
+        column_name: str,
+    ):
         """
-        Plot histograms of the filtered counts for the first and second value in the pair in separate subplots.
+        Plot histograms of the column counts for each batch size separately.
 
         Args:
-            filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
+            column_counts (Dict[str, Dict[str, Dict[int, pd.DataFrame]]]): Nested dictionary containing DataFrames with column counts.
+            column_name (str): Name of the column to be plotted.
         """
 
-        for metric, df in filtered_counts["pairs"].items():
-            # Convert the string representation of tuple to actual tuple
-            df["value"] = df["value"].apply(lambda x: literal_eval(x))
+        # Loop over the different metrics
+        for metric, data in column_counts.items():
+            # Loop over the different columns and batch sizes for each metric
+            for column, batch_sizes in data.items():
+                if column == column_name:
+                    # Loop over batch sizes
+                    for batch_size, df in batch_sizes.items():
+                        # Create a new figure for each batch size
+                        plt.figure(figsize=(20, 6))
 
-            # Split the tuples into two separate columns
-            df[["first_value", "second_value"]] = pd.DataFrame(
-                df["value"].tolist(), index=df.index
-            )
+                        # Create a label for the current batch size
+                        batch_size = f"Batch size {batch_size}"
 
-            # Create figure with two subplots
-            fig, axes = plt.subplots(nrows=2, figsize=(20, 12))
+                        # Calculate total count for percentage calculation
+                        total_count = df["count"].sum()
 
-            # Plot histogram of the "second_value" in the first subplot
-            plot = sns.histplot(
-                data=df,
-                x="second_value",
-                weights="count",
-                bins=30,
-                kde=False,
-                label=metric,
-                ax=axes[0],  # assign this plot to the first subplot
-            )
+                        # Plot the histogram for the current batch size
+                        plot = sns.histplot(
+                            data=df,
+                            x="value",
+                            weights="count",
+                            bins=30,
+                            label=batch_size,
+                        )
 
-            total = float(df["count"].sum())
-            for p in plot.patches:
-                percentage = "{:.1f}%".format(100 * p.get_height() / total)
-                x = p.get_x() + p.get_width() / 2
-                y = p.get_y() + p.get_height()
-                plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
+                        # Add percentage on top of each bar
+                        for p in plot.patches:
+                            height = p.get_height()
+                            plot.text(
+                                p.get_x() + p.get_width() / 2.0,
+                                height + 3,
+                                "{:1.2f}%".format(height / total_count * 100),
+                                ha="center",
+                                fontsize=10,
+                            )
 
-            # Labels and title for the first plot
-            plot.set_title(f"Histogram for second values: {metric}")
-            plot.set_xlabel("Second Value")
-            plot.set_ylabel("Frequency")
+                        # Set the title and labels for each subplot
+                        plt.title(f"{metric} Histogram for Final Values - {batch_size}")
+                        plt.xlabel("Value")
+                        plt.ylabel("Frequency")
 
-            # Plot histogram of "first_value" in the second subplot
-            plot = sns.histplot(
-                data=df,
-                x="first_value",
-                weights="count",
-                bins=30,
-                kde=False,
-                label=metric,
-                ax=axes[1],  # assign this plot to the second subplot
-            )
-
-            total = float(df["count"].sum())
-            for p in plot.patches:
-                percentage = "{:.1f}%".format(100 * p.get_height() / total)
-                x = p.get_x() + p.get_width() / 2
-                y = p.get_y() + p.get_height()
-                plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
-
-            # Labels and title for the second plot
-            plot.set_title(f"Histogram for first values: {metric}")
-            plot.set_xlabel("First Value")
-            plot.set_ylabel("Frequency")
-
-            # Show the plots
-            plt.tight_layout()
-            plt.show()
+                        # Show the plot
+                        plt.show()
 
     def plot_histograms_top_k_pairs(
-        self, filtered_counts: Dict[str, pd.DataFrame]
+        self, filtered_counts: Dict[str, Dict[int, pd.DataFrame]]
     ) -> None:
         """
         Plot histograms of the filtered counts.
 
         Args:
-            filtered_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with filtered counts.
+            filtered_counts (Dict[str, Dict[int, DataFrame]]): Dictionary containing DataFrames with filtered counts.
         """
         max_cumulative_sum = 0
-        for metric, df in filtered_counts["pairs"].items():
-            max_cumulative_sum = df["cumulative_sum"].max()
-            # Split the tuples into two separate columns
-            df[["first_value", "second_value"]] = pd.DataFrame(
-                df["value"].tolist(), index=df.index
-            )
 
-            # Plot histogram of the "first_value"
-            plt.figure(figsize=(20, 6))
-            plot = sns.histplot(
-                data=df,
-                x="first_value",
-                weights="count",
-                bins=30,
-                kde=False,
-                label=metric,
-            )
-            total = float(df["count"].sum())
-            for p in plot.patches:
-                percentage = "{:.1f}%".format(100 * p.get_height() / total)
-                x = p.get_x() + p.get_width() / 2
-                y = p.get_y() + p.get_height()
-                plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
+        for metric, batch_sizes in filtered_counts.items():
+            for batch_size, df in batch_sizes.items():
+                max_cumulative_sum = df["cumulative_sum"].max()
+                # Split the tuples into two separate columns
+                df[["first_value", "second_value"]] = pd.DataFrame(
+                    df["value"].tolist(), index=df.index
+                )
 
-            plt.title(f"Histogram for top-k pairs ({max_cumulative_sum}): {metric}")
-            plt.xlabel("Starting Values")
-            plt.ylabel("Frequency")
-            plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
-            plt.tight_layout()
-            plt.show()
+                # Plot histogram of the "first_value"
+                plt.figure(figsize=(20, 6))
+                plot = sns.histplot(
+                    data=df,
+                    x="first_value",
+                    weights="count",
+                    bins=30,
+                    kde=False,
+                    label=f"Batch size {batch_size}",
+                )
+                total = float(df["count"].sum())
+                for p in plot.patches:
+                    percentage = "{:.1f}%".format(100 * p.get_height() / total)
+                    x = p.get_x() + p.get_width() / 2
+                    y = p.get_y() + p.get_height()
+                    plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
+
+                plt.title(
+                    f"Histogram for top-k pairs ({max_cumulative_sum}): {metric} - Batch size {batch_size}"
+                )
+                plt.xlabel("Starting Values")
+                plt.ylabel("Frequency")
+                plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
+                plt.tight_layout()
+                plt.show()
 
 
 def run(
-    threshold_first=0,
-    threshold_last=0,
-    operator="less",
     hpc=False,
-    save_filtered=False,
-    plot=False,
-    plot_filtered=False,
 ):
-    if not 0 <= threshold_first <= 1:
-        raise ValueError(
-            f"The threshold of 'threshhold_first' can only be between [0, 1], provided: '{threshold_first}'"
-        )
-
-    if not 0 <= threshold_last <= 1:
-        raise ValueError(
-            f"The threshold of 'threshhold_last' can only be between [0, 1], provided: '{threshold_last}'"
-        )
-
-    allowed_operators = [
-        "less",
-        "less_equal",
-        "greater",
-        "greater_equal",
-        "less_and_equal",
-        "less_equal_and_equal",
-        "equal_and_less",
-        "equal_and_less_equal",
-        "less_and_greater_equal",
-    ]
-
-    if operator not in allowed_operators:
-        raise ValueError(
-            f"The provided operator '{operator}' is not recognised, available operators are: '{allowed_operators}' "
-        )
-
     seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
 
     if hpc:
@@ -709,45 +577,31 @@ def run(
             output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/test_columns_pairs",
             column_counts=pair_count,
         )
-    else:
-        start_end_count = seed.load_saved_csvs(
-            input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/columns"
-        )
-        pair_count = seed.load_unique_pair_frequency(
-            input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/column_pairs/"
-        )
-
-        filtered_pair_count = seed.filter_pairs(
-            column_counts=pair_count,
-            threshold_first=threshold_first,
-            threshold_last=threshold_last,
-            operator=operator,
-        )
-
-        if save_filtered:
-            seed.save_filtered_pairs_to_csv(
-                output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/column_pairs_filtered",
-                filtered_counts=filtered_pair_count,
-            )
-
-        if plot:
-            seed.plot_histograms(
-                column_counts=start_end_count, column_name="first_column"
-            )
-
-        if plot_filtered:
-            seed.plot_histograms_filtered_pairs(filtered_counts=filtered_pair_count)
 
 
 if __name__ == "__main__":
     # run(hpc=True)
     seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
-    pair_counts = seed.load_unique_pair_frequency(
-        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/columns_pairs"
+
+    pair_counts = seed.load_saved_csvs(
+        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch"
     )
-    top_k = seed.filter_top_k_pairs(column_counts=pair_counts, top_k=50000, threshold=0)
-    seed.save_top_k_pairs_to_csv(
+    # use 'first' or 'last' to show distribution for starting / final values.
+    seed.plot_histograms_batchsize(pair_counts, "last")
+
+    pairs = seed.load_unique_pair_frequency(
+        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
+    )
+    top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
+    seed.save_top_k_to_csv(
         output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
-        filtered_counts=top_k,
+        filtered_counts=top,
     )
-    seed.plot_histograms_top_k_pairs(top_k)
+    seed.plot_histograms_top_k_pairs(filtered_counts=top)
+
+    # # top_k = seed.filter_top_k_pairs(column_counts=pair_counts, top_k=50000, threshold=0)
+    # # seed.save_top_k_pairs_to_csv(
+    # #     output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
+    # #     filtered_counts=top_k,
+    # # )
+    # # seed.plot_histograms_top_k_pairs(top_k)
