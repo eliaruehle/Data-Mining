@@ -468,6 +468,10 @@ class Seed_Analysis:
             column_counts (Dict[str, Dict[str, Dict[int, pd.DataFrame]]]): Nested dictionary containing DataFrames with column counts.
             column_name (str): Name of the column to be plotted.
         """
+        if column_name not in ["start", "end"]:
+            raise KeyError(
+                f"The provided column name '{column_name}' does not exist. Please use: 'start' or 'end'"
+            )
 
         # Loop over the different metrics
         for metric, data in column_counts.items():
@@ -559,9 +563,7 @@ class Seed_Analysis:
                 plt.show()
 
 
-def run(
-    hpc=False,
-):
+def run(hpc=False, plot_start_end=False, plot_top_k=False):
     seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
 
     if hpc:
@@ -577,31 +579,25 @@ def run(
             output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/test_columns_pairs",
             column_counts=pair_count,
         )
+    else:
+        start_end_count = seed.load_saved_csvs(
+            input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch"
+        )
+        if plot_start_end:
+            # use 'first' or 'last' to show distribution for starting / final values.
+            seed.plot_histograms_batchsize(start_end_count, "start")
+
+        pairs = seed.load_unique_pair_frequency(
+            input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
+        )
+        top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
+        seed.save_top_k_to_csv(
+            output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
+            filtered_counts=top,
+        )
+        if plot_top_k:
+            seed.plot_histograms_top_k_pairs(filtered_counts=top)
 
 
 if __name__ == "__main__":
-    # run(hpc=True)
-    seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
-
-    pair_counts = seed.load_saved_csvs(
-        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch"
-    )
-    # use 'first' or 'last' to show distribution for starting / final values.
-    seed.plot_histograms_batchsize(pair_counts, "last")
-
-    pairs = seed.load_unique_pair_frequency(
-        input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
-    )
-    top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
-    seed.save_top_k_to_csv(
-        output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
-        filtered_counts=top,
-    )
-    seed.plot_histograms_top_k_pairs(filtered_counts=top)
-
-    # # top_k = seed.filter_top_k_pairs(column_counts=pair_counts, top_k=50000, threshold=0)
-    # # seed.save_top_k_pairs_to_csv(
-    # #     output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
-    # #     filtered_counts=top_k,
-    # # )
-    # # seed.plot_histograms_top_k_pairs(top_k)
+    run(plot_start_end=True)
