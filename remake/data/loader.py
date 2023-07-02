@@ -33,17 +33,14 @@ class DataLoader:
         if os.path.exists(config_path):
             self.config = OmegaConf.load(config_path)
         else:
-            print("1")
             raise FileNotFoundError("The config file does not exist.")
         if os.path.exists(self.config["workload"]):
             self.done_workload = pd.read_csv(self.config["workload"])
         else:
-            print("2")
             raise FileNotFoundError("The done_workload file does not exist.")
         if os.path.exists(self.config["hyperparameter"]):
             self.hyperparameter = OmegaConf.load(self.config["hyperparameter"])
         else:
-            print("3")
             raise FileNotFoundError("The hyperparameter config file does not exist!")
         self.data_dir = self.config["data_dir"]
         self.columns = [
@@ -124,11 +121,5 @@ class DataLoader:
         else:
             filtered_df = filtered_df[:-9]
         return frame[0], filtered_df
-
-"""
-if __name__== "__main__":
-    data = DataLoader()
-    print(data.load_data_for_metric_dataset("learner_training_time_time_lag.csv.xz", "appendicitis"))
-"""
 
 

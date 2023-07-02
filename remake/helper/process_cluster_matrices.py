@@ -71,7 +71,7 @@ def check_against_assumptions():
     --------
     None
     """
-    with open("../results/cpu_cluster_result.json", "r") as file:
+    with open("../results/cpu_cluster_result_nopca.json", "r") as file:
         json_data = file.read()
     result_dict = json.loads(json_data)
 
@@ -94,7 +94,7 @@ def check_against_assumptions():
             guessed_sim = [strat for strat in cluster if strat != entry and strat in result_dict.keys()]
             # select a threshold in which the strategies can occur -> 6 seems to fit good for 36 calculated experiments
             # 12 is also ok, for this case we have only PLAYGROUND_MARGIN which is not that good
-            threshold = len(guessed_sim) + 12
+            threshold = len(guessed_sim) + 8
             if entry in result_dict.keys():
                 cluster_res = result_dict[entry][:threshold]
             else:
@@ -129,5 +129,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    #check_against_assumptions()
+    #main()
+    check_against_assumptions()
