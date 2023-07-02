@@ -468,9 +468,9 @@ class Seed_Analysis:
             column_counts (Dict[str, Dict[str, Dict[int, pd.DataFrame]]]): Nested dictionary containing DataFrames with column counts.
             column_name (str): Name of the column to be plotted.
         """
-        if column_name not in ["start", "end"]:
+        if column_name not in ["first", "last"]:
             raise KeyError(
-                f"The provided column name '{column_name}' does not exist. Please use: 'start' or 'end'"
+                f"The provided column name '{column_name}' does not exist. Please use: 'first' or 'last'"
             )
 
         # Loop over the different metrics
@@ -558,7 +558,6 @@ class Seed_Analysis:
                 )
                 plt.xlabel("Starting Values")
                 plt.ylabel("Frequency")
-                plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
                 plt.tight_layout()
                 plt.show()
 
@@ -585,18 +584,18 @@ def run(hpc=False, plot_start_end=False, plot_top_k=False):
         )
         if plot_start_end:
             # use 'first' or 'last' to show distribution for starting / final values.
-            seed.plot_histograms_batchsize(start_end_count, "start")
+            seed.plot_histograms_batchsize(start_end_count, "first")
 
-        pairs = seed.load_unique_pair_frequency(
-            input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
-        )
-        top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
-        seed.save_top_k_to_csv(
-            output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
-            filtered_counts=top,
-        )
-        if plot_top_k:
-            seed.plot_histograms_top_k_pairs(filtered_counts=top)
+        # pairs = seed.load_unique_pair_frequency(
+        #     input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
+        # )
+        # top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
+        # seed.save_top_k_to_csv(
+        #     output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
+        #     filtered_counts=top,
+        # )
+        # if plot_top_k:
+        #     seed.plot_histograms_top_k_pairs(filtered_counts=top)
 
 
 if __name__ == "__main__":
