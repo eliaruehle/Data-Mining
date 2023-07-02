@@ -585,18 +585,18 @@ def run(hpc=False, plot_start_end=False, plot_top_k=False):
         )
         if plot_start_end:
             # use 'first' or 'last' to show distribution for starting / final values.
-            seed.plot_histograms_batchsize(start_end_count, "start")
+            seed.plot_histograms_batchsize(start_end_count, "first")
 
-        pairs = seed.load_unique_pair_frequency(
-            input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
-        )
-        top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
-        seed.save_top_k_to_csv(
-            output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
-            filtered_counts=top,
-        )
-        if plot_top_k:
-            seed.plot_histograms_top_k_pairs(filtered_counts=top)
+        # pairs = seed.load_unique_pair_frequency(
+        #     input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
+        # )
+        # top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
+        # seed.save_top_k_to_csv(
+        #     output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
+        #     filtered_counts=top,
+        # )
+        # if plot_top_k:
+        #     seed.plot_histograms_top_k_pairs(filtered_counts=top)
 
 
 if __name__ == "__main__":
