@@ -468,9 +468,9 @@ class Seed_Analysis:
             column_counts (Dict[str, Dict[str, Dict[int, pd.DataFrame]]]): Nested dictionary containing DataFrames with column counts.
             column_name (str): Name of the column to be plotted.
         """
-        if column_name not in ["start", "end"]:
+        if column_name not in ["first", "last"]:
             raise KeyError(
-                f"The provided column name '{column_name}' does not exist. Please use: 'start' or 'end'"
+                f"The provided column name '{column_name}' does not exist. Please use: 'first' or 'last'"
             )
 
         # Loop over the different metrics
