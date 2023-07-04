@@ -7,6 +7,7 @@ from .cpu.kmeans_cpu import KmeansCPU
 import multiprocessing as mp
 import numpy as np
 from time import time
+import torch
 import warnings
 from sklearn.exceptions import ConvergenceWarning
 
@@ -56,8 +57,8 @@ class ClusterRunner:
         if mode == MODE.CPU:
             # should not affect anything, just for safety
             self.device = "cpu"
-        #else:
-        #    self.device = self._check_available_device()
+        else:
+            self.device = self._check_available_device()
         # the config file for the clustering
         self.config = config
         self.gpu_config = self.config["clustering"]["gpu"]
@@ -69,8 +70,19 @@ class ClusterRunner:
         # specifies whether we will use a dimension reduction
         self.dim_reduce = dim_reduce
 
-    """
-    def _check_available_device(self):
+    def _check_available_device(self) -> torch.device:
+        """
+        Function to check available devices.
+
+        Parameters:
+        -----------
+        None
+
+        Returns:
+        --------
+        device : torch.device
+            The available device.
+        """
         if torch.cuda.is_available():
             return torch.device("cuda")
         elif torch.backends.mps.is_available():
@@ -78,7 +90,6 @@ class ClusterRunner:
         else:
             print("No GPU available, running on CPU.")
             return torch.device("cpu")
-    """
 
     def run(self, index:int) -> None:
         """

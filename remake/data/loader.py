@@ -97,12 +97,44 @@ class DataLoader:
         """
         return self.config["datasets"]
 
-    def load_single_df(self, path:str):
+    def load_single_df(self, path:str) -> Tuple[str, pd.DataFrame]:
+        """
+        Function to load a single dataframe.
+
+        Parameters:
+        -----------
+        path : str
+            The path to the frame.
+
+        Returns:
+        --------
+        name : str
+            The strategy name.
+        frame : pd.DataFrame
+            The data frame.
+        """
         return path.split("/")[-3], pd.merge(pd.read_csv(path), self.done_workload)
 
-    def load_data_for_metric_dataset(self, metric:str, dataset:str):
+    def load_data_for_metric_dataset(self, metric:str, dataset:str) -> Tuple[List[str], List[pd.DataFrame]] | Tuple[None, None]:
+        """
+        Function to load all files for a metric on a data set.
+        Parameters:
+        -----------
+        metric : str
+            A metric.
+        dataset : str
+            A dataset.
+
+        Returns:
+        --------
+        strategies : List[str]
+            The strategies.
+        frames : List[pd.DataFrame]
+            The corresponding dataframes.
+        """
         # read in all the paths for the datasets
-        paths = [os.path.join(os.path.join(self.data_dir, strategy), f"{dataset}/{metric}") for strategy in self.get_strategies()]
+        paths = [os.path.join(os.path.join(self.data_dir, strategy), f"{dataset}/{metric}")
+                 for strategy in self.get_strategies()]
         if not all([os.path.exists(path) for path in paths]):
             return None, None
         with mp.Pool(mp.cpu_count()) as pool:
@@ -111,15 +143,39 @@ class DataLoader:
         results = sorted(results, key=lambda x: x[0])
         return list(map(lambda x: x[0], results)), list(map(lambda x: x[1], results))
 
-    def get_hyperparameter_for_dataset(self, dataset:str):
+    def get_hyperparameter_for_dataset(self, dataset:str) -> List[Tuple[int, int, int, int, int, int]]:
+        """
+
+        Parameters:
+        -----------
+        dataset : str
+            The dataset the hyperparameters are requested for.
+
+        Returns:
+        --------
+        List[Tuple[int, int, int, int, int, int]]
+        """
         return self.hyperparameter[dataset]
 
-    def get_row(self, frame: Tuple[str, pd.DataFrame, List[int]]):
+    def get_row(self, frame: Tuple[str, pd.DataFrame, List[int]]) -> Tuple[str, np.ndarray]:
+        """
+        Function to extract a single row from a dataframe.
+
+        Parameters:
+        -----------
+        frame : Tuple[str, pd.DataFrame, List[int]]
+            The frame and additional information.
+
+        Returns:
+        --------
+        name : str
+            The name of the strategy.
+        filtered_df : np.ndarray
+            The row as numpy array.
+        """
         filtered_df = frame[1][(frame[1][self.columns] == frame[2]).all(axis=1)].to_numpy()
         if filtered_df.shape[0] == 1:
             filtered_df = filtered_df.squeeze(axis=0)[:-9]
         else:
             filtered_df = filtered_df[:-9]
         return frame[0], filtered_df
-
-
