@@ -413,49 +413,6 @@ class Seed_Analysis:
                 output_path = os.path.join(output_dir, output_filename)
                 df.to_csv(output_path, index=False)
 
-    def plot_histograms(self, column_counts: Dict[str, pd.DataFrame], column_name: str):
-        """
-        Plot histograms of the column counts.
-
-        Args:
-            column_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with column counts.
-            column_name (str): Name of the column to be plotted.
-        """
-
-        for metric, df in column_counts[column_name].items():
-            plt.figure(figsize=(20, 6))
-
-            # Extract the name of the parent directory of the current file
-            legend_name = metric
-
-            plot = sns.histplot(
-                data=df,
-                x="value",
-                weights="count",
-                bins=30,
-                kde=False,
-                label=legend_name,
-            )
-
-            total = float(df["count"].sum())
-            for p in plot.patches:
-                percentage = "{:.1f}%".format(100 * p.get_height() / total)
-                x = p.get_x() + p.get_width() / 2
-                y = p.get_y() + p.get_height()
-                plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
-
-            if column_name == "first_column":
-                title = "Starting values"
-            elif column_name == "last_column":
-                title = "Final values"
-
-            plt.title(f"Histogram for metric: {metric} - {title}")
-            plt.xlabel("Value")
-            plt.ylabel("Frequency")
-            plt.legend(title="Directory", bbox_to_anchor=(1.05, 1), loc="upper left")
-            plt.tight_layout()
-            plt.show()
-
     def plot_histograms_batchsize(
         self,
         column_counts: Dict[str, Dict[str, Dict[int, pd.DataFrame]]],
