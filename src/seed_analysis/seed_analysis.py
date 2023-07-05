@@ -3,7 +3,7 @@ import fnmatch
 import os
 from ast import literal_eval
 from collections import Counter, defaultdict
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -417,6 +417,7 @@ class Seed_Analysis:
         self,
         column_counts: Dict[str, Dict[str, Dict[int, pd.DataFrame]]],
         column_name: str,
+        output_path: Optional[str] = None,
     ):
         """
         Plot histograms of the column counts for each batch size separately.
@@ -471,11 +472,19 @@ class Seed_Analysis:
                         plt.xlabel("Value")
                         plt.ylabel("Frequency")
 
-                        # Show the plot
-                        plt.show()
+                        # Save the figure if output_path is not None, otherwise show the plot window
+                        if output_path is not None:
+                            plt.savefig(
+                                f"{output_path}/{metric}_batch_{batch_size}.svg",
+                                format="svg",
+                            )
+                        else:
+                            plt.show()
 
     def plot_histograms_top_k_pairs(
-        self, filtered_counts: Dict[str, Dict[int, pd.DataFrame]]
+        self,
+        filtered_counts: Dict[str, Dict[int, pd.DataFrame]],
+        output_path: Optional[str] = None,
     ) -> None:
         """
         Plot histograms of the filtered counts.
@@ -517,7 +526,14 @@ class Seed_Analysis:
                 plt.ylabel("Frequency")
                 plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
                 plt.tight_layout()
-                plt.show()
+
+                # Save the figure if output_path is not None, otherwise show the plot window
+                if output_path is not None:
+                    plt.savefig(
+                        f"{output_path}/{metric}_batch_{batch_size}.svg", format="svg"
+                    )
+                else:
+                    plt.show()
 
 
 def run(hpc=False, plot_start_end=False, plot_top_k=False):
