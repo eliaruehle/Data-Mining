@@ -540,7 +540,12 @@ class Seed_Analysis:
                     plt.show()
 
 
-def run(hpc=False, save_top_k=False, plot_start_end=False, plot_top_k=False):
+def run(
+    hpc: Optional[bool] = False,
+    save_top_k: Optional[bool] = False,
+    plot_start_end: Optional[bool] = False,
+    plot_top_k: Optional[bool] = False,
+):
     seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
 
     if hpc:
