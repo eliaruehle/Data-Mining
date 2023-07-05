@@ -439,10 +439,7 @@ class Seed_Analysis:
                     # Loop over batch sizes
                     for batch_size, df in batch_sizes.items():
                         # Create a new figure for each batch size
-                        plt.figure(figsize=(20, 6))
-
-                        # Create a label for the current batch size
-                        batch_size = f"Batch size {batch_size}"
+                        plt.figure(figsize=(15, 6))
 
                         # Calculate total count for percentage calculation
                         total_count = df["count"].sum()
@@ -452,8 +449,8 @@ class Seed_Analysis:
                             data=df,
                             x="value",
                             weights="count",
-                            bins=30,
-                            label=batch_size,
+                            bins=20,
+                            label=f"Batch size {batch_size}",
                         )
 
                         # Add percentage on top of each bar
@@ -513,7 +510,7 @@ class Seed_Analysis:
                     data=df,
                     x="first_value",
                     weights="count",
-                    bins=30,
+                    bins=17,
                     kde=False,
                     label=f"Batch size {batch_size}",
                 )
@@ -542,9 +539,12 @@ class Seed_Analysis:
 
 def run(
     hpc: Optional[bool] = False,
+    first_or_last: Optional[str] = None,
     save_top_k: Optional[bool] = False,
     plot_start_end: Optional[bool] = False,
+    plot_start_end_path: Optional[str] = None,
     plot_top_k: Optional[bool] = False,
+    plot_top_k_path: Optional[str] = None,
 ):
     seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
 
@@ -565,9 +565,24 @@ def run(
         start_end_count = seed.load_saved_csvs(
             input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch"
         )
-        if plot_start_end:
+
+        if plot_start_end and plot_start_end_path is not None:
+            if first_or_last not in ["first", "last"]:
+                raise KeyError(
+                    f"The provided column name '{first_or_last}' does not exist. Please use: 'first' or 'last'"
+                )
+
             # use 'first' or 'last' to show distribution for starting / final values.
-            seed.plot_histograms_batchsize(start_end_count, "first")
+            seed.plot_histograms_batchsize(
+                start_end_count, first_or_last, output_path=plot_start_end_path
+            )
+
+        elif plot_start_end and first_or_last is not None:
+            if first_or_last not in ["first", "last"]:
+                raise KeyError(
+                    f"The provided column name '{first_or_last}' does not exist. Please use: 'first' or 'last'"
+                )
+            seed.plot_histograms_batchsize(start_end_count, first_or_last)
 
         pairs = seed.load_unique_pair_frequency(
             input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
@@ -580,9 +595,20 @@ def run(
                 output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
                 filtered_counts=top,
             )
-        if plot_top_k:
+
+        if plot_top_k and plot_top_k_path is not None:
+            seed.plot_histograms_top_k_pairs(
+                filtered_counts=top, output_path=plot_top_k_path
+            )
+        elif plot_top_k:
             seed.plot_histograms_top_k_pairs(filtered_counts=top)
 
 
 if __name__ == "__main__":
-    run(plot_start_end=True)
+    run(
+        first_or_last="first",
+        plot_start_end=True,
+        plot_start_end_path="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/plots/start_values",
+        plot_top_k=True,
+        plot_top_k_path="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/plots/top_k",
+    )
