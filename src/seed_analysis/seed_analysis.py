@@ -3,7 +3,7 @@ import fnmatch
 import os
 from ast import literal_eval
 from collections import Counter, defaultdict
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -413,53 +413,11 @@ class Seed_Analysis:
                 output_path = os.path.join(output_dir, output_filename)
                 df.to_csv(output_path, index=False)
 
-    def plot_histograms(self, column_counts: Dict[str, pd.DataFrame], column_name: str):
-        """
-        Plot histograms of the column counts.
-
-        Args:
-            column_counts (Dict[str, DataFrame]): Dictionary containing DataFrames with column counts.
-            column_name (str): Name of the column to be plotted.
-        """
-
-        for metric, df in column_counts[column_name].items():
-            plt.figure(figsize=(20, 6))
-
-            # Extract the name of the parent directory of the current file
-            legend_name = metric
-
-            plot = sns.histplot(
-                data=df,
-                x="value",
-                weights="count",
-                bins=30,
-                kde=False,
-                label=legend_name,
-            )
-
-            total = float(df["count"].sum())
-            for p in plot.patches:
-                percentage = "{:.1f}%".format(100 * p.get_height() / total)
-                x = p.get_x() + p.get_width() / 2
-                y = p.get_y() + p.get_height()
-                plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
-
-            if column_name == "first_column":
-                title = "Starting values"
-            elif column_name == "last_column":
-                title = "Final values"
-
-            plt.title(f"Histogram for metric: {metric} - {title}")
-            plt.xlabel("Value")
-            plt.ylabel("Frequency")
-            plt.legend(title="Directory", bbox_to_anchor=(1.05, 1), loc="upper left")
-            plt.tight_layout()
-            plt.show()
-
     def plot_histograms_batchsize(
         self,
         column_counts: Dict[str, Dict[str, Dict[int, pd.DataFrame]]],
         column_name: str,
+        output_path: Optional[str] = None,
     ):
         """
         Plot histograms of the column counts for each batch size separately.
@@ -481,10 +439,7 @@ class Seed_Analysis:
                     # Loop over batch sizes
                     for batch_size, df in batch_sizes.items():
                         # Create a new figure for each batch size
-                        plt.figure(figsize=(20, 6))
-
-                        # Create a label for the current batch size
-                        batch_size = f"Batch size {batch_size}"
+                        plt.figure(figsize=(15, 6))
 
                         # Calculate total count for percentage calculation
                         total_count = df["count"].sum()
@@ -494,8 +449,8 @@ class Seed_Analysis:
                             data=df,
                             x="value",
                             weights="count",
-                            bins=30,
-                            label=batch_size,
+                            bins=20,
+                            label=f"Batch size {batch_size}",
                         )
 
                         # Add percentage on top of each bar
@@ -509,16 +464,29 @@ class Seed_Analysis:
                                 fontsize=10,
                             )
 
+                        if column_name == "first":
+                            title = "Starting Values"
+                        elif column_name == "last":
+                            title = "Final Values"
+
                         # Set the title and labels for each subplot
-                        plt.title(f"{metric} Histogram for Final Values - {batch_size}")
-                        plt.xlabel("Value")
+                        plt.title(f"{metric} Histogram for {title} - {batch_size}")
+                        plt.xlabel(f"{title}")
                         plt.ylabel("Frequency")
 
-                        # Show the plot
-                        plt.show()
+                        # Save the figure if output_path is not None, otherwise show the plot window
+                        if output_path is not None:
+                            plt.savefig(
+                                f"{output_path}/{metric}_batch_{batch_size}.svg",
+                                format="svg",
+                            )
+                        else:
+                            plt.show()
 
     def plot_histograms_top_k_pairs(
-        self, filtered_counts: Dict[str, Dict[int, pd.DataFrame]]
+        self,
+        filtered_counts: Dict[str, Dict[int, pd.DataFrame]],
+        output_path: Optional[str] = None,
     ) -> None:
         """
         Plot histograms of the filtered counts.
@@ -542,7 +510,7 @@ class Seed_Analysis:
                     data=df,
                     x="first_value",
                     weights="count",
-                    bins=30,
+                    bins=17,
                     kde=False,
                     label=f"Batch size {batch_size}",
                 )
@@ -559,10 +527,25 @@ class Seed_Analysis:
                 plt.xlabel("Starting Values")
                 plt.ylabel("Frequency")
                 plt.tight_layout()
-                plt.show()
+
+                # Save the figure if output_path is not None, otherwise show the plot window
+                if output_path is not None:
+                    plt.savefig(
+                        f"{output_path}/{metric}_batch_{batch_size}.svg", format="svg"
+                    )
+                else:
+                    plt.show()
 
 
-def run(hpc=False, plot_start_end=False, plot_top_k=False):
+def run(
+    hpc: Optional[bool] = False,
+    first_or_last: Optional[str] = None,
+    save_top_k: Optional[bool] = False,
+    plot_start_end: Optional[bool] = False,
+    plot_start_end_path: Optional[str] = None,
+    plot_top_k: Optional[bool] = False,
+    plot_top_k_path: Optional[str] = None,
+):
     seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
 
     if hpc:
@@ -582,21 +565,50 @@ def run(hpc=False, plot_start_end=False, plot_top_k=False):
         start_end_count = seed.load_saved_csvs(
             input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch"
         )
-        if plot_start_end:
-            # use 'first' or 'last' to show distribution for starting / final values.
-            seed.plot_histograms_batchsize(start_end_count, "first")
 
-        # pairs = seed.load_unique_pair_frequency(
-        #     input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
-        # )
-        # top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
-        # seed.save_top_k_to_csv(
-        #     output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
-        #     filtered_counts=top,
-        # )
-        # if plot_top_k:
-        #     seed.plot_histograms_top_k_pairs(filtered_counts=top)
+        if plot_start_end and plot_start_end_path is not None:
+            if first_or_last not in ["first", "last"]:
+                raise KeyError(
+                    f"The provided column name '{first_or_last}' does not exist. Please use: 'first' or 'last'"
+                )
+
+            # use 'first' or 'last' to show distribution for starting / final values.
+            seed.plot_histograms_batchsize(
+                start_end_count, first_or_last, output_path=plot_start_end_path
+            )
+
+        elif plot_start_end and first_or_last is not None:
+            if first_or_last not in ["first", "last"]:
+                raise KeyError(
+                    f"The provided column name '{first_or_last}' does not exist. Please use: 'first' or 'last'"
+                )
+            seed.plot_histograms_batchsize(start_end_count, first_or_last)
+
+        pairs = seed.load_unique_pair_frequency(
+            input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
+        )
+
+        top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
+
+        if save_top_k:
+            seed.save_top_k_to_csv(
+                output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
+                filtered_counts=top,
+            )
+
+        if plot_top_k and plot_top_k_path is not None:
+            seed.plot_histograms_top_k_pairs(
+                filtered_counts=top, output_path=plot_top_k_path
+            )
+        elif plot_top_k:
+            seed.plot_histograms_top_k_pairs(filtered_counts=top)
 
 
 if __name__ == "__main__":
-    run(plot_start_end=True)
+    run(
+        first_or_last="first",
+        plot_start_end=True,
+        plot_start_end_path="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/plots/start_values",
+        plot_top_k=True,
+        plot_top_k_path="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/plots/top_k",
+    )
