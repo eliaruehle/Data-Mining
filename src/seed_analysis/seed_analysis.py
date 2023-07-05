@@ -467,9 +467,14 @@ class Seed_Analysis:
                                 fontsize=10,
                             )
 
+                        if column_name == "first":
+                            title = "Starting Values"
+                        elif column_name == "last":
+                            title = "Final Values"
+
                         # Set the title and labels for each subplot
-                        plt.title(f"{metric} Histogram for Final Values - {batch_size}")
-                        plt.xlabel("Value")
+                        plt.title(f"{metric} Histogram for {title} - {batch_size}")
+                        plt.xlabel(f"{title}")
                         plt.ylabel("Frequency")
 
                         # Save the figure if output_path is not None, otherwise show the plot window
