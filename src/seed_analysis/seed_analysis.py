@@ -529,7 +529,6 @@ class Seed_Analysis:
                 )
                 plt.xlabel("Starting Values")
                 plt.ylabel("Frequency")
-                plt.legend(title="Metric", bbox_to_anchor=(1.05, 1), loc="upper left")
                 plt.tight_layout()
 
                 # Save the figure if output_path is not None, otherwise show the plot window
