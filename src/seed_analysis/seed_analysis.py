@@ -449,8 +449,9 @@ class Seed_Analysis:
                             data=df,
                             x="value",
                             weights="count",
-                            bins=20,
+                            bins=20,  # Adjust the Amount of bins in total
                             label=f"Batch size {batch_size}",
+                            color="#868ad1",  # Adjust color of the bins
                         )
 
                         # Add percentage on top of each bar
@@ -465,9 +466,9 @@ class Seed_Analysis:
                             )
 
                         if column_name == "first":
-                            title = "Starting Values"
+                            title = "Starting Values after first Iteration"
                         elif column_name == "last":
-                            title = "Final Values"
+                            title = "Final Values after last Iteration"
 
                         # Set the title and labels for each subplot
                         plt.title(f"{metric} Histogram for {title} - {batch_size}")
@@ -487,6 +488,7 @@ class Seed_Analysis:
         self,
         filtered_counts: Dict[str, Dict[int, pd.DataFrame]],
         output_path: Optional[str] = None,
+        threshold: float = 0.7,
     ) -> None:
         """
         Plot histograms of the filtered counts.
@@ -504,15 +506,21 @@ class Seed_Analysis:
                     df["value"].tolist(), index=df.index
                 )
 
-                # Plot histogram of the "first_value"
+                # Create a new column where all values below the threshold are equal to the threshold
+                df["first_value_threshold"] = df["first_value"].where(
+                    df["first_value"] >= threshold, other=threshold
+                )
+
+                # Plot histogram of the "first_value_threshold"
                 plt.figure(figsize=(20, 6))
                 plot = sns.histplot(
                     data=df,
-                    x="first_value",
+                    x="first_value_threshold",
                     weights="count",
-                    bins=17,
+                    bins=17,  # Adjust the Amount of bins in total
                     kde=False,
                     label=f"Batch size {batch_size}",
+                    color="#868ad1",  # Adjust the color of the bins
                 )
                 total = float(df["count"].sum())
                 for p in plot.patches:
@@ -522,9 +530,9 @@ class Seed_Analysis:
                     plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
 
                 plt.title(
-                    f"Histogram for top-k pairs ({max_cumulative_sum}): {metric} - Batch size {batch_size}"
+                    f"Histogram for top-k Starting Values ({max_cumulative_sum}): {metric} - Batch size {batch_size}"
                 )
-                plt.xlabel("Starting Values")
+                plt.xlabel("Starting Value after first Iteration")
                 plt.ylabel("Frequency")
                 plt.tight_layout()
 
