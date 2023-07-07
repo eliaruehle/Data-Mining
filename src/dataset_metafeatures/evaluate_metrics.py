@@ -1,6 +1,6 @@
 import itertools
 import warnings
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -476,7 +476,7 @@ class Evaluate_Metrics:
 
 
 def plot_cosine_distribution_graph(
-    dataframes: list[pd.DataFrame], colors: list[str]
+    dataframes: list[pd.DataFrame], colors: list[str], output_path: Optional[str] = None
 ) -> None:
     """Plots a graph showing the distribution of cosine similarities for the given sorted results.
 
@@ -488,7 +488,7 @@ def plot_cosine_distribution_graph(
             f"Number of dataframes and colors must be equal. Provided: dataframes = {len(dataframes)} & colors = {len(colors)}"
         )
 
-    sns.set(style="whitegrid")
+    sns.set(style="white")
     plt.figure(figsize=(20, 5))
 
     # Merge all dataframes into one for the purpose of getting unique dataset pairs
@@ -517,19 +517,27 @@ def plot_cosine_distribution_graph(
         )
 
         sns.scatterplot(
-            x="dataset_pair", y="cosine_similarity", data=df, color=colors[i], alpha=0.5
+            x="dataset_pair",
+            y="cosine_similarity",
+            data=df,
+            color=colors[i],
         )
 
-    plt.xlabel("Dataset Pairs")
-    plt.xticks(rotation=90)
-    plt.ylabel("Cosine Similarity")
-    plt.title("Cosine Similarity between Datasets")
-    plt.ylim(-0.1, 1)
-    plt.yticks(np.arange(-0.1, 1.05, 0.1))
+    plt.xlabel("")
+    plt.xticks(rotation=90, ticks=[], labels=[])  # Remove the x-axis labels
+    plt.ylabel("")
+    plt.title("")
+    plt.ylim(-0.1, 1.1)
+    plt.yticks(np.arange(-0.2, 1.1, 0.1))
 
     # Add a legend to differentiate the points
-    plt.legend([f"DataFrame {i+1}" for i in range(len(dataframes))])
-    plt.show()
+    # plt.legend([f"DataFrame {i+1}" for i in range(len(dataframes))])
+
+    # Save the figure if output_path is not None, otherwise show the plot window
+    if output_path is not None:
+        plt.savefig(f"{output_path}/vincent_ist_toll_nummer_3.svg", format="svg")
+    else:
+        plt.show()
 
 
 def filter_for_matching_pairs(
