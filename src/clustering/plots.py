@@ -95,3 +95,5 @@ def table_visualisation():
     plt.tight_layout()
     plt.savefig('./src/clustering/generated/new_plots/feature_extraction.pdf')
 
+if __name__ == '__main__':
+    create_heatmap("final_cluster_normalized", "final cluster normalized")
