@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple, Optional
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import numpy as np
 
 
 class Seed_Analysis:
@@ -439,7 +440,7 @@ class Seed_Analysis:
                     # Loop over batch sizes
                     for batch_size, df in batch_sizes.items():
                         # Create a new figure for each batch size
-                        plt.figure(figsize=(15, 6))
+                        plt.figure(figsize=(15, 8))
 
                         # Calculate total count for percentage calculation
                         total_count = df["count"].sum()
@@ -454,15 +455,18 @@ class Seed_Analysis:
                             color="#868ad1",  # Adjust color of the bins
                         )
 
+                        bar_height = np.max(plot.get_ylim()) / 20
                         # Add percentage on top of each bar
                         for p in plot.patches:
                             height = p.get_height()
                             plot.text(
                                 p.get_x() + p.get_width() / 2.0,
-                                height + 3,
+                                height + bar_height,
                                 "{:1.2f}%".format(height / total_count * 100),
                                 ha="center",
-                                fontsize=10,
+                                fontsize=22,
+                                rotation=90,
+                                fontweight="bold"
                             )
 
                         if column_name == "first":
@@ -471,15 +475,22 @@ class Seed_Analysis:
                             title = "Final Values after last Iteration"
 
                         # Set the title and labels for each subplot
-                        plt.title(f"{metric} Histogram for {title} - {batch_size}")
-                        plt.xlabel(f"{title}")
-                        plt.ylabel("Frequency")
+                        #plt.title(f"{metric} Histogram for {title} - {batch_size}", fontsize=20)
+                        plt.xlabel(f"{title}", fontsize=25, weight="bold")
+                        plt.ylabel("Empirical probability", fontsize=25, weight="bold")
 
-                        # Save the figure if output_path is not None, otherwise show the plot window
+                       # Adjust y-axis ticks and labels
+                        y_ticks = np.linspace(0, total_count * 0.16, num=5)
+                        y_tick_labels = ["{}%".format(int(tick / (total_count * 0.16) * 16)) for tick in y_ticks]
+                        plt.yticks(y_ticks, y_tick_labels, fontsize=25)
+                        plt.xticks(fontsize=25)
+
+
+                        #Save the figure if output_path is not None, otherwise show the plot window
                         if output_path is not None:
                             plt.savefig(
-                                f"{output_path}/{metric}_batch_{batch_size}.svg",
-                                format="svg",
+                                f"{output_path}/{metric}_batch_{batch_size}.pdf",
+                                format="pdf",
                             )
                         else:
                             plt.show()
@@ -512,7 +523,7 @@ class Seed_Analysis:
                 )
 
                 # Plot histogram of the "first_value_threshold"
-                plt.figure(figsize=(20, 6))
+                plt.figure(figsize=(16, 8))
                 plot = sns.histplot(
                     data=df,
                     x="first_value_threshold",
@@ -526,20 +537,31 @@ class Seed_Analysis:
                 for p in plot.patches:
                     percentage = "{:.1f}%".format(100 * p.get_height() / total)
                     x = p.get_x() + p.get_width() / 2
-                    y = p.get_y() + p.get_height()
-                    plot.annotate(percentage, (x, y), size=12, ha="center", va="bottom")
+                    y = p.get_y() + p.get_height() + 100
+                    plot.annotate(percentage, (x, y), size=25, ha="center", va="bottom", rotation=90, fontweight='bold')
 
-                plt.title(
-                    f"Histogram for top-k Starting Values ({max_cumulative_sum}): {metric} - Batch size {batch_size}"
-                )
-                plt.xlabel("Starting Value after first Iteration")
-                plt.ylabel("Frequency")
-                plt.tight_layout()
+
+                
+                #plt.title(
+                #    f"Histogram for top-k Starting Values ({max_cumulative_sum}): {metric} - Batch size {batch_size}"
+                #)
+                plt.xlabel("Starting Value after first Iteration", fontsize=25, weight="bold")
+                plt.ylabel("Empirical probability", fontsize=25, weight="bold")
+                #plt.tight_layout()
+
+                # set y-axis ticks and labels from 0 to 19 percent with 5 percent steps
+                y_ticks = np.linspace(0, total * 0.19, num=5)
+                y_tick_labels = [
+                    "{}%".format(int(tick / (total * 0.19) * 19))
+                    for tick in y_ticks
+                ]
+                plt.yticks(y_ticks, y_tick_labels, fontsize=25)
+                plt.xticks(fontsize=25)
 
                 # Save the figure if output_path is not None, otherwise show the plot window
                 if output_path is not None:
                     plt.savefig(
-                        f"{output_path}/{metric}_batch_{batch_size}.svg", format="svg"
+                        f"{output_path}/{metric}_batch_{batch_size}.pdf", format="pdf"
                     )
                 else:
                     plt.show()
@@ -554,24 +576,24 @@ def run(
     plot_top_k: Optional[bool] = False,
     plot_top_k_path: Optional[str] = None,
 ):
-    seed = Seed_Analysis(file_path="/Users/user/GitHub/Data-Mining/kp_test/strategies")
+    seed = Seed_Analysis(file_path="./kp_test/strategies")
 
     if hpc:
         start_end_count = seed.count_unique_start_and_end_frequency()
         pair_count = seed.count_unique_start_and_end_pair_frequency()
 
         seed.save_unique_start_and_end_frequency(
-            output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/test_columns",
+            output_dir="./src/seed_analysis/results/test_columns",
             column_counts=start_end_count,
         )
 
         seed.save_unique_start_and_end_frequency(
-            output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/test_columns_pairs",
+            output_dir="./src/seed_analysis/results/test_columns_pairs",
             column_counts=pair_count,
         )
     else:
         start_end_count = seed.load_saved_csvs(
-            input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch"
+            input_dir="./src/seed_analysis/results/batch"
         )
 
         if plot_start_end and plot_start_end_path is not None:
@@ -593,14 +615,14 @@ def run(
             seed.plot_histograms_batchsize(start_end_count, first_or_last)
 
         pairs = seed.load_unique_pair_frequency(
-            input_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/batch_pairs"
+            input_dir="./src/seed_analysis/results/batch_pairs"
         )
 
         top = seed.filter_top_k_pairs(column_counts=pairs, top_k=20000, threshold=0)
 
         if save_top_k:
             seed.save_top_k_to_csv(
-                output_dir="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/top_k",
+                output_dir="./src/seed_analysis/results/top_k",
                 filtered_counts=top,
             )
 
@@ -616,7 +638,7 @@ if __name__ == "__main__":
     run(
         first_or_last="first",
         plot_start_end=True,
-        plot_start_end_path="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/plots/start_values",
+        plot_start_end_path="./src/seed_analysis/results/plots/start_values",
         plot_top_k=True,
-        plot_top_k_path="/Users/user/GitHub/Data-Mining/src/seed_analysis/results/plots/top_k",
+        plot_top_k_path="./src/seed_analysis/results/plots/top_k",
     )
