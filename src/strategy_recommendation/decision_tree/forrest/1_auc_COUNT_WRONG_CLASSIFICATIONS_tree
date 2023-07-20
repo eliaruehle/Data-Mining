@@ -1,0 +1,37 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label=<number of examples &le; 2.611<br/>gini = 0.471<br/>samples = 39<br/>value = [2, 28, 1, 2, 1, 1, 3, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#d9ed76"] ;
+1 [label=<number of examples &le; 2.32<br/>gini = 0.847<br/>samples = 12<br/>value = [2, 1, 1, 2, 1, 1, 3, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#fbebfc"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label=<number of negative covariance &le; 56.278<br/>gini = 0.778<br/>samples = 6<br/>value = [0, 1, 1, 2, 0, 1, 0, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#d7faee"] ;
+1 -> 2 ;
+3 [label=<gini = 0.0<br/>samples = 2<br/>value = [0, 0, 0, 2, 0, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#39e5ac"] ;
+2 -> 3 ;
+4 [label=<feature dummy 1 &le; 3.5<br/>gini = 0.75<br/>samples = 4<br/>value = [0, 1, 1, 0, 0, 1, 0, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#ffffff"] ;
+2 -> 4 ;
+5 [label=<number of examples &le; 2.101<br/>gini = 0.5<br/>samples = 2<br/>value = [0, 1, 1, 0, 0, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#ffffff"] ;
+4 -> 5 ;
+6 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 1, 0, 0, 0, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#c8e539"] ;
+5 -> 6 ;
+7 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 1, 0, 0, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#47e539"] ;
+5 -> 7 ;
+8 [label=<coefficient variation mean &le; 0.426<br/>gini = 0.5<br/>samples = 2<br/>value = [0, 0, 0, 0, 0, 1, 0, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#ffffff"] ;
+4 -> 8 ;
+9 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 0, 0, 0, 0, 0, 1]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#e53972"] ;
+8 -> 9 ;
+10 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 0, 0, 0, 1, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#5639e5"] ;
+8 -> 10 ;
+11 [label=<feature dummy 2 &le; 20.5<br/>gini = 0.611<br/>samples = 6<br/>value = [2, 0, 0, 0, 1, 0, 3, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#f5cef8"] ;
+1 -> 11 ;
+12 [label=<overall mean &le; 0.283<br/>gini = 0.375<br/>samples = 4<br/>value = [0, 0, 0, 0, 1, 0, 3, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#e47bee"] ;
+11 -> 12 ;
+13 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 0, 0, 1, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#399de5"] ;
+12 -> 13 ;
+14 [label=<gini = 0.0<br/>samples = 3<br/>value = [0, 0, 0, 0, 0, 0, 3, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#d739e5"] ;
+12 -> 14 ;
+15 [label=<gini = 0.0<br/>samples = 2<br/>value = [2, 0, 0, 0, 0, 0, 0, 0]<br/>class = PLAYGROUND_HIERARCHICAL_CLUSTER>, fillcolor="#e58139"] ;
+11 -> 15 ;
+16 [label=<gini = 0.0<br/>samples = 27<br/>value = [0, 27, 0, 0, 0, 0, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#c8e539"] ;
+0 -> 16 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+}

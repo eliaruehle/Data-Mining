@@ -1,0 +1,29 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label=<number of examples &le; 3.151<br/>gini = 0.539<br/>samples = 39<br/>value = [2, 21, 16]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#d4f9e4"] ;
+1 [label=<quantile mean &le; 0.059<br/>gini = 0.506<br/>samples = 25<br/>value = [2, 7, 16]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#c09cf2"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label=<variance mean &le; 0.186<br/>gini = 0.604<br/>samples = 15<br/>value = [2, 7, 6]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#e9fcf1"] ;
+1 -> 2 ;
+3 [label=<number of negative covariance &le; 86.518<br/>gini = 0.245<br/>samples = 7<br/>value = [0, 1, 6]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#965ae9"] ;
+2 -> 3 ;
+4 [label=<gini = 0.0<br/>samples = 5<br/>value = [0, 0, 5]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#8139e5"] ;
+3 -> 4 ;
+5 [label=<skewness mean &le; 0.264<br/>gini = 0.5<br/>samples = 2<br/>value = [0, 1, 1]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#ffffff"] ;
+3 -> 5 ;
+6 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 0, 1]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#8139e5"] ;
+5 -> 6 ;
+7 [label=<gini = 0.0<br/>samples = 1<br/>value = [0, 1, 0]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#39e581"] ;
+5 -> 7 ;
+8 [label=<feature dummy 1 &le; 22.0<br/>gini = 0.375<br/>samples = 8<br/>value = [2, 6, 0]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#7beeab"] ;
+2 -> 8 ;
+9 [label=<gini = 0.0<br/>samples = 6<br/>value = [0, 6, 0]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#39e581"] ;
+8 -> 9 ;
+10 [label=<gini = 0.0<br/>samples = 2<br/>value = [2, 0, 0]<br/>class = OPTIMAL_GREEDY_20>, fillcolor="#e58139"] ;
+8 -> 10 ;
+11 [label=<gini = 0.0<br/>samples = 10<br/>value = [0, 0, 10]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#8139e5"] ;
+1 -> 11 ;
+12 [label=<gini = 0.0<br/>samples = 14<br/>value = [0, 14, 0]<br/>class = ALIPY_CORESET_GREEDY>, fillcolor="#39e581"] ;
+0 -> 12 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+}
