@@ -195,7 +195,7 @@ def get_averages(
 def main():
     path_to_datasets = '/home/wilhelm/Uni/data_mining/Data-Mining/kp_test/datasets'
     print(get_averages())
-    #  evaluate_100_runs(path_to_datasets, pca=True)
+    evaluate_100_runs(path_to_datasets, pca=True)
 
 
 if __name__ == '__main__':
