@@ -20,6 +20,8 @@ In order to recommend fitting AL strategies for an unseen data set, one must cal
 
 ### Does the first Iteration impact the final Performance?
 
+In order to address the practical question of whether a high-performing time series in the first iteration will sustain a high performance overall, we explored the correlation between the score of the first AL cycle and its overall performance. The goal was to estimate the likelihood of securing a top-k result, based upon a given starting value in the first AL cycle. Consequently, one can determine if the estimated probability of obtaining a top-k result is not satisfactory and decide to randomly select alternative parameters for the time series to (possibly) obtain a better chance of getting into the top-k than before.
+
 ## Getting started
 
 In order to get started, make sure to have the following installed:
