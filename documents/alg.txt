@@ -1,9 +1,0 @@
-K-Means-Clustering: Dieser Algorithmus gruppiert Datenpunkte in k Cluster, wobei jeder Datenpunkt dem nächstgelegenen Cluster zugewiesen wird. Bei der Verwendung von Zeitreihendaten muss man jedoch darauf achten, dass die Ähnlichkeit zwischen den Zeitreihen korrekt gemessen wird. Dazu können verschiedene Distanzmaße wie die euklidische Distanz oder die dynamische Zeitkriegsdistanz (DTW) verwendet werden.
-
-Hierarchisches Clustering: Hierbei werden die Datenpunkte schrittweise in Cluster unterteilt, bis jede Zeitreihe in ihrem eigenen Cluster ist. Es gibt zwei Arten von hierarchischem Clustering: agglomeratives und divise Clustering. Agglomeratives Clustering beginnt mit jeder Zeitreihe als eigenem Cluster und fügt dann schrittweise ähnliche Cluster zusammen. Divises Clustering beginnt mit einem einzigen Cluster, der alle Zeitreihen enthält, und teilt es dann in immer kleinere Cluster auf.
-
-DBSCAN: Dies ist ein Dichte-basiertes Clustering-Verfahren, das versucht, Bereiche hoher Dichte von Bereichen niedriger Dichte zu unterscheiden. Bei der Anwendung auf Zeitreihendaten kann man beispielsweise die DTW-Distanz verwenden, um den Abstand zwischen den Zeitreihen zu messen und Cluster von Zeitreihen mit ähnlichen Mustern zu identifizieren.
-
-Hidden Markov Models (HMMs): HMMs sind ein probabilistischer Ansatz zur Modellierung von Zeitreihen. Sie eignen sich besonders gut für die Klassifizierung von Zeitreihen, da sie die Wahrscheinlichkeit eines bestimmten Sequenzmusters berechnen können.
-
-Zeitreihen-Clustering mit Autoencodern: Autoencoder sind künstliche neuronale Netze, die Daten komprimieren und wiederherstellen können. Bei der Verwendung von Zeitreihendaten kann man Autoencoder verwenden, um eine kompakte Darstellung der Daten zu erzeugen und diese dann in k-means oder andere Clustering-Verfahren einzuspeisen.
