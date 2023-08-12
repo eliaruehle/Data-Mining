@@ -1,18 +1,24 @@
-# Data Mining
+# Active Learning - Data Mining
 
 ## Introduction
 
-Active Learning (AL) describes the iterative and intelligent pre-selectio nof unlabeled training data before it is labeled by a human doman expert, in order to subsequently train a classifier on the labeled training data. With the usage of so-called `Active Learning Strategies` is it possible to rank the unlabeled data points without any knowledge of the actual labeling of each data point in prior, meaning that the human labels these data points first in order to advance the trained classification model the furthest. The key message of Active Learning is to reduce the necessacity of human effort to create a labeled data set.
+Active Learning (AL) has improved the field of Machine Learning (ML) by enabling efficient data labeling and improving model performance. AL describes an iterative process which begins with a sparsely labeled or unlabeled data set to train a ML model. A query strategy selects a batch of informative instances of this data set and sends them to an expert for labeling. By retrieving the new labels, the ML model can be updated. This process continues until a predefined stopping criterion is reached. The advantage of AL is that only data which yields the most promising increase in performance is labeled. However, the abundance of such AL strategies and frameworks has created a need for comparative evaluations to guide researchers and practitioners in selecting the most suitable approach.
 
-Within the scope of a current research project, a large data set (>100GB of numerical CSV files) has been generated, which evaluates ~60 Active Learning Strategies on ~40 data sets with >200 metrics in total. This analysis the given data set was the key idea of our student research project at the University of Technology in Dresden with the goal to investigate the following research questions:
+In this project, we've conducted a comprehensive analysis of AL strategies with a strong focus on three major topics:
+
+- Investigation of similarities between different AL strategies.
+- Introduction of a decision-tree and vector-space based framework for strategy recommendation to create guidance for AL strategy selection.
+- Analyzing the relationship between the starting performance and overall performance of AL strategies.
 
 ### Which Active Learning Strategies behave similar?
 
-One potential objective of this study is to investigate the similarities among various Active strategies by examining their performance on different datasets. This can be achieved through the comparison of multiple metrics across data sets, as well as the application of clustering algorithms on the data set in order to possibly identify patterns and trends in the strategies' behaviour.
+The AL frameworks contain strategies, each with the goal to optimize the performance of a certain ML model. Since different approaches are used within the frameworks and performance is not uniquely defined, we investigated whether there are AL strategies across all frameworks that often deliver similar results for a selection of metrics and therefore can be considered similar. Our findings indicate the existence of AL strategies exhibiting noteworthy similarity. Notably, similar approaches from distinct frameworks show substantial concurrence. Consequently, we've also identified a subset of AL strategies that infrequently yield comparable results, thereby precluding them from being considered similar.
 
 ### Which Active Learning Strategy is the best for the given scenario?
 
 Another potential research objective is to explore the specific scenarios under which certain Active Learning strategies demonstrate superior performance (and possibly reason why so). By conducting a comprehensive analysis of these scenarios the ultimate goal is to develop a decision tree that would provide guidance to potential Active Learning users by selecting the most effective strategy tailored to their specific unlabeled data set.
+
+### Does the first Iteration impact the final Performance?
 
 ## Getting started
 
