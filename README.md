@@ -16,78 +16,21 @@ The AL frameworks contain strategies, each with the goal to optimize the perform
 
 ### Which Active Learning Strategy is the best for the given scenario?
 
-Another potential research objective is to explore the specific scenarios under which certain Active Learning strategies demonstrate superior performance (and possibly reason why so). By conducting a comprehensive analysis of these scenarios the ultimate goal is to develop a decision tree that would provide guidance to potential Active Learning users by selecting the most effective strategy tailored to their specific unlabeled data set.
+In order to recommend fitting AL strategies for an unseen data set, one must calculate its [meta-feature vector](/src/strategy_recommendation/dataset_metafeatures/metrics.py) and then the trained predictors will use that vector to suggest suiting AL strategy candidates. In this project, we have utilized two distinct predictors, a decision-tree and a vector-space based model.
 
 ### Does the first Iteration impact the final Performance?
 
 ## Getting started
 
-For this project we have to decided to use [Poetry](https://github.com/python-poetry/poetry), a Python packaging and dependency manager, as it enabled us students to have a uniform installation of packages, python version and dependencies across all our systems. Thus we recommend the usage of **Poetry** when working with this project in order to replicate our research results.
-
 In order to get started, make sure to have the following installed:
 
-- **Python version 3.11.3**
-- Poetry $\rightarrow$ `pip install poetry`
-
-After successfully installing the required pre-requisites follow the steps of [how to work with poetry](https://github.com/paul1995tu/Data-Mining/blob/main/documents/poetry.md).
+- **Python version 3.10.x**
+- Installing the required packages $\rightarrow$ `pip install -r requirements.txt`
 
 ## Project Structure
 
 ```
-./
-├── documents/
-│   ├── meetings/
-│   ├── CodeConvention.md
-│   ├── data_analysis.md
-│   ├── poetry.md
-│   ├── project_ideas.md
-│   └── working_steps.md
-├── kp_test/
-│   ├── ALIPY_RANDOM/
-│   ├── ALIPY_UNCERTAINTY_ENTROPY/
-│   ├── ALIPY_UNCERTAINTY_LC/
-│   ├── ALIPY_UNCERTAINTY_MM/
-│   ├── OPTIMAL_GREEDY_10/
-│   ├── SKACTIVEML_DAL/
-│   ├── SMALLTEXT_EMBEDDINGKMEANS/
-│   ├── SMALLTEXT_LIGHTWEIGHTCORESET/
-│   ├── cluster_results/
-│   ├── datasets/
-│   ├── hpc_deploy/
-│   ├── 01_workload.csv
-│   ├── 05_done_workload.csv
-│   └── 05_started_oom_workloads.csv.xz
-├── logs/
-│   ├── app.log
-│   ├── app.log.1
-│   └── app.log.2
-├── project_code/
-│   ├── __pycache__/
-│   ├── clustering/
-│   ├── datasets/
-│   ├── project_helper/
-│   ├── side_handler/
-│   └── main.py
-├── README.md
-├── alg.txt
-├── poetry.lock
-├── pyproject.toml
-├── test.py
-└── test.txt
+
 ```
-
-- `documents/`: Contains information that has general importance for all members of the project, for example:
-
-  - a subdirectory called `meetings/` which contains a list of our all our meetings
-  - `CodeConvention.md`, a general set of rules of coding conventions which every participant of the project has to follow
-  - `data_analysis.md`, essentail details about hyperparameters, structure of files, active learning startegies and more
-
-- `kp_test/`: Contains a collection of datasets which were analysed during the process of this research project
-
-- `logs/`: Log files which contain information clustering iterations, errors and more
-
-- `project_code/`: The main essence of this project, where our - as the name already suggests - our project code resides.
-
-  - `clustering/`: All our clustering methods and clustering-related code resides within this subdirectory.
 
 ## Conclusion
