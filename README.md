@@ -3,12 +3,12 @@
 Table of Contents
 
 - [Introduction](#introduction)
-  - [Which Active Learning Strategies behave similar?](which-active-learning-strategies-behave-similar)
-  - [Which Active Learning Strategy is the best for a given scenario?](which-active-learning-strategies-is-the-best-for-a-given-scenario)
-  - [Does the first Iteration impact the final Performance?](does-the-first-iteration-impact-the-final-performance)
-- [Getting Started](getting-started)
-  - [Installation](installation)
-- [Conclusion](conclusion)
+  - [Which Active Learning Strategies behave similar?](#which-active-learning-strategies-behave-similar)
+  - [Which Active Learning Strategy is the best for a given scenario?](#which-active-learning-strategies-is-the-best-for-a-given-scenario)
+  - [Does the first Iteration impact the final Performance?](#does-the-first-iteration-impact-the-final-performance)
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+- [Conclusion](#conclusion)
 
 ## Introduction
 <a name="introduction"></a>
