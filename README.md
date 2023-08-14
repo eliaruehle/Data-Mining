@@ -1,6 +1,6 @@
 # Active Learning - Data Mining
 
-Table of Contents
+## Table of Contents
 
 - [Introduction](#introduction)
   - [Which Active Learning Strategies behave similar?](#which-active-learning-strategies-behave-similar)
@@ -58,12 +58,6 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install required packages
 pip install -r requirements.txt
-
-```
-
-## Project Structure
-
-```
 
 ```
 
