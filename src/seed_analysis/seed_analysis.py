@@ -57,11 +57,13 @@ class Seed_Analysis:
 
         return csv_files
 
-    def load_done_workload(self):
+    def load_done_workload(self) -> pd.DataFrame:
         done_workload_file = os.path.join(self.file_path, "05_done_workload.csv")
 
         if not os.path.exists(done_workload_file):
-            raise FileNotFoundError(f"The file '{done_workload_file}' does not exist.")
+            raise FileNotFoundError(
+                f"The file '{done_workload_file}' does not exist. Make sure that the '05_done_workload.csv' is within  the {self.file_path}/ directory!"
+            )
 
         done_workload = pd.read_csv(
             done_workload_file,
@@ -92,7 +94,7 @@ class Seed_Analysis:
                         df = future.result()
                         merged_df = self.merge_dataframes(df)
                     except Exception as exc:
-                        print("%r generated an exception: %s" % (file, exc))
+                        print(f"'{file}'generated an exception: '{exc}'")
                     else:
                         data_frames[metric].append((file, merged_df))
             return data_frames
@@ -466,7 +468,7 @@ class Seed_Analysis:
                                 ha="center",
                                 fontsize=22,
                                 rotation=90,
-                                fontweight="bold"
+                                fontweight="bold",
                             )
 
                         if column_name == "first":
@@ -475,18 +477,20 @@ class Seed_Analysis:
                             title = "Final Values after last Iteration"
 
                         # Set the title and labels for each subplot
-                        #plt.title(f"{metric} Histogram for {title} - {batch_size}", fontsize=20)
+                        # plt.title(f"{metric} Histogram for {title} - {batch_size}", fontsize=20)
                         plt.xlabel(f"{title}", fontsize=25, weight="bold")
                         plt.ylabel("Empirical probability", fontsize=25, weight="bold")
 
-                       # Adjust y-axis ticks and labels
+                        # Adjust y-axis ticks and labels
                         y_ticks = np.linspace(0, total_count * 0.16, num=5)
-                        y_tick_labels = ["{}%".format(int(tick / (total_count * 0.16) * 16)) for tick in y_ticks]
+                        y_tick_labels = [
+                            "{}%".format(int(tick / (total_count * 0.16) * 16))
+                            for tick in y_ticks
+                        ]
                         plt.yticks(y_ticks, y_tick_labels, fontsize=25)
                         plt.xticks(fontsize=25)
 
-
-                        #Save the figure if output_path is not None, otherwise show the plot window
+                        # Save the figure if output_path is not None, otherwise show the plot window
                         if output_path is not None:
                             plt.savefig(
                                 f"{output_path}/{metric}_batch_{batch_size}.pdf",
@@ -538,22 +542,29 @@ class Seed_Analysis:
                     percentage = "{:.1f}%".format(100 * p.get_height() / total)
                     x = p.get_x() + p.get_width() / 2
                     y = p.get_y() + p.get_height() + 100
-                    plot.annotate(percentage, (x, y), size=25, ha="center", va="bottom", rotation=90, fontweight='bold')
+                    plot.annotate(
+                        percentage,
+                        (x, y),
+                        size=25,
+                        ha="center",
+                        va="bottom",
+                        rotation=90,
+                        fontweight="bold",
+                    )
 
-
-                
-                #plt.title(
+                # plt.title(
                 #    f"Histogram for top-k Starting Values ({max_cumulative_sum}): {metric} - Batch size {batch_size}"
-                #)
-                plt.xlabel("Starting Value after first Iteration", fontsize=25, weight="bold")
+                # )
+                plt.xlabel(
+                    "Starting Value after first Iteration", fontsize=25, weight="bold"
+                )
                 plt.ylabel("Empirical probability", fontsize=25, weight="bold")
-                #plt.tight_layout()
+                # plt.tight_layout()
 
                 # set y-axis ticks and labels from 0 to 19 percent with 5 percent steps
                 y_ticks = np.linspace(0, total * 0.19, num=5)
                 y_tick_labels = [
-                    "{}%".format(int(tick / (total * 0.19) * 19))
-                    for tick in y_ticks
+                    "{}%".format(int(tick / (total * 0.19) * 19)) for tick in y_ticks
                 ]
                 plt.yticks(y_ticks, y_tick_labels, fontsize=25)
                 plt.xticks(fontsize=25)
