@@ -20,6 +20,7 @@ The `seed_analysis.py` script is designed to perform analysis on seed data. This
 
   - `plot_top_k_path`: Path to save the histograms for the top-k pairs.
 
+
 3. Configure the function parameters to tailor your analysis:
    - `hpc`: Set to `True` if you are running the analysis on a high-performance computing environment (HPC). This option generates and saves unique start and end frequency data.
    - `first_or_last`: Specify either '`first`' or '`last`' to analyze the distribution of starting or final values.
