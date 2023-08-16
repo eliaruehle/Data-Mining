@@ -5,7 +5,7 @@ The `seed_analysis.py` script is designed to perform analysis on seed data. This
 ## Usage
 
 1. Open the `seed_analysis.py` script in a text editor
-2. Locate the `run()` function in the script. This function provides various otpions for the seed analysis. Depending on your intentions, you may customize these options to suit your needs.
+2. Locate the `run()` function in the script. This function provides various options for the seed analysis. Depending on your intentions, you may customize these options to suit your needs.
 
 - **Paths and Directories**
   Inside the `run()` method, the following paths and directories are used:
