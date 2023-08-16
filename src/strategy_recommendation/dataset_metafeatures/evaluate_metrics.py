@@ -83,7 +83,7 @@ class Evaluate_Metrics:
     def calculate_normalisation_for_all_metafeatures(
         self,
         metafeatures: dict[str, np.array]
-        #normalisation_method=normalise_metrics_standard_normaliser,
+        # normalisation_method=normalise_metrics_standard_normaliser,
     ) -> dict[str, np.array]:
         """Calculate the normalisation for all metafeatures.
 
@@ -561,7 +561,7 @@ def main():
 
     # Load the Results from the Master Thesis
     other_results_df = pd.read_csv(
-        "/Users/user/GitHub/Data-Mining/src/dataset_metafeatures/results/cos_sim_mastergroup.csv"
+        "./src/dataset_metafeatures/results/cos_sim_mastergroup.csv"
     )
 
     other_results_filtered = filter_for_matching_pairs(
@@ -586,9 +586,7 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    eval_metrics = Evaluate_Metrics(
-        file_path="/Users/user/GitHub/Data-Mining/kp_test/datasets"
-    )
+    eval_metrics = Evaluate_Metrics(file_path="./kp_test/datasets")
     eval_metrics.calculate_all_metrics()
     # pprint(eval_metrics.metric.metafeatures_dict)
 

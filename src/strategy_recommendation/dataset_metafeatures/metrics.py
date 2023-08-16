@@ -5,7 +5,7 @@ from math import log2, log10
 
 import numpy as np
 import pandas as pd
-from scipy.stats import entropy, gmean, hmean, kurtosis, skew
+from scipy.stats import entropy
 from sklearn.metrics.pairwise import cosine_similarity
 
 
