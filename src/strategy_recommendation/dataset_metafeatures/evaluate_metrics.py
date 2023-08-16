@@ -81,9 +81,7 @@ class Evaluate_Metrics:
         return metafeatures_scaled.flatten()
 
     def calculate_normalisation_for_all_metafeatures(
-        self,
-        metafeatures: dict[str, np.array]
-        # normalisation_method=normalise_metrics_standard_normaliser,
+        self, metafeatures: dict[str, np.array]
     ) -> dict[str, np.array]:
         """Calculate the normalisation for all metafeatures.
 
